@@ -9,9 +9,9 @@ At the start of 2020 a new version of XLX was released that allows for native C4
 2. Have both a FQDN and 3 digit XLX number in mind before beginning.
 3. 
 ```sh
-git clone https://github.com/n5amd/xlxd-debian-installer
+git clone https://github.com/PU5KOD/xlxd-debian-installer_v2.5.3
 cd xlxd-debian-installer
-./xlxd-debian-installer.sh
+sudo bash xlxdinstaller.sh
 ```
 ## How to find what reflectors are available
 Find a current active reflector dashboard, for example, https://xlx.n5amd.com/index.php?show=reflectors and you will see the gaps in reflector numbers in the list. Those reflector numbers not listed are available. 
