@@ -115,7 +115,7 @@ wget -O /xlxd/dmrid.dat "$DMRIDURL"
 
 cp -R "$XLXINSTDIR/xlxd/dashboard/"* "$WEBDIR/"
 cp "$XLXINSTDIR/xlxd/scripts/xlxd" /etc/init.d/xlxd
-sed -i "s/XLX999 192.168.1.240 127.0.0.1/$XRFNUM $LOCAL_IP 127.0.0.1/g" /etc/init.d/xlxd
+sed -i "s/XLXXXX 172.23.127.100 127.0.0.1/$XRFNUM $LOCAL_IP 127.0.0.1/g" /etc/init.d/xlxd
 update-rc.d xlxd defaults
 
 XLXCONFIG="$WEBDIR/pgs/config.inc.php"
