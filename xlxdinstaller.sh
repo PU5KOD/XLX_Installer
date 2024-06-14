@@ -39,7 +39,7 @@ read -p "What E-Mail address can your users send questions to?  " EMAIL
 read -p "What is the admins callsign?  " CALLSIGN
 read -p "What is the Country Reflector?  " COUNTRY
 read -p "What is the Reflector Comment to display on dashboard?  " COMMENT
-read -p "Custom text on header of the dashboard webpage  " HEADER
+# read -p "Custom text on header of the dashboard webpage  " HEADER
 read -p "How many active modules does the reflector have? (1-26)  " MODQTD
 read -p "What is the number of YSF UDP port? (1-65535)  " YSFPORT
 read -p "What is the frequency of YSF Wires-X? (In Hertz, with 9 digits, ex. 433125000)  " YSFFREQ
@@ -122,7 +122,7 @@ update-rc.d xlxd defaults
 XLXCONFIG="$WEBDIR/pgs/config.inc.php"
 sed -i "s/your_email/$EMAIL/g" "$XLXCONFIG"
 sed -i "s/LX1IQ/$CALLSIGN/g" "$XLXCONFIG"
-sed -i "s/custom_header/$HEADER/g" "$XLXCONFIG"
+# sed -i "s/custom_header/$HEADER/g" "$XLXCONFIG"
 sed -i "s#http://your_dashboard#http://$XLXDOMAIN#g" "$XLXCONFIG"
 sed -i "s/your_country/$COUNTRY/g" "$XLXCONFIG"
 sed -i "s/your_comment/$COMMENT/g" "$XLXCONFIG"
