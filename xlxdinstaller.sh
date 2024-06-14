@@ -19,7 +19,7 @@ fi
 DIRDIR=$(pwd)
 LOCAL_IP=$(hostname -I | awk '{print $1}')
 INFREF="https://n5amd.com/digital-radio-how-tos/create-xlx-xrf-d-star-reflector/"
-XLXDREPO="https://github.com/LX3JL/xlxd.git"
+XLXDREPO="https://github.com/PU5KOD/xlxd.git"
 DMRIDURL="http://xlxapi.rlx.lu/api/exportdmr.php"
 WEBDIR="/var/www/xlxd"
 XLXINSTDIR="/usr/src"
