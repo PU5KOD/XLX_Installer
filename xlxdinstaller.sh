@@ -137,7 +137,7 @@ chown -R www-data:www-data "$WEBDIR/"
 # chown -R www-data:www-data /var/www/html/
 chown -R www-data:www-data /xlxd/
 
-a2ensite "$XLXDOMAIN"
+a2ensite "$XLXDOMAIN".conf
 a2dissite 000-default
 systemctl restart apache2
 systemctl start xlxd
