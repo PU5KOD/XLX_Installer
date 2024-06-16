@@ -21,9 +21,9 @@ LOCAL_IP=$(hostname -I | awk '{print $1}')
 INFREF="https://n5amd.com/digital-radio-how-tos/create-xlx-xrf-d-star-reflector/"
 XLXDREPO="https://github.com/PU5KOD/xlxd.git"
 DMRIDURL="http://xlxapi.rlx.lu/api/exportdmr.php"
-WEBDIR="/var/www/xlxd"
+WEBDIR="/var/www/html/xlxd"
 XLXINSTDIR="/usr/src"
-APPS="git git-core apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl build-essential g++"
+APPS="git git-core build-essential g++ apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl"
 
 # DATA INPUT
 clear
@@ -71,7 +71,7 @@ apt -y install $APPS
 
 if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
   echo "XLXD already compiled. Delete the following directories"
-  echo "'/usr/src/xlxd', '/xlxd', '/var/www/xlxd' and the following files"
+  echo "'/usr/src/xlxd', '/xlxd', '/var/www/html/xlxd' and the following files"
   echo "'/etc/init.d/xlxd.*', 'var/log/xlxd.*' and '/etc/apache2/sites-available/xlx*'"
   exit 1
 else
@@ -134,7 +134,7 @@ sed -i "s/apache.tbd/$XLXDOMAIN/g" /etc/apache2/sites-available/"$XLXDOMAIN".con
 sed -i "s/ysf-xlxd/html/g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 
 chown -R www-data:www-data "$WEBDIR/"
-chown -R www-data:www-data /var/www/html/
+# chown -R www-data:www-data /var/www/html/
 chown -R www-data:www-data /xlxd/
 
 a2ensite "$XLXDOMAIN"
