@@ -131,7 +131,7 @@ sed -i "s#/tmp/lastcallhome.php#/xlxd/lastcallhome.php#g" "$XLXCONFIG"
 
 cp "$DIRDIR/templates/apache.tbd.conf" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 sed -i "s/apache.tbd/$XLXDOMAIN/g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
-sed -i "s/ysf-xlxd/html/g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
+sed -i "s#ysf-xlxd#html/xlxd#g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 
 chown -R www-data:www-data "$WEBDIR/"
 # chown -R www-data:www-data /var/www/html/
