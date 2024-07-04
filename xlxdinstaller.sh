@@ -65,8 +65,8 @@ echo ""
 mkdir -p "$XLXINSTDIR"
 mkdir -p "$WEBDIR"
 
-apt -y update
-apt -y upgrade
+# apt -y update
+# apt -y upgrade
 apt -y install $APPS
 
 if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
