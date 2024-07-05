@@ -65,6 +65,10 @@ echo ""
 mkdir -p "$XLXINSTDIR"
 mkdir -p "$WEBDIR"
 
+echo "INSTALLING DEPENDENCIES..."
+echo "=========================="
+echo ""
+
 # apt -y update
 # apt -y upgrade
 apt -y install $APPS
@@ -101,13 +105,17 @@ else
 fi
 
 if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
-  echo "============================="
-  echo "| COMPILATION SUCCESSFUL!!! |"
-  echo "============================="
+  echo ""
+  echo "==============================="
+  echo "|  COMPILATION SUCCESSFUL!!!  |"
+  echo "==============================="
+  echo ""
 else
-  echo "===================================================="
-  echo "| Compilation FAILED. Check the output for errors. |"
-  echo "===================================================="
+  echo ""
+  echo "======================================================"
+  echo "|  Compilation FAILED. Check the output for errors.  |"
+  echo "======================================================"
+  echo ""
   exit 1
 fi
 
