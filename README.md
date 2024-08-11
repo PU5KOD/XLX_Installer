@@ -17,8 +17,6 @@ cd
 sudo git clone https://github.com/PU5KOD/xlxd_installer.git
 cd xlxd_installer
 sudo bash xlxdinstaller.sh
-cd /var/www/
-sudo mv xlxd/ html/
 ```
 ## How to find what reflectors are available
 Find a current active reflector dashboard, for example, https://xlx.n5amd.com/index.php?show=reflectors and you will see the gaps in reflector numbers in the list. Those reflector numbers not listed are available. 
