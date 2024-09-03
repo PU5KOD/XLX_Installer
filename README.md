@@ -26,7 +26,7 @@ cd xlxd_installer
 sudo bash xlxdinstaller.sh
 ```
 ## How to find what reflectors are available
-Find a current active reflector dashboard, for example, [here](https://xlx300.net/index.php?show=modules) and you will see the gaps in reflector numbers in the list, those reflector numbers not listed are available. 
+Find a current active reflector dashboard, [here](https://xlx300.net/index.php?show=modules) for example, and you will see the gaps in reflector numbers in the list, those reflector numbers not listed are available. 
 
 ### To interact with xlxd after installation:
 ```sh
