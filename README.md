@@ -46,7 +46,7 @@ XLX Server requires the following ports to be open and forwarded properly for in
 * TCP port 443 (https)
 TCP port 8080 (RepNet) optional
 * UDP port 10001 (json interface XLX Core)
-" UDP port 10002 (XLX interlink)
+* UDP port 10002 (XLX interlink)
 TCP port 22 (ssh)
 TCP port 10022 (Remote) optional
 UDP port 42000 (YSF protocol)
