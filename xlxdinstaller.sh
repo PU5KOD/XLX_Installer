@@ -23,7 +23,7 @@ XLXDREPO="https://github.com/PU5KOD/xlxd.git"
 DMRIDURL="http://xlxapi.rlx.lu/api/exportdmr.php"
 WEBDIR="/var/www/html/xlxd"
 XLXINSTDIR="/usr/src"
-APPS="git git-core build-essential g++ apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl"
+APPS="git git-core make build-essential g++ apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl"
 
 # DATA INPUT
 clear
