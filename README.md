@@ -2,7 +2,7 @@
 This project was writed by Daniel K. (PU5KOD) and is a fork of the one initially created by N5AMD that facilitates the installation process of the XLX reflector developed by LX3JL and many implementations have been made since then. The idea here is to offer a system that asks the user for the main information for creating the reflector as well as the respective dashboard, so when running it several variables are requested so that in the end you have an XLX reflector working without the need for intervention. Therefore what this script does is automate as many processes as possible so that the installation of the reflector and dashboard is carried out with just a few commands and with minimal user intervention. As previously mentioned, in addition to the reflector, it also installs a dashboard so you can monitor the activity in the reflector in real time.
 After installing this you will have a public D-Star/DMR/YSF XLX Reflector.
 
-The original projects can be found at the following links:
+The base projects can be found at the following links:
 - Official LX3JL refletor project and install instructions, [HERE](https://github.com/LX3JL/xlxd).
 - N5AMD installation script project basis, [HERE](https://github.com/n5amd/xlxd-debian-installer)
 
