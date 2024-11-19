@@ -6,8 +6,8 @@ The base projects can be found at the following links:
 - Official LX3JL refletor project and install instructions, [HERE](https://github.com/LX3JL/xlxd).
 - N5AMD installation script project basis, [HERE](https://github.com/n5amd/xlxd-debian-installer)
 
-At the start of 2020 a new version of XLX was released that allows for native C4FM connections. This means it's even simpler to run a multi-mode reflector. XLX now natively supports D-Star, C4FM and DMR modes. C4FM and DMR do not require any transcoding hardware (AMBE) to work together. but if you plan on using D-Star with any of the other modes you will need hardware AMBE chips, for an XLX DStar Reflector only this is not necessary.
-This script installs version 2.5.3 of the XLX reflector and version 2.4.2 of the dashboard, it has been tested and works perfectly on Debian 10, 11 and 12 and their derivatives, such as RaspiOS for Raspberry Pi and does not require many hardware resources, and can be easily run on a Raspberry Pi Zero or similar.
+At the start of 2020 a new version of XLX was released that allows for native C4FM connections, this means it's even simpler to run a multi-mode reflector. The XLX now natively supports D-Star, C4FM and DMR modes, C4FM and DMR do not require any transcoding hardware (AMBE) to work together, but if you plan on using D-Star with any of the other modes you will need hardware AMBE chips, for an XLX DStar Reflector only this is not necessary.
+This script always installs the latest version of the official LX3JL project because the installation source is the same, version 2.5.3 of the XLX reflector and version 2.4.2 of the dashboard at the time I write this, it has been tested and works perfectly on Debian 10, 11 and 12 and their derivatives such as RaspiOS for Raspberry Pi and does not require many hardware resources which can be easily run on a Raspberry Pi Zero or similar.
 
 ### Installation requirements:
 01.  A fresh Debian based computer ready and up to date;
@@ -39,9 +39,11 @@ journalctl -u xlxd.service -f -n 50
 ### Location of installation files:
  - Installs to /xlxd
  - Installation files in /usr/src/xlxd/
- - Logs are in /var/log/messages and *'systemctl status xlxd'*
- - Main config file is /var/www/html/pgs/config.inc.php
- - Dashboard files ars in /var/www/html/xlxd/
+ - Logs are in /var/log/xlxd and /var/log/messages
+ - Service at /etc/init.d/xlxd
+ - Web config file is /var/www/html/xlxd/pgs/config.inc.php
+ - Dashboard files are in /var/www/html/xlxd/
+ - Apache site path in /etc/apache2/sites-available/xlx*
 
 ## Firewall Settings:
 
@@ -62,8 +64,8 @@ XLX Server requires the following ports to be open and forwarded properly for in
 * (*) UDP port 62030 (MMDVM protocol)
 * UDP port 10100 (AMBE controller port)
 * UDP port 10101 - 10199 (AMBE transcoding port)
-* UDP port 12345 - 12346 (ICom Terminal presence and request port)
-* UDP port 40000 (Terminal DV port)
+* (*) UDP port 12345 - 12346 (ICom Terminal presence and request port)
+* (*) UDP port 40000 (Terminal DV port)
 * UDP port 21110 (Yaesu IMRS protocol)
 
 Ports marked with * are mandatory.
