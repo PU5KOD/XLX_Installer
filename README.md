@@ -7,7 +7,7 @@ The base projects can be found at the following links:
 - N5AMD installation script project basis, [HERE](https://github.com/n5amd/xlxd-debian-installer)
 
 At the start of 2020 a new version of XLX was released that allows for native C4FM connections, this means it's even simpler to run a multi-mode reflector. The XLX now natively supports D-Star, C4FM and DMR modes, C4FM and DMR do not require any transcoding hardware (AMBE) to work together, so if you plan to use D-Star with any of the other modes you will need hardware AMBE chips, however if your plan is just a DStar only reflector or a YSF/DMR reflector this is not necessary.
-This script always installs the latest version of the official LX3JL project because the installation source is the same, version 2.5.3 of the XLX reflector and version 2.4.2 of the dashboard at the time I write this, it has been tested and works perfectly on Debian 10, 11 and 12 and their derivatives such as RaspiOS for Raspberry Pi and does not require many hardware resources which can be easily run on a Raspberry Pi Zero or similar.
+This script always installs the latest version of the official LX3JL project because the installation source is the same (v_2.5.3 of the XLX reflector and v_2.4.2 of the dashboard at the time I write this), it has been tested and works perfectly on Debian 10, 11 and 12 and their derivatives such as RaspiOS for Raspberry Pi, and does not require many hardware resources which can be easily run on a Raspberry Pi Zero or similar.
 
 ### Installation requirements:
 01.  A fresh Debian based computer ready and up to date;
