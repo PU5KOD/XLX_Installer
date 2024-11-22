@@ -27,27 +27,28 @@ APPS="git git-core make build-essential g++ apache2 php libapache2-mod-php php-c
 
 # DATA INPUT
 clear
-echo "HAM Radio Multiprotocol DStar Reflector Server"
+echo "HAM Radio Multimode/Multiprotocol XLX Reflector Server"
 echo ""
-echo "REFLECTOR VARIABLE INPUT"
+echo "REFLECTOR DATA INPUT"
+echo "===================="
 echo ""
 echo "XLX uses 3 digit numbers for its reflectors. For example: 032, 999, 099."
-read -p "What 3 digit XRF number will you be using?  " XRFDIGIT
+read -p "01. What 3 digit XRF number will you be using?  " XRFDIGIT
 XRFNUM=XLX$XRFDIGIT
-read -p "What is the FQDN of the XLX Reflector dashboard? Example: xlx.domain.com.  " XLXDOMAIN
-read -p "What E-Mail address can your users send questions to?  " EMAIL
-read -p "What is the admins callsign?  " CALLSIGN
-read -p "What is the Country Reflector?  " COUNTRY
-read -p "What is the Reflector Comment to display on dashboard?  " COMMENT
-# read -p "Custom text on header of the dashboard webpage  " HEADER
-read -p "How many active modules does the reflector have? (1-26)  " MODQTD
-read -p "What is the number of YSF UDP port? (1-65535)  " YSFPORT
-read -p "What is the frequency of YSF Wires-X? (In Hertz, with 9 digits, ex. 433125000)  " YSFFREQ
-read -p "Is YSF Auto-Link enable? (1 = Yes / 0 = No)  " AUTOLINK
+read -p "02. What is the FQDN of the XLX Reflector dashboard? Example: xlx.domain.com.  " XLXDOMAIN
+read -p "03. What E-Mail address can your users send questions to?  " EMAIL
+read -p "04. What is the admins callsign?  " CALLSIGN
+read -p "05. What is the Country Reflector?  " COUNTRY
+read -p "06. What is the Reflector Comment to display on dashboard?  " COMMENT
+# read -p "06. Custom text on header of the dashboard webpage  " HEADER
+read -p "07. How many active modules does the reflector have? (1-26)  " MODQTD
+read -p "08. What is the number of YSF UDP port? (1-65535)  " YSFPORT
+read -p "09. What is the frequency of YSF Wires-X? (In Hertz, with 9 digits, ex. 433125000)  " YSFFREQ
+read -p "10. Is YSF Auto-Link enable? (1 = Yes / 0 = No)  " AUTOLINK
 VALID_MODULES=($(echo {A..Z} | cut -d' ' -f1-"$MODQTD"))
 if [ "$AUTOLINK" -eq 1 ]; then
   while true; do
-    read -p "YSF module to Auto-Link? (one of ${VALID_MODULES[*]}): " MODAUTO
+    read -p "11. YSF module to Auto-Link? (one of ${VALID_MODULES[*]}): " MODAUTO
     MODAUTO=$(echo "$MODAUTO" | tr '[:lower:]' '[:upper:]')
     if [[ " ${VALID_MODULES[@]} " =~ " $MODAUTO " ]]; then
       break
@@ -62,6 +63,7 @@ echo "UPDATING OS..."
 echo "=============="
 echo ""
 
+apt update && apt full-upgrade -y
 mkdir -p "$XLXINSTDIR"
 mkdir -p "$WEBDIR"
 
@@ -69,8 +71,6 @@ echo "INSTALLING DEPENDENCIES..."
 echo "=========================="
 echo ""
 
-# apt -y update
-# apt -y upgrade
 apt -y install $APPS
 
 if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
@@ -142,7 +142,6 @@ sed -i "s/apache.tbd/$XLXDOMAIN/g" /etc/apache2/sites-available/"$XLXDOMAIN".con
 sed -i "s#ysf-xlxd#html/xlxd#g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 
 chown -R www-data:www-data "$WEBDIR/"
-# chown -R www-data:www-data /var/www/html/
 chown -R www-data:www-data /xlxd/
 
 a2ensite "$XLXDOMAIN".conf
@@ -150,11 +149,15 @@ a2dissite 000-default
 systemctl restart apache2
 systemctl start xlxd
 
-echo "========================================================================================="
-echo "XLXD is finished installing and ready to be used."
+echo "=============================================================================================="
+echo "$XRFNUM is now installed and ready to use."
 echo "For Public Reflectors:"
-echo "If your XLX number is not already taken, enabling callinghome is all you need to do."
+echo "If your chosen XLX Reflector number is available, it is expected to be listed"
+echo "on the public Reflector list shortly, typically within a little over an hour.."
+echo "If you do not want the Reflector to be published just set callinghome"
+echo "to false in the main file in $XLXCONFIG."
+echo "Many other settings can be changed in this file."
 echo "More Information: $INFREF"
 echo "Your $XRFNUM dashboard should now be accessible at http://$XLXDOMAIN"
-echo "You can make further customizations to the main config file $XLXCONFIG."
-echo "========================================================================================="
+echo "To get your site on https:// visit certbot.eff.org"
+echo "=============================================================================================="
