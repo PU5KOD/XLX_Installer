@@ -10,15 +10,15 @@ At the start of 2020 a new version of XLX was released that allows for native C4
 This script always installs the latest version of the official LX3JL project because the installation source is the same (v_2.5.3 of the XLX reflector and v_2.4.2 of the dashboard at the time I write this), it has been tested and works perfectly on Debian 10, 11 and 12 and their derivatives such as RaspiOS for Raspberry Pi, and does not require many hardware resources which can be easily run on a Raspberry Pi Zero or similar.
 
 ### Installation requirements:
-01.  A fresh Debian based computer ready and up to date;
+01.  A Debian based computer or VPS (Google VM, Amazon VPS, etc...) ready and up to date;
 02.  A stable internet connection with a fixed public IP;
-03.  Ability to redirect some ports to the server;
+03.  Ability to manage the Firewall to redirect ports;
 04.  Have a FQDN to dashboard, like xlx300.net;
 05.  A free 3 digit XLX sufix, both numbers and letters can be used;
 06.  An administrator e-mail address;
-07.  A Gateway callsign;
-08.  Number of active modules;
-09.  YSF UDP port;
+07.  An administrator gateway callsign;
+08.  How many modules will be activated;
+09.  An YSF UDP port to be used (default is 42000);
 10.  Wires-X GW frequency.
    
 ```sh
@@ -49,23 +49,23 @@ journalctl -u xlxd.service -f -n 50
 
 XLX Server requires the following ports to be open and forwarded properly for in- and outgoing network traffic:
 
-* (*) TCP port 80 (http)
-* (*) TCP port 443 (https)
-* TCP port 8080 (RepNet) optional
-* (*) UDP port 10001 (json interface XLX Core)
-* (*) UDP port 10002 (XLX interlink)
 * TCP port 22 (ssh)
-* TCP port 10022 (Remote) optional
-* UDP port 42000 (YSF protocol)
-* (*) UDP port 30001 (DExtra protocol)
-* (*) UPD port 20001 (DPlus protocol)
-* (*) UDP port 30051 (DCS protocol)
+* TCP port 80 (http) *
+* TCP port 443 (https)
+* TCP port 8080 (RepNet) optional
 * UDP port 8880 (DMR+ DMO mode)
-* (*) UDP port 62030 (MMDVM protocol)
+* UDP port 10001 (json interface XLX Core) *
+* UDP port 10002 (XLX interlink) *
+* TCP port 10022 (Remote) optional
 * UDP port 10100 (AMBE controller port)
 * UDP port 10101 - 10199 (AMBE transcoding port)
-* (*) UDP port 12345 - 12346 (ICom Terminal presence and request port)
-* (*) UDP port 40000 (Terminal DV port)
+* UDP port 12345 - 12346 (ICom Terminal presence and request port) *
+* UPD port 20001 (DPlus protocol) *
 * UDP port 21110 (Yaesu IMRS protocol)
+* UDP port 30001 (DExtra protocol) *
+* UDP port 30051 (DCS protocol) *
+* UDP port 40000 (Terminal DV port) *
+* UDP port 42000 (YSF protocol)
+* UDP port 62030 (MMDVM protocol)
 
 Ports marked with * are mandatory.
