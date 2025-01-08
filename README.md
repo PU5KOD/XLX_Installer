@@ -43,7 +43,7 @@ When running the above last command the process will start and some questions wi
 
 * The last question will only be asked if the answer to the previous one is positive.
 
-After this the process of installation will be started, at the end the server will already be ready to run, however you will still need to make the firewall adjustment to redirect the ports as described below.
+After this the process of installation will be started, at the end the server will be RUNNING and ready to accept connections, however you will still need to make the firewall adjustment to redirect the ports as described below.
 
 If you want Reflector to be listed on YSF hosts go to [THIS](https://register.ysfreflector.de/register) website and follow the instructions for inclusion.
 
