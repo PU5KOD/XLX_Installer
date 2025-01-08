@@ -14,26 +14,51 @@ This script always installs the latest version of the official LX3JL project bec
 02.  A stable internet connection with a fixed public IP;
 03.  Ability to manage the Firewall to redirect ports;
 04.  Have a FQDN to dashboard, like xlx300.net;
-05.  A free 3 digit XLX sufix, both numbers and letters can be used;
+05.  A free 3 digit XLX sufix, both numbers and letters can be used (look at the section below);
 06.  An administrator e-mail address;
 07.  An administrator gateway callsign;
 08.  How many modules will be activated;
-09.  An YSF UDP port to be used (default is 42000);
-10.  Wires-X GW frequency.
-   
+09.  An YSF UDP port to be used;
+10.  Wires-X gateway frequency.
+
+### How to find what reflectors are available:
+Find a current active reflector dashboard [here](https://xlx300.net/index.php?show=reflectors) and you will see the gaps in reflector numbers in the list, those reflector numbers not listed are available. 
+
+### Installing the server:
+Access the server terminal and run the sequence of commands below:
 ```sh
 cd
 sudo git clone https://github.com/PU5KOD/xlxd_installer.git
 cd xlxd_installer
 sudo bash xlxdinstaller.sh
 ```
-### How to find what reflectors are available:
-Find a current active reflector dashboard [here](https://xlx300.net/index.php?show=reflectors) and you will see the gaps in reflector numbers in the list, those reflector numbers not listed are available. 
+When running the above last command the process will start and some questions will be asked, in the following sequence:
+1. What are the 3 digits of the XLX reflector that will be used?
+2. What is the web address (FQDN) of the Reflector dashboard? Example: xlx.domain.com
+3. To what e-mail address your users can send questions to?
+4. What is the Reflector administrator’s callsign?
+5. Which country of the reflector?
+6. How many active modules does the reflector have? (1-26)
+7. What is the YSF UDP port number? (default 42000)
+8. What is the frequency of YSF Wires-X? (In Hertz, with 9 digits, ex. 433125000)
+9. Is YSF auto-link enable? (1 = Yes / 0 = No)
+10. What YSF module to be auto-link? (*)
+
+(*) The last question will only be asked if the answer to the previous one is positive.
+
+After this the process of installation will be started, at the end the server will already be ready to run, you will be able to interact with it as demonstrated below.
 
 ### To interact with xlxd after installation:
+To <b>start</b>, <b>stop</b>, <b>restart</b>, or verify the <b>status</b> of the application use one of the corresponding commands:
 ```sh
-sudo systemctl start|stop|status|restart xlxd.service
-journalctl -u xlxd.service -f -n 50
+sudo systemctl start xlxd.service
+sudo systemctl stop xlxd.service
+sudo systemctl restart xlxd.service
+sudo systemctl status xlxd.service
+```
+And to check the process by running live use the command below:
+```sh
+sudo journalctl -u xlxd.service -f -n 50
 ```
 
 ### Location of installation files:
