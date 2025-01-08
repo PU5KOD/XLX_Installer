@@ -24,7 +24,7 @@ This script always installs the latest version of the official LX3JL project bec
 ### How to find what reflectors are available:
 Find a current active reflector dashboard [here](https://xlx300.net/index.php?show=reflectors) and you will see the gaps in reflector numbers in the list, those reflector numbers not listed are available. 
 
-### Installing the server:
+## Installing the server:
 Access the server terminal and run the sequence of commands below:
 ```sh
 cd
@@ -42,37 +42,15 @@ When running the above last command the process will start and some questions wi
 7. What is the YSF UDP port number? (default 42000)
 8. What is the frequency of YSF Wires-X? (In Hertz, with 9 digits, ex. 433125000)
 9. Is YSF auto-link enable? (1 = Yes / 0 = No)
-10. What YSF module to be auto-link? (*)
+10. What YSF module to be auto-link? *
 
-(*) The last question will only be asked if the answer to the previous one is positive.
+* The last question will only be asked if the answer to the previous one is positive.
 
-After this the process of installation will be started, at the end the server will already be ready to run, you will be able to interact with it as demonstrated below.
+After this the process of installation will be started, at the end the server will already be ready to run, however you will still need to make the firewall adjustment to redirect the ports as described below.
 
-### To interact with xlxd after installation:
-To <b>start</b>, <b>stop</b>, <b>restart</b>, or verify the <b>status</b> of the application use one of the corresponding commands:
-```sh
-sudo systemctl start xlxd.service
-sudo systemctl stop xlxd.service
-sudo systemctl restart xlxd.service
-sudo systemctl status xlxd.service
-```
-And to check the process by running live use the command below:
-```sh
-sudo journalctl -u xlxd.service -f -n 50
-```
+### Firewall Settings:
 
-### Location of installation files:
- - Installs to /xlxd
- - Installation files in /usr/src/xlxd/
- - Logs are in /var/log/xlxd and /var/log/messages
- - Service at /etc/init.d/xlxd
- - Web config file is /var/www/html/xlxd/pgs/config.inc.php
- - Dashboard files are in /var/www/html/xlxd/
- - Apache site path in /etc/apache2/sites-available/xlx*
-
-## Firewall Settings:
-
-XLX Server requires the following ports to be open and forwarded properly for in- and outgoing network traffic:
+Once the installation is complete, it will be necessary to redirect some ports to the server, XLX Server requires the following ports to be open and forwarded properly for in and outgoing network traffic:
 
 * TCP port 22 (ssh)
 * TCP port 80 (http) *
@@ -94,3 +72,27 @@ XLX Server requires the following ports to be open and forwarded properly for in
 * UDP port 62030 (MMDVM protocol)
 
 Ports marked with * are mandatory.
+
+### Location of installation files:
+ - Installs to /xlxd
+ - Installation files in /usr/src/xlxd/
+ - Logs are in /var/log/xlxd and /var/log/messages
+ - Service at /etc/init.d/xlxd
+ - Web config file is /var/www/html/xlxd/pgs/config.inc.php
+ - Dashboard files are in /var/www/html/xlxd/
+ - Apache site path in /etc/apache2/sites-available/xlx*
+
+## To interact with xlxd after installation:
+To <b>start</b>, <b>stop</b>, <b>restart</b>, or verify the <b>status</b> of the application use one of the corresponding commands:
+```sh
+sudo systemctl start xlxd.service
+sudo systemctl stop xlxd.service
+sudo systemctl restart xlxd.service
+sudo systemctl status xlxd.service
+```
+And to check the process by running live use the command below:
+```sh
+sudo journalctl -u xlxd.service -f -n 50
+```
+
+### And that's it!
