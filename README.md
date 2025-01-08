@@ -22,7 +22,7 @@ This script always installs the latest version of the official LX3JL project bec
 Find a current active reflector dashboard [here](https://xlx300.net/index.php?show=reflectors) and you will see the gaps in reflector numbers in the list, those reflector numbers not listed are available. 
 
 ## Installing the server
-Access the server terminal and run the sequence of commands below, one by one:
+* Access the server terminal and run the sequence of commands below, one by one:
 ```sh
 cd
 sudo git clone https://github.com/PU5KOD/xlxd_installer.git
@@ -41,36 +41,36 @@ When running the above last command the process will start and some questions wi
 9. Is YSF auto-link enable? (1 = Yes / 0 = No)
 10. What YSF module to be auto-link? *
 
-* The last question will only be asked if the answer to the previous one is positive.
+(*) The last question will only be asked if the answer to the previous one is positive.
 
-After this the process of installation will be started, at the end the server will be RUNNING and ready to accept connections, however you will still need to make the firewall adjustment to redirect the ports as described below.
+* After this the process of installation will be started, at the end the server will be RUNNING and ready to accept connections, however you will still need to make the firewall adjustment to redirect the ports as described below.
 
-If you want Reflector to be listed on YSF hosts go to [THIS](https://register.ysfreflector.de/register) website and follow the instructions for inclusion.
+* If you want Reflector to be listed on YSF hosts go to [THIS](https://register.ysfreflector.de/register) website and follow the instructions for inclusion.
+
+* And if you want your dashboard website to obtain https certification, check the [certbot](https://certbot.eff.org) website and follow the instructions, the procedure is simple and quick (requires TCP ports 80 and 443 already properly redirected).
 
 ### Firewall Settings:
 
 Once the installation is complete, it will be necessary to redirect some ports to the server, XLX Server requires the following ports to be open and forwarded properly for in and outgoing network traffic:
 
 * TCP port 22 (ssh)
-* TCP port 80 (http) *
+* TCP port 80 (http)
 * TCP port 443 (https)
 * TCP port 8080 (RepNet) optional
 * UDP port 8880 (DMR+ DMO mode)
-* UDP port 10001 (json interface XLX Core) *
-* UDP port 10002 (XLX interlink) *
+* UDP port 10001 (json interface XLX Core)
+* UDP port 10002 (XLX interlink)
 * TCP port 10022 (Remote) optional
 * UDP port 10100 (AMBE controller port)
 * UDP port 10101 - 10199 (AMBE transcoding port)
-* UDP port 12345 - 12346 (ICom Terminal presence and request port) *
-* UPD port 20001 (DPlus protocol) *
+* UDP port 12345 - 12346 (ICom Terminal presence and request port)
+* UPD port 20001 (DPlus protocol)
 * UDP port 21110 (Yaesu IMRS protocol)
-* UDP port 30001 (DExtra protocol) *
-* UDP port 30051 (DCS protocol) *
-* UDP port 40000 (Terminal DV port) *
+* UDP port 30001 (DExtra protocol)
+* UDP port 30051 (DCS protocol)
+* UDP port 40000 (Terminal DV port)
 * UDP port 42000 (YSF protocol)
 * UDP port 62030 (MMDVM protocol)
-
-Ports marked with * are mandatory.
 
 ### Location of installation files:
  - Installs to /xlxd
@@ -95,9 +95,10 @@ sudo journalctl -u xlxd.service -f -n 50
 ```
 
 ## Related authors
-The base projects can be found at the following links:
+The base projects and related authors can be found at the following links:
 - Official LX3JL refletor project and install instructions, [HERE](https://github.com/LX3JL/xlxd)
 - N5AMD installation script project basis, [HERE](https://github.com/n5amd/xlxd-debian-installer)
 - DG9VH  Kim Huebel YSF Reflector project, [HERE](https://register.ysfreflector.de/)
+- Project that offers free https certification,, [HERE](https://certbot.eff.org/)
 - This one who speaks to you, [HERE](https://www.qrz.com/db/PU5KOD)
-  
+
