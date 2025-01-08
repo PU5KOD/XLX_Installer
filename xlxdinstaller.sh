@@ -32,12 +32,12 @@ echo ""
 echo "REFLECTOR DATA INPUT"
 echo "===================="
 echo ""
-echo "XLX uses 3 digit numbers for its reflectors. For example: 032, 999, 099."
+echo "XLX uses 3 digit for its reflectors. For example: 032, 099, USA, BRA, US1..."
 read -p "01. What are the 3 digits of the XLX reflector that will be used?  " XRFDIGIT
 XRFNUM=XLX$XRFDIGIT
-read -p "02. What is the web address (FQDN) of the Reflector dashboard? Example: xlx.domain.com  " XLXDOMAIN
+read -p "02. What is the web address (FQDN) of the reflector dashboard? Example: xlx.domain.com  " XLXDOMAIN
 read -p "03. To what e-mail address your users can send questions to?  " EMAIL
-read -p "04. What is the Reflector administrator’s callsign?  " CALLSIGN
+read -p "04. What is the reflector administrator’s callsign?  " CALLSIGN
 read -p "05. Which country of the reflector?  " COUNTRY
 # read -p "06. What is the Reflector Comment to display on dashboard?  " COMMENT
 # read -p "06. Custom text on header of the dashboard webpage  " HEADER
