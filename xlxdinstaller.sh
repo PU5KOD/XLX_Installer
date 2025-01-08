@@ -33,22 +33,22 @@ echo "REFLECTOR DATA INPUT"
 echo "===================="
 echo ""
 echo "XLX uses 3 digit numbers for its reflectors. For example: 032, 999, 099."
-read -p "01. What 3 digit XRF number will you be using?  " XRFDIGIT
+read -p "01. What are the 3 digits of the XLX reflector that will be used?  " XRFDIGIT
 XRFNUM=XLX$XRFDIGIT
-read -p "02. What is the FQDN of the XLX Reflector dashboard? Example: xlx.domain.com.  " XLXDOMAIN
-read -p "03. What E-Mail address can your users send questions to?  " EMAIL
-read -p "04. What is the admins callsign?  " CALLSIGN
-read -p "05. What is the Country Reflector?  " COUNTRY
-read -p "06. What is the Reflector Comment to display on dashboard?  " COMMENT
+read -p "02. What is the web address (FQDN) of the Reflector dashboard? Example: xlx.domain.com  " XLXDOMAIN
+read -p "03. To what e-mail address your users can send questions to?  " EMAIL
+read -p "04. What is the Reflector administrator’s callsign?  " CALLSIGN
+read -p "05. Which country of the reflector?  " COUNTRY
+# read -p "06. What is the Reflector Comment to display on dashboard?  " COMMENT
 # read -p "06. Custom text on header of the dashboard webpage  " HEADER
-read -p "07. How many active modules does the reflector have? (1-26)  " MODQTD
-read -p "08. What is the number of YSF UDP port? (1-65535)  " YSFPORT
-read -p "09. What is the frequency of YSF Wires-X? (In Hertz, with 9 digits, ex. 433125000)  " YSFFREQ
-read -p "10. Is YSF Auto-Link enable? (1 = Yes / 0 = No)  " AUTOLINK
+read -p "06. How many active modules does the reflector have? (1-26)  " MODQTD
+read -p "07. What is the YSF UDP port number? (1-65535 / default 42000)  " YSFPORT
+read -p "08. What is the frequency of YSF Wires-X? (In Hertz, with 9 digits, ex. 433125000)  " YSFFREQ
+read -p "09. Is YSF auto-link enable? (1 = Yes / 0 = No)  " AUTOLINK
 VALID_MODULES=($(echo {A..Z} | cut -d' ' -f1-"$MODQTD"))
 if [ "$AUTOLINK" -eq 1 ]; then
   while true; do
-    read -p "11. YSF module to Auto-Link? (one of ${VALID_MODULES[*]}): " MODAUTO
+    read -p "10. What YSF module to be auto-link? (one of ${VALID_MODULES[*]}): " MODAUTO
     MODAUTO=$(echo "$MODAUTO" | tr '[:lower:]' '[:upper:]')
     if [[ " ${VALID_MODULES[@]} " =~ " $MODAUTO " ]]; then
       break
@@ -133,7 +133,7 @@ sed -i "s/LX1IQ/$CALLSIGN/g" "$XLXCONFIG"
 # sed -i "s/custom_header/$HEADER/g" "$XLXCONFIG"
 sed -i "s#http://your_dashboard#http://$XLXDOMAIN#g" "$XLXCONFIG"
 sed -i "s/your_country/$COUNTRY/g" "$XLXCONFIG"
-sed -i "s/your_comment/$COMMENT/g" "$XLXCONFIG"
+# sed -i "s/your_comment/$COMMENT/g" "$XLXCONFIG"
 sed -i "s#/tmp/callinghome.php#/xlxd/callinghome.php#g" "$XLXCONFIG"
 sed -i "s#/tmp/lastcallhome.php#/xlxd/lastcallhome.php#g" "$XLXCONFIG"
 
