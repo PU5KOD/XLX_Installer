@@ -1,15 +1,12 @@
 # XLX Debian Installer
-This project was writed by Daniel K. (PU5KOD) and is a fork of the one initially created by N5AMD that facilitates the installation process of the XLX reflector developed by LX3JL and many implementations have been made since then. The idea here is to offer a system that asks the user for the main information for creating the reflector as well as the respective dashboard, so when running it several variables are requested so that in the end you have an XLX reflector working without the need for intervention. Therefore what this script does is automate as many processes as possible so that the installation of the reflector and dashboard is carried out with just a few commands and with minimal user intervention. As previously mentioned, in addition to the reflector, it also installs a dashboard so you can monitor the activity in the reflector in real time.
-After installing this you will have a public D-Star/DMR/YSF XLX Reflector.
+This project was writed by Daniel K. [PU5KOD](https://www.qrz.com/db/PU5KOD) and is a fork of the one initially created by [N5AMD](https://github.com/n5amd/xlxd-debian-installer) that facilitates the installation process of the XLX reflector developed by [LX3JL](https://github.com/LX3JL/xlxd) and many implementations have been made since then. The idea here is to offer a system that asks the user for the main information for creating the reflector as well as the respective dashboard, so when running it several variables are requested so that in the end you have an XLX reflector working without the need for intervention. Therefore what this script does is automate as many processes as possible so that the installation of the reflector and dashboard is carried out with just a few commands and with minimal user intervention. As previously mentioned, in addition to the reflector, it also installs a dashboard so you can monitor the activity in the reflector in real time.
 
-The base projects can be found at the following links:
-- Official LX3JL refletor project and install instructions, [HERE](https://github.com/LX3JL/xlxd).
-- N5AMD installation script project basis, [HERE](https://github.com/n5amd/xlxd-debian-installer)
-
-At the start of 2020 a new version of XLX was released that allows for native C4FM connections, this means it's even simpler to run a multi-mode reflector. The XLX now natively supports D-Star, C4FM and DMR modes, C4FM and DMR do not require any transcoding hardware (AMBE) to work together, so if you plan to use D-Star with any of the other modes you will need hardware AMBE chips, however if your plan is just a DStar only reflector or a YSF/DMR reflector this is not necessary.
+At the start of 2020 a new version of XLX was released that allows for native C4FM connections, this means it's even simpler to run a multi-mode reflector. The XLX now natively supports D-Star, C4FM and DMR modes, between C4FM and DMR do not require any transcoding hardware (AMBE) to work together, so if you plan to use D-Star with any of the other modes you will need hardware AMBE chips, however if your plan is just a DStar only reflector OR a YSF/DMR reflector this is not necessary.
 This script always installs the latest version of the official LX3JL project because the installation source is the same (v_2.5.3 of the XLX reflector and v_2.4.2 of the dashboard at the time I write this), it has been tested and works perfectly on Debian 10, 11 and 12 and their derivatives such as RaspiOS for Raspberry Pi, and does not require many hardware resources which can be easily run on a Raspberry Pi Zero or similar.
 
-### Installation requirements:
+<b>After installing this you will have a public D-Star/YSF/DMR XLX Reflector.</b>
+
+## Installation requirements
 01.  A Debian based computer or VPS (Google VM, Amazon VPS, etc...) ready and up to date;
 02.  A stable internet connection with a fixed public IP;
 03.  Ability to manage the Firewall to redirect ports;
@@ -24,8 +21,8 @@ This script always installs the latest version of the official LX3JL project bec
 ### How to find what reflectors are available:
 Find a current active reflector dashboard [here](https://xlx300.net/index.php?show=reflectors) and you will see the gaps in reflector numbers in the list, those reflector numbers not listed are available. 
 
-## Installing the server:
-Access the server terminal and run the sequence of commands below:
+## Installing the server
+Access the server terminal and run the sequence of commands below, one by one:
 ```sh
 cd
 sudo git clone https://github.com/PU5KOD/xlxd_installer.git
@@ -47,6 +44,8 @@ When running the above last command the process will start and some questions wi
 * The last question will only be asked if the answer to the previous one is positive.
 
 After this the process of installation will be started, at the end the server will already be ready to run, however you will still need to make the firewall adjustment to redirect the ports as described below.
+
+If you want Reflector to be listed on YSF hosts go to [THIS](https://register.ysfreflector.de/register) website and follow the instructions for inclusion.
 
 ### Firewall Settings:
 
@@ -82,7 +81,7 @@ Ports marked with * are mandatory.
  - Dashboard files are in /var/www/html/xlxd/
  - Apache site path in /etc/apache2/sites-available/xlx*
 
-## To interact with xlxd after installation:
+## To interact with XLX after installation
 To <b>start</b>, <b>stop</b>, <b>restart</b>, or verify the <b>status</b> of the application use one of the corresponding commands:
 ```sh
 sudo systemctl start xlxd.service
@@ -95,4 +94,10 @@ And to check the process by running live use the command below:
 sudo journalctl -u xlxd.service -f -n 50
 ```
 
-### And that's it!
+## Related authors
+The base projects can be found at the following links:
+- Official LX3JL refletor project and install instructions, [HERE](https://github.com/LX3JL/xlxd)
+- N5AMD installation script project basis, [HERE](https://github.com/n5amd/xlxd-debian-installer)
+- DG9VH  Kim Huebel YSF Reflector project, [HERE](https://register.ysfreflector.de/)
+- This one who speaks to you, [HERE](https://www.qrz.com/db/PU5KOD)
+  
