@@ -60,7 +60,6 @@ Once the installation is complete, it will be necessary to redirect some ports t
 * UDP port 8880 (DMR+ DMO mode)
 * UDP port 10001 (json interface XLX Core)
 * UDP port 10002 (XLX interlink)
-* TCP port 10022 (Remote) optional
 * UDP port 10100 (AMBE controller port)
 * UDP port 10101 - 10199 (AMBE transcoding port)
 * UDP port 12345 - 12346 (ICom Terminal presence and request port)
