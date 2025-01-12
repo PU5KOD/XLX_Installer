@@ -64,13 +64,12 @@ echo "=============="
 echo ""
 
 apt update && apt full-upgrade -y
-mkdir -p "$XLXINSTDIR"
-mkdir -p "$WEBDIR"
 
 echo "INSTALLING DEPENDENCIES..."
 echo "=========================="
 echo ""
 
+mkdir -p "$XLXINSTDIR"
 apt -y install $APPS
 
 if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
@@ -120,6 +119,8 @@ else
 fi
 
 mkdir -p /xlxd
+mkdir -p "$WEBDIR"
+touch /var/log/xlxd.xml
 wget -O /xlxd/dmrid.dat "$DMRIDURL"
 
 cp -R "$XLXINSTDIR/xlxd/dashboard/"* "$WEBDIR/"
@@ -141,12 +142,14 @@ cp "$DIRDIR/templates/apache.tbd.conf" /etc/apache2/sites-available/"$XLXDOMAIN"
 sed -i "s/apache.tbd/$XLXDOMAIN/g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 sed -i "s#ysf-xlxd#html/xlxd#g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 
+chown -R www-data:www-data /var/log/xlxd.xml
 chown -R www-data:www-data "$WEBDIR/"
 chown -R www-data:www-data /xlxd/
 
 /usr/sbin/a2ensite "$XLXDOMAIN".conf
 /usr/sbin/a2dissite 000-default
 systemctl restart apache2
+systemctl daemon-reload
 systemctl start xlxd
 
 echo "=============================================================================================="
