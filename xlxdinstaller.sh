@@ -149,7 +149,7 @@ chown -R www-data:www-data /xlxd/
 
 /usr/sbin/a2ensite "$XLXDOMAIN".conf
 /usr/sbin/a2dissite 000-default
-systemctl restart apache2
+systemctl reload apache2
 systemctl daemon-reload
 echo ""
 echo "STARTING $XRFNUM REFLECTOR..."
