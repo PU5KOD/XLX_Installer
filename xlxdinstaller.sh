@@ -65,6 +65,7 @@ echo ""
 
 apt update && apt full-upgrade -y
 
+echo ""
 echo "INSTALLING DEPENDENCIES..."
 echo "=========================="
 echo ""
@@ -150,17 +151,22 @@ chown -R www-data:www-data /xlxd/
 /usr/sbin/a2dissite 000-default
 systemctl restart apache2
 systemctl daemon-reload
+echo ""
+echo "STARTING $XRFNUM REFLECTOR..."
+echo "============================="
+echo ""
 systemctl start xlxd
 
+echo ""
 echo "=============================================================================================="
-echo "$XRFNUM is now installed and ready to use."
+echo "Your Reflector $XRFNUM is now installed and running."
 echo "For Public Reflectors:"
-echo "If your XLX number is available it is expected to be listed"
+echo "If your XLX number is available it's expected to be listed"
 echo "on the public list shortly, typically within an hour."
-echo "If you do not want the Reflector to be published just set callinghome"
-echo "to false in the main file in $XLXCONFIG."
+echo "If you don't want the Reflector to be published just set callinghome"
+echo "to -false- in the main file in $XLXCONFIG."
 echo "Many other settings can be changed in this file."
 echo "More Information: $INFREF"
 echo "Your $XRFNUM dashboard should now be accessible at http://$XLXDOMAIN"
-echo "To get your site on https:// visit certbot.eff.org"
+echo "To get your site certified with https visit certbot.eff.org"
 echo "=============================================================================================="
