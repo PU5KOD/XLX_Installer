@@ -125,7 +125,7 @@ wget -O /xlxd/dmrid.dat "$DMRIDURL"
 cp -R "$XLXINSTDIR/xlxd/dashboard/"* "$WEBDIR/"
 cp "$XLXINSTDIR/xlxd/scripts/xlxd" /etc/init.d/xlxd
 sed -i "s/XLXXXX 172.23.127.100 127.0.0.1/$XRFNUM $LOCAL_IP 127.0.0.1/g" /etc/init.d/xlxd
-update-rc.d xlxd defaults
+/usr/sbin/update-rc.d xlxd defaults
 
 XLXCONFIG="$WEBDIR/pgs/config.inc.php"
 sed -i "s/your_email/$EMAIL/g" "$XLXCONFIG"
@@ -144,8 +144,8 @@ sed -i "s#ysf-xlxd#html/xlxd#g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 chown -R www-data:www-data "$WEBDIR/"
 chown -R www-data:www-data /xlxd/
 
-a2ensite "$XLXDOMAIN".conf
-a2dissite 000-default
+/usr/sbin/a2ensite "$XLXDOMAIN".conf
+/usr/sbin/a2dissite 000-default
 systemctl restart apache2
 systemctl start xlxd
 
