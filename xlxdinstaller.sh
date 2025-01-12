@@ -166,6 +166,7 @@ echo ""
 echo "STARTING $XRFNUM REFLECTOR..."
 echo "============================"
 echo ""
+systemctl enable xlxd
 systemctl start xlxd
 
 echo ""
