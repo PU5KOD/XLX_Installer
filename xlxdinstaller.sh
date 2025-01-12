@@ -119,11 +119,18 @@ else
   exit 1
 fi
 
+echo ""
+echo "COPYING FILES..."
+echo "================"
+echo ""
 mkdir -p /xlxd
 mkdir -p "$WEBDIR"
 touch /var/log/xlxd.xml
 wget -O /xlxd/dmrid.dat "$DMRIDURL"
-
+echo ""
+echo "INSTALLING DASHBOARD..."
+echo "======================="
+echo ""
 cp -R "$XLXINSTDIR/xlxd/dashboard/"* "$WEBDIR/"
 cp "$XLXINSTDIR/xlxd/scripts/xlxd" /etc/init.d/xlxd
 sed -i "s/XLXXXX 172.23.127.100 127.0.0.1/$XRFNUM $LOCAL_IP 127.0.0.1/g" /etc/init.d/xlxd
@@ -152,8 +159,12 @@ chown -R www-data:www-data /xlxd/
 systemctl reload apache2
 systemctl daemon-reload
 echo ""
+echo "========================================="
+echo "|  REFLECTOR INSTALLED SUCCESSFULLY!!!  |"
+echo "========================================="
+echo ""
 echo "STARTING $XRFNUM REFLECTOR..."
-echo "============================="
+echo "============================"
 echo ""
 systemctl start xlxd
 
