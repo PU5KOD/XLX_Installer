@@ -27,7 +27,8 @@ Find a current active reflector dashboard [here](https://xlx300.net/index.php?sh
 cd
 sudo git clone https://github.com/PU5KOD/xlxd_installer.git
 cd xlxd_installer
-sudo bash xlxdinstaller.sh
+sudo chmod +x xlxdinstaller.sh
+sudo ./xlxdinstaller.sh
 ```
 When running the above last command the process will start and some questions will be asked, in the following sequence:
 1. What are the 3 digits of the XLX reflector that will be used?
