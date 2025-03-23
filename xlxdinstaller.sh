@@ -6,14 +6,14 @@
 
 # root user check
 if [ "$(whoami)" != "root" ]; then
-  echo "You must be root to run this script!"
-  exit 1
+    echo "You must be root to run this script!"
+    exit 1
 fi
 
 # Distro check
 if [ ! -e "/etc/debian_version" ]; then
-  echo "This script is only tested on Debian-based distributions."
-  exit 1
+    echo "This script is only tested on Debian-based distributions."
+    exit 1
 fi
 
 DIRDIR=$(pwd)
@@ -32,36 +32,115 @@ echo ""
 echo "REFLECTOR DATA INPUT"
 echo "===================="
 echo ""
-echo "XLX uses 3 digit for its reflectors. For example: 032, 099, USA, BRA, US1..."
-read -r -p "01. What are the 3 digits of the XLX reflector that will be used?  " XRFDIGIT
+while true; do
+    echo "Mandatory"
+    read -r -p "01. What are the 3 digits of the XLX reflector that will be used? (ex: 300, US1, BRA) " XRFDIGIT
+    if [ -z "$XRFDIGIT" ]; then
+        echo "Error: This field is mandatory and cannot be empty. Try again!"
+    else
+        XRFDIGIT=$(echo "$XRFDIGIT" | tr '[:lower:]' '[:upper:]')
+        if [[ "$XRFDIGIT" =~ ^[A-Z0-9]{3}$ ]]; then
+            break
+        else
+            echo "Error: Must be exactly 3 alphanumeric characters (e.g., 032, USA, BRA). Try again!"
+        fi
+    fi
+done
 XRFNUM=XLX$XRFDIGIT
-read -r -p "02. What is the web address (FQDN) of the reflector dashboard? Example: xlx.domain.com  " XLXDOMAIN
-read -r -p "03. To what e-mail address your users can send questions to?  " EMAIL
-read -r -p "04. What is the reflector administrator’s callsign?  " CALLSIGN
-read -r -p "05. Which country of the reflector?  " COUNTRY
-read -r -p "06. What is the Reflector Comment to display on dashboard?  " COMMENT
-read -r -p "07. Custom text on header of the dashboard webpage  " HEADER
-read -r -p "08. How many active modules does the reflector have? (1-26)  " MODQTD
+echo "Using: $XRFNUM"
+while true; do
+    echo "Mandatory"
+    read -r -p "02. What is the web address (FQDN) of the reflector dashboard? Example: xlx.domain.com " XLXDOMAIN
+    if [ -z "$XLXDOMAIN" ]; then
+        echo "Error: This field is mandatory and cannot be empty. Try again!"
+    else
+        break
+    fi
+done
+echo "Using: $XLXDOMAIN"
+while true; do
+    echo "Mandatory"
+    read -r -p "03. What is the SysOp e-mail address? " EMAIL
+    if [ -z "$EMAIL" ]; then
+        echo "Error: This field is mandatory and cannot be empty. Try again!"
+    else
+        break
+    fi
+done
+echo "Using: $EMAIL"
+while true; do
+    echo "Mandatory"
+    read -r -p "04. What is the SysOp callsign? " CALLSIGN
+    if [ -z "$CALLSIGN" ]; then
+        echo "Error: This field is mandatory and cannot be empty. Try again!"
+    else
+        break
+    fi
+done
+echo "Using: $CALLSIGN"
+while true; do
+    echo "Mandatory"
+    read -r -p "05. What is the country of the reflector? " COUNTRY
+    if [ -z "$COUNTRY" ]; then
+        echo "Error: This field is mandatory and cannot be empty. Try again!"
+    else
+        break
+    fi
+done
+echo "Using: $COUNTRY"
+COMMENT_DEFAULT="$XRFNUM by $CALLSIGN, info: $EMAIL"
+echo "Default for next field: \"$COMMENT_DEFAULT\""
+while true; do
+    read -r -p "06. What is the comment to be shown in the XLX Reflectors list? [$COMMENT_DEFAULT]: " COMMENT
+    COMMENT=${COMMENT:-"$COMMENT_DEFAULT"}
+    if [ ${#COMMENT} -le 100 ]; then
+        break
+    else
+        echo "Error: Comment must be max 100 characters. Please try again!"
+    fi
+done
+echo "Using: $COMMENT"
+echo "Default for next field: \"$XRFNUM\""
+read -r -p "07. Custom text on header of the dashboard webpage [$XRFNUM]: " HEADER
+HEADER=${HEADER:-$XRFNUM}
+echo "Using: $HEADER"
+while true; do
+    echo "Default for next field: 6"
+    read -r -p "08. How many active modules does the reflector have? (1-26) [6]: " MODQTD
+    MODQTD=${MODQTD:-6}
+    if [[ "$MODQTD" =~ ^[0-9]+$ && "$MODQTD" -ge 1 && "$MODQTD" -le 26 ]]; then
+        break
+    else
+        echo "Error: Must be a number between 1 and 26. Try again!"
+    fi
+done
+echo "Using: $MODQTD"
 # YSFNAME e YSFDESC input
 while true; do
-    echo -n "09. What is the name of the YSF reflector (max. 16 characters): "
+    echo "Default for next field: \"$XRFNUM\""
+    echo "09. At register.ysfreflector.de the list of YSF reflectors is shown."
+    echo -n "    What name will this reflector have to appear in this list? (max. 16 characters) [$XRFNUM]: "
     read -r YSFNAME
+    YSFNAME=${YSFNAME:-$XRFNUM}
     if [ ${#YSFNAME} -le 16 ]; then
         break
     else
-        echo "Error: Name must be max 16 digits. Please try again!"
+        echo "Error: Name must be max 16 characters. Please try again!"
     fi
 done
-
+echo "Using: $YSFNAME"
 while true; do
-    echo -n "10. What is the description of the YSF reflector (max. 16 characters): "
+    echo "Default for next field: \"$XLXDOMAIN\""
+    echo -n "10. And what will be his description to appear on this list? (max. 16 characters) [$XLXDOMAIN]: "
     read -r YSFDESC
+    YSFDESC=${YSFDESC:-$XLXDOMAIN}
     if [ ${#YSFDESC} -le 16 ]; then
         break
     else
-        echo "Error: Name must be max 16 digits. Please try again!"
+        echo "Error: Description must be max 16 characters. Please try again!"
     fi
 done
+echo "Using: $YSFDESC"
 # Fill with spaces on the right until reach 16 characters
 YSFNAME=$(printf "%-16s" "$YSFNAME")
 YSFDESC=$(printf "%-16s" "$YSFDESC")
@@ -85,20 +164,46 @@ to_c_array() {
 # Generate arrays C
 YSFNAME_ARRAY=$(to_c_array "$YSFNAME")
 YSFDESC_ARRAY=$(to_c_array "$YSFDESC")
-read -r -p "11. What is the YSF UDP port number? (1-65535 / default 42000)  " YSFPORT
-read -r -p "12. What is the frequency of YSF Wires-X? (In Hertz, with 9 digits, ex. 433125000)  " YSFFREQ
-read -r -p "13. Is YSF auto-link enable? (1 = Yes / 0 = No)  " AUTOLINK
+while true; do
+    echo "Default for next field: 42000"
+    read -r -p "11. What is the YSF UDP port number? (1-65535) [42000]: " YSFPORT
+    YSFPORT=${YSFPORT:-42000}
+    if [[ "$YSFPORT" =~ ^[0-9]+$ && "$YSFPORT" -ge 1 && "$YSFPORT" -le 65535 ]]; then
+        break
+    else
+        echo "Error: Must be a number between 1 and 65535. Try again!"
+    fi
+done
+echo "Using: $YSFPORT"
+while true; do
+    echo "Default for next field: 433125000"
+    read -r -p "12. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, ex. 433125000) [433125000]: " YSFFREQ
+    YSFFREQ=${YSFFREQ:-433125000}
+    if [[ "$YSFFREQ" =~ ^[0-9]{9}$ ]]; then
+        break
+    else
+        echo "Error: Must be exactly 9 numeric digits (e.g., 433125000). Try again!"
+    fi
+done
+echo "Using: $YSFFREQ"
+echo "Default for next field: 1"
+read -r -p "13. Is YSF auto-link enable? (1 = Yes / 0 = No) [1]: " AUTOLINK
+AUTOLINK=${AUTOLINK:-1}
+echo "Using: $AUTOLINK"
 VALID_MODULES=($(echo {A..Z} | cut -d' ' -f1-"$MODQTD"))
 if [ "$AUTOLINK" -eq 1 ]; then
-  while true; do
-    read -r -p "14. What YSF module to be auto-link? (one of ${VALID_MODULES[*]}): " MODAUTO
-    MODAUTO=$(echo "$MODAUTO" | tr '[:lower:]' '[:upper:]')
-    if [[ " ${VALID_MODULES[@]} " =~ " $MODAUTO " ]]; then
-      break
-    else
-      echo "Invalid input for YSF autolink module. Must be one of ${VALID_MODULES[*]}."
-    fi
-  done
+    while true; do
+        echo "Default for next field: C"
+        read -r -p "14. What module to be auto-link? (one of ${VALID_MODULES[*]}) [C]: " MODAUTO
+        MODAUTO=${MODAUTO:-C}
+        MODAUTO=$(echo "$MODAUTO" | tr '[:lower:]' '[:upper:]')
+        if [[ " ${VALID_MODULES[@]} " =~ " $MODAUTO " ]]; then
+            break
+        else
+            echo "Invalid input for YSF autolink module. Must be one of ${VALID_MODULES[*]}. Try again!"
+        fi
+    done
+    echo "Using: $MODAUTO"
 fi
 
 echo ""
@@ -117,52 +222,54 @@ mkdir -p "$XLXINSTDIR"
 apt -y install $APPS
 
 if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
-  echo "XLXD already compiled. Delete the following directories"
-  echo "'/usr/src/xlxd', '/xlxd', '/var/www/html/xlxd' and the following files"
-  echo "'/etc/init.d/xlxd.*', 'var/log/xlxd.*' and '/etc/apache2/sites-available/xlx*'"
-  exit 1
+    echo "=================================================================================="
+    echo "|           XLXD ALREADY COMPILED!!! Delete the following directories            |"
+    echo "|    '/usr/src/xlxd', '/xlxd', '/var/www/html/xlxd' and the following files      |"
+    echo "| '/etc/init.d/xlxd.*', 'var/log/xlxd.*' and '/etc/apache2/sites-available/xlx*' |"
+    echo "=================================================================================="
+    exit 1
 else
-  echo ""
-  echo "DOWNLOADING APPLICATION..."
-  echo "=========================="
-  echo ""
-  cd "$XLXINSTDIR"
-  git clone "$XLXDREPO"
-  cd "$XLXINSTDIR/xlxd/src"
-  make clean
-MAINCONFIG="$XLXINSTDIR/xlxd/src/main.h"
-  sed -i "s|\(NB_OF_MODULES\s*\)\([0-9]*\)|\1$MODQTD|g" "$MAINCONFIG"
-  sed -i "s|\(YSF_PORT\s*\)\([0-9]*\)|\1$YSFPORT|g" "$MAINCONFIG"
-  sed -i "s|\(YSF_DEFAULT_NODE_TX_FREQ\s*\)\([0-9]*\)|\1$YSFFREQ|g" "$MAINCONFIG"
-  sed -i "s|\(YSF_DEFAULT_NODE_RX_FREQ\s*\)\([0-9]*\)|\1$YSFFREQ|g" "$MAINCONFIG"
-  sed -i "s|\(YSF_AUTOLINK_ENABLE\s*\)\([0-9]*\)|\1$AUTOLINK|g" "$MAINCONFIG"
-  if [ "$AUTOLINK" -eq 1 ]; then
-    sed -i "s|\(YSF_AUTOLINK_MODULE\s*\)'\([A-Z]*\)'|\1'$MODAUTO'|g" "$MAINCONFIG"
-  fi
-CYSF_FILE="$XLXINSTDIR/xlxd/src/cysfprotocol.cpp"
-  sed -i "s|uint8 callsign\[16\];|uint8 callsign[16] = { $YSFNAME_ARRAY };|g" "$CYSF_FILE"
-  sed -i "s|uint8 description\[\] = { 'X','L','X',' ','r','e','f','l','e','c','t','o','r',' ' };|uint8 description[] = { $YSFDESC_ARRAY };|g" "$CYSF_FILE"
-  echo ""
-  echo "COMPILING..."
-  echo "============"
-  echo ""
-  make
-  make install
+    echo ""
+    echo "DOWNLOADING APPLICATION..."
+    echo "=========================="
+    echo ""
+    cd "$XLXINSTDIR"
+    git clone "$XLXDREPO"
+    cd "$XLXINSTDIR/xlxd/src"
+    make clean
+    MAINCONFIG="$XLXINSTDIR/xlxd/src/main.h"
+    sed -i "s|\(NB_OF_MODULES\s*\)\([0-9]*\)|\1$MODQTD|g" "$MAINCONFIG"
+    sed -i "s|\(YSF_PORT\s*\)\([0-9]*\)|\1$YSFPORT|g" "$MAINCONFIG"
+    sed -i "s|\(YSF_DEFAULT_NODE_TX_FREQ\s*\)\([0-9]*\)|\1$YSFFREQ|g" "$MAINCONFIG"
+    sed -i "s|\(YSF_DEFAULT_NODE_RX_FREQ\s*\)\([0-9]*\)|\1$YSFFREQ|g" "$MAINCONFIG"
+    sed -i "s|\(YSF_AUTOLINK_ENABLE\s*\)\([0-9]*\)|\1$AUTOLINK|g" "$MAINCONFIG"
+    if [ "$AUTOLINK" -eq 1 ]; then
+        sed -i "s|\(YSF_AUTOLINK_MODULE\s*\)'\([A-Z]*\)'|\1'$MODAUTO'|g" "$MAINCONFIG"
+    fi
+    CYSF_FILE="$XLXINSTDIR/xlxd/src/cysfprotocol.cpp"
+    sed -i "s|uint8 callsign\[16\];|uint8 callsign[16] = { $YSFNAME_ARRAY };|g" "$CYSF_FILE"
+    sed -i "s|uint8 description\[\] = { 'X','L','X',' ','r','e','f','l','e','c','t','o','r',' ' };|uint8 description[] = { $YSFDESC_ARRAY };|g" "$CYSF_FILE"
+    echo ""
+    echo "COMPILING..."
+    echo "============"
+    echo ""
+    make
+    make install
 fi
 
 if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
-  echo ""
-  echo "==============================="
-  echo "|  COMPILATION SUCCESSFUL!!!  |"
-  echo "==============================="
-  echo ""
+    echo ""
+    echo "==============================="
+    echo "|  COMPILATION SUCCESSFUL!!!  |"
+    echo "==============================="
+    echo ""
 else
-  echo ""
-  echo "======================================================"
-  echo "|  Compilation FAILED. Check the output for errors.  |"
-  echo "======================================================"
-  echo ""
-  exit 1
+    echo ""
+    echo "======================================================"
+    echo "|  Compilation FAILED. Check the output for errors.  |"
+    echo "======================================================"
+    echo ""
+    exit 1
 fi
 echo "COPYING FILES..."
 echo "================"
@@ -213,15 +320,15 @@ systemctl enable xlxd
 systemctl start xlxd | echo "Finishing, please wait......."
 
 echo ""
-echo "=============================================================================================="
-echo "Your Reflector $XRFNUM is now installed and running."
-echo "For Public Reflectors:"
-echo "If your XLX number is available it's expected to be listed"
-echo "on the public list shortly, typically within an hour."
-echo "If you don't want the Reflector to be published just set callinghome"
-echo "to -false- in the main file in $XLXCONFIG."
-echo "Many other settings can be changed in this file."
-echo "More Information: $INFREF"
-echo "Your $XRFNUM dashboard should now be accessible at http://$XLXDOMAIN"
-echo "To get your site certified with https visit certbot.eff.org"
-echo "=============================================================================================="
+echo "==========================================================================="
+echo "  Your Reflector $XRFNUM is now installed and running."
+echo "  For Public Reflectors:"
+echo "  If your XLX number is available it's expected to be listed"
+echo "  on the public list shortly, typically within an hour."
+echo "  If you don't want the reflector to be published just set callinghome"
+echo "  to [false] in the main file in $XLXCONFIG."
+echo "  Many other settings can be changed in this file."
+echo "  More Information: $INFREF"
+echo "  Your $XRFNUM dashboard should now be accessible at http://$XLXDOMAIN "
+echo "  To get your site certified with https visit certbot.eff.org"
+echo "==========================================================================="
