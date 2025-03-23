@@ -1,6 +1,6 @@
 #!/bin/bash
 # A tool to install XLXD, your own D-Star Reflector.
-# For more information, please visit: https://n5amd.com
+# For more information, please visit https://xlxbbs.epf.lu/
 # Customized by Daniel K., PU5KOD
 # Lets begin!!!
 
@@ -33,19 +33,19 @@ echo "REFLECTOR DATA INPUT"
 echo "===================="
 echo ""
 echo "XLX uses 3 digit for its reflectors. For example: 032, 099, USA, BRA, US1..."
-read -p "01. What are the 3 digits of the XLX reflector that will be used?  " XRFDIGIT
+read -r -p "01. What are the 3 digits of the XLX reflector that will be used?  " XRFDIGIT
 XRFNUM=XLX$XRFDIGIT
-read -p "02. What is the web address (FQDN) of the reflector dashboard? Example: xlx.domain.com  " XLXDOMAIN
-read -p "03. To what e-mail address your users can send questions to?  " EMAIL
-read -p "04. What is the reflector administrator’s callsign?  " CALLSIGN
-read -p "05. Which country of the reflector?  " COUNTRY
-# read -p "0x. What is the Reflector Comment to display on dashboard?  " COMMENT
-# read -p "0x. Custom text on header of the dashboard webpage  " HEADER
-read -p "06. How many active modules does the reflector have? (1-26)  " MODQTD
+read -r -p "02. What is the web address (FQDN) of the reflector dashboard? Example: xlx.domain.com  " XLXDOMAIN
+read -r -p "03. To what e-mail address your users can send questions to?  " EMAIL
+read -r -p "04. What is the reflector administrator’s callsign?  " CALLSIGN
+read -r -p "05. Which country of the reflector?  " COUNTRY
+read -r -p "06. What is the Reflector Comment to display on dashboard?  " COMMENT
+read -r -p "07. Custom text on header of the dashboard webpage  " HEADER
+read -r -p "08. How many active modules does the reflector have? (1-26)  " MODQTD
 # YSFNAME e YSFDESC input
 while true; do
-    echo -n "07. What is the name of the YSF reflector (max. 16 characters): "
-    read YSFNAME
+    echo -n "09. What is the name of the YSF reflector (max. 16 characters): "
+    read -r YSFNAME
     if [ ${#YSFNAME} -le 16 ]; then
         break
     else
@@ -54,8 +54,8 @@ while true; do
 done
 
 while true; do
-    echo -n "08. What is the description of the YSF reflector (max. 16 characters): "
-    read YSFDESC
+    echo -n "10. What is the description of the YSF reflector (max. 16 characters): "
+    read -r YSFDESC
     if [ ${#YSFDESC} -le 16 ]; then
         break
     else
@@ -85,13 +85,13 @@ to_c_array() {
 # Generate arrays C
 YSFNAME_ARRAY=$(to_c_array "$YSFNAME")
 YSFDESC_ARRAY=$(to_c_array "$YSFDESC")
-read -p "09. What is the YSF UDP port number? (1-65535 / default 42000)  " YSFPORT
-read -p "10. What is the frequency of YSF Wires-X? (In Hertz, with 9 digits, ex. 433125000)  " YSFFREQ
-read -p "11. Is YSF auto-link enable? (1 = Yes / 0 = No)  " AUTOLINK
+read -r -p "11. What is the YSF UDP port number? (1-65535 / default 42000)  " YSFPORT
+read -r -p "12. What is the frequency of YSF Wires-X? (In Hertz, with 9 digits, ex. 433125000)  " YSFFREQ
+read -r -p "13. Is YSF auto-link enable? (1 = Yes / 0 = No)  " AUTOLINK
 VALID_MODULES=($(echo {A..Z} | cut -d' ' -f1-"$MODQTD"))
 if [ "$AUTOLINK" -eq 1 ]; then
   while true; do
-    read -p "12. What YSF module to be auto-link? (one of ${VALID_MODULES[*]}): " MODAUTO
+    read -r -p "14. What YSF module to be auto-link? (one of ${VALID_MODULES[*]}): " MODAUTO
     MODAUTO=$(echo "$MODAUTO" | tr '[:lower:]' '[:upper:]')
     if [[ " ${VALID_MODULES[@]} " =~ " $MODAUTO " ]]; then
       break
@@ -131,17 +131,17 @@ else
   cd "$XLXINSTDIR/xlxd/src"
   make clean
 MAINCONFIG="$XLXINSTDIR/xlxd/src/main.h"
-  sed -i "s/\(NB_OF_MODULES\s*\)\([0-9]*\)/\1$MODQTD/" "$MAINCONFIG"
-  sed -i "s/\(YSF_PORT\s*\)\([0-9]*\)/\1$YSFPORT/" "$MAINCONFIG"
-  sed -i "s/\(YSF_DEFAULT_NODE_TX_FREQ\s*\)\([0-9]*\)/\1$YSFFREQ/" "$MAINCONFIG"
-  sed -i "s/\(YSF_DEFAULT_NODE_RX_FREQ\s*\)\([0-9]*\)/\1$YSFFREQ/" "$MAINCONFIG"
-  sed -i "s/\(YSF_AUTOLINK_ENABLE\s*\)\([0-9]*\)/\1$AUTOLINK/" "$MAINCONFIG"
+  sed -i "s|\(NB_OF_MODULES\s*\)\([0-9]*\)|\1$MODQTD|g" "$MAINCONFIG"
+  sed -i "s|\(YSF_PORT\s*\)\([0-9]*\)|\1$YSFPORT|g" "$MAINCONFIG"
+  sed -i "s|\(YSF_DEFAULT_NODE_TX_FREQ\s*\)\([0-9]*\)|\1$YSFFREQ|g" "$MAINCONFIG"
+  sed -i "s|\(YSF_DEFAULT_NODE_RX_FREQ\s*\)\([0-9]*\)|\1$YSFFREQ|g" "$MAINCONFIG"
+  sed -i "s|\(YSF_AUTOLINK_ENABLE\s*\)\([0-9]*\)|\1$AUTOLINK|g" "$MAINCONFIG"
   if [ "$AUTOLINK" -eq 1 ]; then
-    sed -i "s/\(YSF_AUTOLINK_MODULE\s*\)'\([A-Z]*\)'/\1'$MODAUTO'/" "$MAINCONFIG"
+    sed -i "s|\(YSF_AUTOLINK_MODULE\s*\)'\([A-Z]*\)'|\1'$MODAUTO'|g" "$MAINCONFIG"
   fi
 CYSF_FILE="$XLXINSTDIR/xlxd/src/cysfprotocol.cpp"
-  sed -i "s/uint8 callsign\[16\];/uint8 callsign[16] = { $YSFNAME_ARRAY };/g" "$CYSF_FILE"
-  sed -i "s/uint8 description\[\] = { 'X','L','X',' ','r','e','f','l','e','c','t','o','r',' ' };/uint8 description[] = { $YSFDESC_ARRAY };/g" "$CYSF_FILE"
+  sed -i "s|uint8 callsign\[16\];|uint8 callsign[16] = { $YSFNAME_ARRAY };|g" "$CYSF_FILE"
+  sed -i "s|uint8 description\[\] = { 'X','L','X',' ','r','e','f','l','e','c','t','o','r',' ' };|uint8 description[] = { $YSFDESC_ARRAY };|g" "$CYSF_FILE"
   echo ""
   echo "COMPILING..."
   echo "============"
@@ -171,27 +171,26 @@ mkdir -p /xlxd
 mkdir -p "$WEBDIR"
 touch /var/log/xlxd.xml
 wget -O /xlxd/dmrid.dat "$DMRIDURL"
-#echo ""
 echo "INSTALLING DASHBOARD..."
 echo "======================="
 echo ""
 cp -R "$XLXINSTDIR/xlxd/dashboard/"* "$WEBDIR/"
 cp "$XLXINSTDIR/xlxd/scripts/xlxd" /etc/init.d/xlxd
-sed -i "s/XLXXXX 172.23.127.100 127.0.0.1/$XRFNUM $LOCAL_IP 127.0.0.1/g" /etc/init.d/xlxd
+sed -i "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM $LOCAL_IP 127.0.0.1|g" /etc/init.d/xlxd
 /usr/sbin/update-rc.d xlxd defaults
 
 XLXCONFIG="$WEBDIR/pgs/config.inc.php"
-sed -i "s/your_email/$EMAIL/g" "$XLXCONFIG"
-sed -i "s/LX1IQ/$CALLSIGN/g" "$XLXCONFIG"
-# sed -i "s/custom_header/$HEADER/g" "$XLXCONFIG"
+sed -i "s|your_email|$EMAIL|g" "$XLXCONFIG"
+sed -i "s|LX1IQ|$CALLSIGN|g" "$XLXCONFIG"
+sed -i "s|custom_header|$HEADER|g" "$XLXCONFIG"
 sed -i "s#http://your_dashboard#http://$XLXDOMAIN#g" "$XLXCONFIG"
-sed -i "s/your_country/$COUNTRY/g" "$XLXCONFIG"
-# sed -i "s/your_comment/$COMMENT/g" "$XLXCONFIG"
+sed -i "s|your_country|$COUNTRY|g" "$XLXCONFIG"
+sed -i "s|your_comment|$COMMENT|g" "$XLXCONFIG"
 sed -i "s#/tmp/callinghome.php#/xlxd/callinghome.php#g" "$XLXCONFIG"
 sed -i "s#/tmp/lastcallhome.php#/xlxd/lastcallhome.php#g" "$XLXCONFIG"
 
 cp "$DIRDIR/templates/apache.tbd.conf" /etc/apache2/sites-available/"$XLXDOMAIN".conf
-sed -i "s/apache.tbd/$XLXDOMAIN/g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
+sed -i "s|apache.tbd|$XLXDOMAIN|g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 sed -i "s#ysf-xlxd#html/xlxd#g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 
 chown -R www-data:www-data /var/log/xlxd.xml
@@ -211,7 +210,7 @@ echo "STARTING $XRFNUM REFLECTOR..."
 echo "============================"
 echo ""
 systemctl enable xlxd
-systemctl start xlxd
+systemctl start xlxd | echo "Finishing, please wait......."
 
 echo ""
 echo "=============================================================================================="
