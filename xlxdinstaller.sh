@@ -39,16 +39,59 @@ read -p "02. What is the web address (FQDN) of the reflector dashboard? Example:
 read -p "03. To what e-mail address your users can send questions to?  " EMAIL
 read -p "04. What is the reflector administrator’s callsign?  " CALLSIGN
 read -p "05. Which country of the reflector?  " COUNTRY
-# read -p "06. What is the Reflector Comment to display on dashboard?  " COMMENT
-# read -p "06. Custom text on header of the dashboard webpage  " HEADER
+# read -p "0x. What is the Reflector Comment to display on dashboard?  " COMMENT
+# read -p "0x. Custom text on header of the dashboard webpage  " HEADER
 read -p "06. How many active modules does the reflector have? (1-26)  " MODQTD
-read -p "07. What is the YSF UDP port number? (1-65535 / default 42000)  " YSFPORT
-read -p "08. What is the frequency of YSF Wires-X? (In Hertz, with 9 digits, ex. 433125000)  " YSFFREQ
-read -p "09. Is YSF auto-link enable? (1 = Yes / 0 = No)  " AUTOLINK
+# YSFNAME e YSFDESC input
+while true; do
+    echo -n "07. What is the name of the YSF reflector (max. 16 characters): "
+    read YSFNAME
+    if [ ${#YSFNAME} -le 16 ]; then
+        break
+    else
+        echo "Error: Name must be max 16 digits. Please try again!"
+    fi
+done
+
+while true; do
+    echo -n "08. What is the description of the YSF reflector (max. 16 characters): "
+    read YSFDESC
+    if [ ${#YSFDESC} -le 16 ]; then
+        break
+    else
+        echo "Error: Name must be max 16 digits. Please try again!"
+    fi
+done
+# Fill with spaces on the right until reach 16 characters
+YSFNAME=$(printf "%-16s" "$YSFNAME")
+YSFDESC=$(printf "%-16s" "$YSFDESC")
+# Function to convert string into array C
+to_c_array() {
+    local input="$1"
+    local output=""
+    for ((i=0; i<16; i++)); do
+        char="${input:$i:1}"
+        if [ -z "$char" ] || [ "$char" = " " ]; then
+            output="$output' '"
+        else
+            output="$output'$char'"
+        fi
+        if [ $i -lt 15 ]; then
+            output="$output,"
+        fi
+    done
+    echo "$output"
+}
+# Generate arrays C
+YSFNAME_ARRAY=$(to_c_array "$YSFNAME")
+YSFDESC_ARRAY=$(to_c_array "$YSFDESC")
+read -p "09. What is the YSF UDP port number? (1-65535 / default 42000)  " YSFPORT
+read -p "10. What is the frequency of YSF Wires-X? (In Hertz, with 9 digits, ex. 433125000)  " YSFFREQ
+read -p "11. Is YSF auto-link enable? (1 = Yes / 0 = No)  " AUTOLINK
 VALID_MODULES=($(echo {A..Z} | cut -d' ' -f1-"$MODQTD"))
 if [ "$AUTOLINK" -eq 1 ]; then
   while true; do
-    read -p "10. What YSF module to be auto-link? (one of ${VALID_MODULES[*]}): " MODAUTO
+    read -p "12. What YSF module to be auto-link? (one of ${VALID_MODULES[*]}): " MODAUTO
     MODAUTO=$(echo "$MODAUTO" | tr '[:lower:]' '[:upper:]')
     if [[ " ${VALID_MODULES[@]} " =~ " $MODAUTO " ]]; then
       break
@@ -87,7 +130,7 @@ else
   git clone "$XLXDREPO"
   cd "$XLXINSTDIR/xlxd/src"
   make clean
-  MAINCONFIG="$XLXINSTDIR/xlxd/src/main.h"
+MAINCONFIG="$XLXINSTDIR/xlxd/src/main.h"
   sed -i "s/\(NB_OF_MODULES\s*\)\([0-9]*\)/\1$MODQTD/" "$MAINCONFIG"
   sed -i "s/\(YSF_PORT\s*\)\([0-9]*\)/\1$YSFPORT/" "$MAINCONFIG"
   sed -i "s/\(YSF_DEFAULT_NODE_TX_FREQ\s*\)\([0-9]*\)/\1$YSFFREQ/" "$MAINCONFIG"
@@ -96,6 +139,9 @@ else
   if [ "$AUTOLINK" -eq 1 ]; then
     sed -i "s/\(YSF_AUTOLINK_MODULE\s*\)'\([A-Z]*\)'/\1'$MODAUTO'/" "$MAINCONFIG"
   fi
+CYSF_FILE="$XLXINSTDIR/xlxd/src/cysfprotocol.cpp"
+  sed -i "s/uint8 callsign\[16\];/uint8 callsign[16] = { $YSFNAME_ARRAY };/g" "$CYSF_FILE"
+  sed -i "s/uint8 description\[\] = { 'X','L','X',' ','r','e','f','l','e','c','t','o','r',' ' };/uint8 description[] = { $YSFDESC_ARRAY };/g" "$CYSF_FILE"
   echo ""
   echo "COMPILING..."
   echo "============"
@@ -118,8 +164,6 @@ else
   echo ""
   exit 1
 fi
-
-echo ""
 echo "COPYING FILES..."
 echo "================"
 echo ""
@@ -127,7 +171,7 @@ mkdir -p /xlxd
 mkdir -p "$WEBDIR"
 touch /var/log/xlxd.xml
 wget -O /xlxd/dmrid.dat "$DMRIDURL"
-echo ""
+#echo ""
 echo "INSTALLING DASHBOARD..."
 echo "======================="
 echo ""
