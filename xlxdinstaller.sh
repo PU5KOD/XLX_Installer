@@ -120,14 +120,14 @@ echo "Using: $COMMENT"
 echo "_________________________________________________________________________"
 echo ""
 echo "Suggested for next field: \"$XRFNUM\""
-read -r -p "07. Custom text on header of the dashboard webpage: " HEADER
+read -r -p "07. Custom text on header of the dashboard webpage. " HEADER
 HEADER=${HEADER:-$XRFNUM}
 echo "Using: $HEADER"
 while true; do
 echo "_________________________________________________________________________"
 echo ""
     echo "Suggested for next field: 6"
-    read -r -p "08. How many active modules does the reflector have? (1-26): " MODQTD
+    read -r -p "08. How many active modules does the reflector have? (1-26) " MODQTD
     MODQTD=${MODQTD:-6}
     if [[ "$MODQTD" =~ ^[0-9]+$ && "$MODQTD" -ge 1 && "$MODQTD" -le 26 ]]; then
         break
@@ -142,7 +142,7 @@ echo "_________________________________________________________________________"
 echo ""
     echo "Suggested for next field: \"$XRFNUM\""
     echo "09. At https://register.ysfreflector.de the list of YSF reflectors is shown."
-    echo -n "    What name will this reflector have to appear in this list? (max. 16 characters): "
+    echo -n "    What name will this reflector have to appear in this list? (max. 16 characters) "
     read -r YSFNAME
     YSFNAME=${YSFNAME:-$XRFNUM}
     if [ ${#YSFNAME} -le 16 ]; then
@@ -156,7 +156,7 @@ while true; do
 echo "_________________________________________________________________________"
 echo ""
     echo "Suggested for next field: \"$XLXDOMAIN\""
-    echo -n "10. And what will be his description to appear on this list? (max. 16 characters): "
+    echo -n "10. And what will be his description to appear on this list? (max. 16 characters) "
     read -r YSFDESC
     YSFDESC=${YSFDESC:-$XLXDOMAIN}
     if [ ${#YSFDESC} -le 16 ]; then
@@ -193,7 +193,7 @@ while true; do
 echo "_________________________________________________________________________"
 echo ""
     echo "Suggested for next field: 42000"
-    read -r -p "11. What is the YSF UDP port number? (1-65535): " YSFPORT
+    read -r -p "11. What is the YSF UDP port number? (1-65535) " YSFPORT
     YSFPORT=${YSFPORT:-42000}
     if [[ "$YSFPORT" =~ ^[0-9]+$ && "$YSFPORT" -ge 1 && "$YSFPORT" -le 65535 ]]; then
         break
@@ -206,7 +206,7 @@ while true; do
 echo "_________________________________________________________________________"
 echo ""
     echo "Suggested for next field: 433125000"
-    read -r -p "12. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000): " YSFFREQ
+    read -r -p "12. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000) " YSFFREQ
     YSFFREQ=${YSFFREQ:-433125000}
     if [[ "$YSFFREQ" =~ ^[0-9]{9}$ ]]; then
         break
@@ -218,7 +218,7 @@ echo "Using: $YSFFREQ"
 echo "_________________________________________________________________________"
 echo ""
 echo "Suggested for next field: 1"
-read -r -p "13. Is YSF auto-link enable? (1 = Yes / 0 = No): " AUTOLINK
+read -r -p "13. Is YSF auto-link enable? (1 = Yes / 0 = No) " AUTOLINK
 AUTOLINK=${AUTOLINK:-1}
 echo "Using: $AUTOLINK"
 VALID_MODULES=($(echo {A..Z} | cut -d' ' -f1-"$MODQTD"))
@@ -227,7 +227,7 @@ if [ "$AUTOLINK" -eq 1 ]; then
     echo "_________________________________________________________________________"
     echo ""
         echo "Suggested for next field: C"
-        read -r -p "14. What module to be auto-link? (one of ${VALID_MODULES[*]}): " MODAUTO
+        read -r -p "14. What module to be auto-link? (one of ${VALID_MODULES[*]}) " MODAUTO
         MODAUTO=${MODAUTO:-C}
         MODAUTO=$(echo "$MODAUTO" | tr '[:lower:]' '[:upper:]')
         if [[ " ${VALID_MODULES[@]} " =~ " $MODAUTO " ]]; then
