@@ -29,7 +29,7 @@ APPS="git git-core make build-essential g++ apache2 php libapache2-mod-php php-c
 clear
 echo "_________________________________________________________________________"
 echo ""
-echo "HAM Radio Multiprotocol XLX Reflector Server and Dashboard Installer"
+echo "Installer of the XLX Multiprotocol Ham Radio Reflector and its dashboard"
 echo ""
 echo "Below you will be asked for some information, answer the requested"
 echo "values or, if applicable, to accept the suggested value press [ENTER]"
