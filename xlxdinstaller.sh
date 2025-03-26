@@ -34,7 +34,7 @@ echo "===================="
 echo ""
 while true; do
     echo "Mandatory"
-    read -r -p "01. What are the 3 digits of the XLX reflector that will be used? (ex: 300, US1, BRA) " XRFDIGIT
+    read -r -p "01. What are the 3 digits of the XLX reflector that will be used? (e.g., 300, US1, BRA) " XRFDIGIT
     if [ -z "$XRFDIGIT" ]; then
         echo "Error: This field is mandatory and cannot be empty. Try again!"
     else
@@ -49,8 +49,10 @@ done
 XRFNUM=XLX$XRFDIGIT
 echo "Using: $XRFNUM"
 while true; do
+echo "_________________________________________________________________________"
+echo ""
     echo "Mandatory"
-    read -r -p "02. What is the web address (FQDN) of the reflector dashboard? Example: xlx.domain.com " XLXDOMAIN
+    read -r -p "02. What is the web address (FQDN) of the reflector dashboard? e.g., xlx.domain.com " XLXDOMAIN
     if [ -z "$XLXDOMAIN" ]; then
         echo "Error: This field is mandatory and cannot be empty. Try again!"
     else
@@ -59,8 +61,10 @@ while true; do
 done
 echo "Using: $XLXDOMAIN"
 while true; do
+echo "_________________________________________________________________________"
+echo ""
     echo "Mandatory"
-    read -r -p "03. What is the SysOp e-mail address? " EMAIL
+    read -r -p "03. What is the sysop e-mail address? " EMAIL
     if [ -z "$EMAIL" ]; then
         echo "Error: This field is mandatory and cannot be empty. Try again!"
     else
@@ -69,8 +73,10 @@ while true; do
 done
 echo "Using: $EMAIL"
 while true; do
+echo "_________________________________________________________________________"
+echo ""
     echo "Mandatory"
-    read -r -p "04. What is the SysOp callsign? " CALLSIGN
+    read -r -p "04. What is the sysop callsign? " CALLSIGN
     if [ -z "$CALLSIGN" ]; then
         echo "Error: This field is mandatory and cannot be empty. Try again!"
     else
@@ -79,6 +85,8 @@ while true; do
 done
 echo "Using: $CALLSIGN"
 while true; do
+echo "_________________________________________________________________________"
+echo ""
     echo "Mandatory"
     read -r -p "05. What is the country of the reflector? " COUNTRY
     if [ -z "$COUNTRY" ]; then
@@ -89,6 +97,8 @@ while true; do
 done
 echo "Using: $COUNTRY"
 COMMENT_DEFAULT="$XRFNUM by $CALLSIGN, info: $EMAIL"
+echo "_________________________________________________________________________"
+echo ""
 echo "Default for next field: \"$COMMENT_DEFAULT\""
 while true; do
     read -r -p "06. What is the comment to be shown in the XLX Reflectors list? [$COMMENT_DEFAULT]: " COMMENT
@@ -100,13 +110,17 @@ while true; do
     fi
 done
 echo "Using: $COMMENT"
+echo "_________________________________________________________________________"
+echo ""
 echo "Default for next field: \"$XRFNUM\""
-read -r -p "07. Custom text on header of the dashboard webpage [$XRFNUM]: " HEADER
+read -r -p "07. Custom text on header of the dashboard webpage: " HEADER
 HEADER=${HEADER:-$XRFNUM}
 echo "Using: $HEADER"
 while true; do
+echo "_________________________________________________________________________"
+echo ""
     echo "Default for next field: 6"
-    read -r -p "08. How many active modules does the reflector have? (1-26) [6]: " MODQTD
+    read -r -p "08. How many active modules does the reflector have? (1-26): " MODQTD
     MODQTD=${MODQTD:-6}
     if [[ "$MODQTD" =~ ^[0-9]+$ && "$MODQTD" -ge 1 && "$MODQTD" -le 26 ]]; then
         break
@@ -117,9 +131,11 @@ done
 echo "Using: $MODQTD"
 # YSFNAME e YSFDESC input
 while true; do
+echo "_________________________________________________________________________"
+echo ""
     echo "Default for next field: \"$XRFNUM\""
     echo "09. At register.ysfreflector.de the list of YSF reflectors is shown."
-    echo -n "    What name will this reflector have to appear in this list? (max. 16 characters) [$XRFNUM]: "
+    echo -n "    What name will this reflector have to appear in this list? (max. 16 characters): "
     read -r YSFNAME
     YSFNAME=${YSFNAME:-$XRFNUM}
     if [ ${#YSFNAME} -le 16 ]; then
@@ -130,8 +146,10 @@ while true; do
 done
 echo "Using: $YSFNAME"
 while true; do
+echo "_________________________________________________________________________"
+echo ""
     echo "Default for next field: \"$XLXDOMAIN\""
-    echo -n "10. And what will be his description to appear on this list? (max. 16 characters) [$XLXDOMAIN]: "
+    echo -n "10. And what will be his description to appear on this list? (max. 16 characters): "
     read -r YSFDESC
     YSFDESC=${YSFDESC:-$XLXDOMAIN}
     if [ ${#YSFDESC} -le 16 ]; then
@@ -165,8 +183,10 @@ to_c_array() {
 YSFNAME_ARRAY=$(to_c_array "$YSFNAME")
 YSFDESC_ARRAY=$(to_c_array "$YSFDESC")
 while true; do
+echo "_________________________________________________________________________"
+echo ""
     echo "Default for next field: 42000"
-    read -r -p "11. What is the YSF UDP port number? (1-65535) [42000]: " YSFPORT
+    read -r -p "11. What is the YSF UDP port number? (1-65535): " YSFPORT
     YSFPORT=${YSFPORT:-42000}
     if [[ "$YSFPORT" =~ ^[0-9]+$ && "$YSFPORT" -ge 1 && "$YSFPORT" -le 65535 ]]; then
         break
@@ -176,8 +196,10 @@ while true; do
 done
 echo "Using: $YSFPORT"
 while true; do
+echo "_________________________________________________________________________"
+echo ""
     echo "Default for next field: 433125000"
-    read -r -p "12. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, ex. 433125000) [433125000]: " YSFFREQ
+    read -r -p "12. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000): " YSFFREQ
     YSFFREQ=${YSFFREQ:-433125000}
     if [[ "$YSFFREQ" =~ ^[0-9]{9}$ ]]; then
         break
@@ -186,15 +208,19 @@ while true; do
     fi
 done
 echo "Using: $YSFFREQ"
+echo "_________________________________________________________________________"
+echo ""
 echo "Default for next field: 1"
-read -r -p "13. Is YSF auto-link enable? (1 = Yes / 0 = No) [1]: " AUTOLINK
+read -r -p "13. Is YSF auto-link enable? (1 = Yes / 0 = No): " AUTOLINK
 AUTOLINK=${AUTOLINK:-1}
 echo "Using: $AUTOLINK"
 VALID_MODULES=($(echo {A..Z} | cut -d' ' -f1-"$MODQTD"))
 if [ "$AUTOLINK" -eq 1 ]; then
     while true; do
+    echo "_________________________________________________________________________"
+    echo ""
         echo "Default for next field: C"
-        read -r -p "14. What module to be auto-link? (one of ${VALID_MODULES[*]}) [C]: " MODAUTO
+        read -r -p "14. What module to be auto-link? (one of ${VALID_MODULES[*]}): " MODAUTO
         MODAUTO=${MODAUTO:-C}
         MODAUTO=$(echo "$MODAUTO" | tr '[:lower:]' '[:upper:]')
         if [[ " ${VALID_MODULES[@]} " =~ " $MODAUTO " ]]; then
