@@ -105,7 +105,7 @@ done
 echo "Using: $COUNTRY"
 echo "_________________________________________________________________________"
 echo ""
-COMMENT_DEFAULT="Multiprotocol Reflector $XRFNUM by $CALLSIGN, info: $EMAIL"
+COMMENT_DEFAULT="$XRFNUM Multiprotocol Reflector by $CALLSIGN, info: $EMAIL"
 echo "Suggested for next field: \"$COMMENT_DEFAULT\""
 while true; do
     read -r -p "06. What is the comment to be shown in the XLX Reflectors list? " COMMENT
