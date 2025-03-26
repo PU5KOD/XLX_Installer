@@ -27,14 +27,17 @@ APPS="git git-core make build-essential g++ apache2 php libapache2-mod-php php-c
 
 # DATA INPUT
 clear
-echo "HAM Radio Multimode/Multiprotocol XLX Reflector Server"
+echo "_________________________________________________________________________"
 echo ""
-echo "REFLECTOR DATA INPUT"
-echo "===================="
+echo "HAM Radio Multiprotocol XLX Reflector Server and Dashboard Installer"
 echo ""
 echo "Below you will be asked for some information, answer the requested"
 echo "values or, if applicable, to accept the suggested value press [ENTER]"
+echo "_________________________________________________________________________"
 echo ""
+echo ""
+echo "REFLECTOR DATA INPUT"
+echo "===================="
 echo ""
 while true; do
     echo "Mandatory"
