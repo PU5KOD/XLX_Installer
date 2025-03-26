@@ -32,18 +32,20 @@ sudo chmod +x xlxdinstaller.sh
 sudo ./xlxdinstaller.sh
 ```
 When running the above last command the process will start and some questions will be asked, in the following sequence:
-1. What are the 3 digits of the XLX reflector that will be used?
-2. What is the web address (FQDN) of the reflector dashboard? Example: xlx.domain.com
-3. To what e-mail address your users can send questions to?
-4. What is the reflector administrator’s callsign?
-5. Which country of the reflector?
-6. How many active modules does the reflector have? (1-26)
-7. What is the name of the YSF reflector? (max. 16 characters):
-8. What is the description of the YSF reflector? (max. 16 characters):
-9. What is the YSF UDP port number? (1-65535 / default 42000)
-10. What is the frequency of YSF Wires-X? (In Hertz, with 9 digits, ex. 433125000)
-11. Is YSF auto-link enable? (1 = Yes / 0 = No)
-12. What YSF module to be auto-link? *
+01. What are the 3 digits of the XLX reflector that will be used? (e.g., 300, US1, BRA)
+02. What is the web address (FQDN) of the reflector dashboard? e.g., xlx.domain.com
+03. What is the sysop e-mail address?
+04. What is the sysop callsign?
+05. What is the country of the reflector?
+06. What is the comment to be shown in the XLX Reflectors list?
+07. Custom text on header of the dashboard webpage
+08. How many active modules does the reflector have? (1-26)
+09. What name will this reflector have to appear in YSF reflectors list? (max. 16 characters)
+10. And what will be his description to appear on YSF reflectors list? (max. 16 characters)
+11. What is the YSF UDP port number? (1-65535)
+12. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000)
+13. Is YSF auto-link enable? (1 = Yes / 0 = No)
+14. What module to be auto-link? (*)
 
 (*) The last question will only be asked if the answer to the previous one is positive.
 
