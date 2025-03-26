@@ -32,6 +32,10 @@ echo ""
 echo "REFLECTOR DATA INPUT"
 echo "===================="
 echo ""
+echo "Below you will be asked for some information, answer the requested"
+echo "values or, if applicable, to accept the suggested value press [ENTER]"
+echo ""
+echo ""
 while true; do
     echo "Mandatory"
     read -r -p "01. What are the 3 digits of the XLX reflector that will be used? (e.g., 300, US1, BRA) " XRFDIGIT
@@ -99,7 +103,7 @@ echo "Using: $COUNTRY"
 echo "_________________________________________________________________________"
 echo ""
 COMMENT_DEFAULT="Multiprotocol Reflector $XRFNUM by $CALLSIGN, info: $EMAIL"
-echo "Default for next field: \"$COMMENT_DEFAULT\""
+echo "Suggested for next field: \"$COMMENT_DEFAULT\""
 while true; do
     read -r -p "06. What is the comment to be shown in the XLX Reflectors list? " COMMENT
     COMMENT=${COMMENT:-"$COMMENT_DEFAULT"}
@@ -112,14 +116,14 @@ done
 echo "Using: $COMMENT"
 echo "_________________________________________________________________________"
 echo ""
-echo "Default for next field: \"$XRFNUM\""
+echo "Suggested for next field: \"$XRFNUM\""
 read -r -p "07. Custom text on header of the dashboard webpage: " HEADER
 HEADER=${HEADER:-$XRFNUM}
 echo "Using: $HEADER"
 while true; do
 echo "_________________________________________________________________________"
 echo ""
-    echo "Default for next field: 6"
+    echo "Suggested for next field: 6"
     read -r -p "08. How many active modules does the reflector have? (1-26): " MODQTD
     MODQTD=${MODQTD:-6}
     if [[ "$MODQTD" =~ ^[0-9]+$ && "$MODQTD" -ge 1 && "$MODQTD" -le 26 ]]; then
@@ -133,8 +137,8 @@ echo "Using: $MODQTD"
 while true; do
 echo "_________________________________________________________________________"
 echo ""
-    echo "Default for next field: \"$XRFNUM\""
-    echo "09. At register.ysfreflector.de the list of YSF reflectors is shown."
+    echo "Suggested for next field: \"$XRFNUM\""
+    echo "09. At https://register.ysfreflector.de the list of YSF reflectors is shown."
     echo -n "    What name will this reflector have to appear in this list? (max. 16 characters): "
     read -r YSFNAME
     YSFNAME=${YSFNAME:-$XRFNUM}
@@ -148,7 +152,7 @@ echo "Using: $YSFNAME"
 while true; do
 echo "_________________________________________________________________________"
 echo ""
-    echo "Default for next field: \"$XLXDOMAIN\""
+    echo "Suggested for next field: \"$XLXDOMAIN\""
     echo -n "10. And what will be his description to appear on this list? (max. 16 characters): "
     read -r YSFDESC
     YSFDESC=${YSFDESC:-$XLXDOMAIN}
@@ -185,7 +189,7 @@ YSFDESC_ARRAY=$(to_c_array "$YSFDESC")
 while true; do
 echo "_________________________________________________________________________"
 echo ""
-    echo "Default for next field: 42000"
+    echo "Suggested for next field: 42000"
     read -r -p "11. What is the YSF UDP port number? (1-65535): " YSFPORT
     YSFPORT=${YSFPORT:-42000}
     if [[ "$YSFPORT" =~ ^[0-9]+$ && "$YSFPORT" -ge 1 && "$YSFPORT" -le 65535 ]]; then
@@ -198,7 +202,7 @@ echo "Using: $YSFPORT"
 while true; do
 echo "_________________________________________________________________________"
 echo ""
-    echo "Default for next field: 433125000"
+    echo "Suggested for next field: 433125000"
     read -r -p "12. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000): " YSFFREQ
     YSFFREQ=${YSFFREQ:-433125000}
     if [[ "$YSFFREQ" =~ ^[0-9]{9}$ ]]; then
@@ -210,7 +214,7 @@ done
 echo "Using: $YSFFREQ"
 echo "_________________________________________________________________________"
 echo ""
-echo "Default for next field: 1"
+echo "Suggested for next field: 1"
 read -r -p "13. Is YSF auto-link enable? (1 = Yes / 0 = No): " AUTOLINK
 AUTOLINK=${AUTOLINK:-1}
 echo "Using: $AUTOLINK"
@@ -219,7 +223,7 @@ if [ "$AUTOLINK" -eq 1 ]; then
     while true; do
     echo "_________________________________________________________________________"
     echo ""
-        echo "Default for next field: C"
+        echo "Suggested for next field: C"
         read -r -p "14. What module to be auto-link? (one of ${VALID_MODULES[*]}): " MODAUTO
         MODAUTO=${MODAUTO:-C}
         MODAUTO=$(echo "$MODAUTO" | tr '[:lower:]' '[:upper:]')
