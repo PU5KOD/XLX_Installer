@@ -96,12 +96,12 @@ echo ""
     fi
 done
 echo "Using: $COUNTRY"
-COMMENT_DEFAULT="$XRFNUM by $CALLSIGN, info: $EMAIL"
 echo "_________________________________________________________________________"
 echo ""
+COMMENT_DEFAULT="Multiprotocol Reflector $XRFNUM by $CALLSIGN, info: $EMAIL"
 echo "Default for next field: \"$COMMENT_DEFAULT\""
 while true; do
-    read -r -p "06. What is the comment to be shown in the XLX Reflectors list? [$COMMENT_DEFAULT]: " COMMENT
+    read -r -p "06. What is the comment to be shown in the XLX Reflectors list? " COMMENT
     COMMENT=${COMMENT:-"$COMMENT_DEFAULT"}
     if [ ${#COMMENT} -le 100 ]; then
         break
@@ -332,7 +332,8 @@ chown -R www-data:www-data /xlxd/
 
 /usr/sbin/a2ensite "$XLXDOMAIN".conf
 /usr/sbin/a2dissite 000-default
-systemctl reload apache2
+systemctl stop apache2
+systemctl start apache2
 systemctl daemon-reload
 echo ""
 echo "========================================="
