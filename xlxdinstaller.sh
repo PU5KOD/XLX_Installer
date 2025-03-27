@@ -307,6 +307,10 @@ echo "=============="
 echo ""
 
 apt update && apt full-upgrade -y
+if [ $? -ne 0 ]; then
+    print_wrapped "Error: Failed to update package lists. Check your internet connection or package manager configuration."
+    exit 1
+fi
 
 echo ""
 echo "INSTALLING DEPENDENCIES..."
@@ -384,6 +388,7 @@ sed -i "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM $LOCAL_IP 127.0.0.1|g" /etc/in
 XLXCONFIG="$WEBDIR/pgs/config.inc.php"
 sed -i "s|your_email|$EMAIL|g" "$XLXCONFIG"
 sed -i "s|LX1IQ|$CALLSIGN|g" "$XLXCONFIG"
+sed -i "s|MODQTD|$MODQTD|g" "$XLXCONFIG"
 sed -i "s|custom_header|$HEADER|g" "$XLXCONFIG"
 sed -i "s#http://your_dashboard#http://$XLXDOMAIN#g" "$XLXCONFIG"
 sed -i "s|your_country|$COUNTRY|g" "$XLXCONFIG"
