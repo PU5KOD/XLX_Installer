@@ -16,6 +16,29 @@ if [ ! -e "/etc/debian_version" ]; then
     exit 1
 fi
 
+# Set the fixed character limit
+MAX_WIDTH=100
+
+# Get the number of columns from the terminal
+cols=$(tput cols)
+
+# Decide the length to use: the smaller of MAX_WIDTH and cols
+if [ "$cols" -lt "$MAX_WIDTH" ]; then
+    width=$cols
+else
+    width=$MAX_WIDTH
+fi
+
+# Function to create a line of underscores adjusted to the length
+print_line() {
+    printf "%${width}s\n" | tr ' ' '_'
+}
+
+# Function to display text with adjusted line breaks
+print_wrapped() {
+    echo "$1" | fold -s -w "$width"
+}
+
 DIRDIR=$(pwd)
 LOCAL_IP=$(hostname -I | awk '{print $1}')
 INFREF="https://n5amd.com/digital-radio-how-tos/create-xlx-xrf-d-star-reflector/"
@@ -27,14 +50,13 @@ APPS="git git-core make build-essential g++ apache2 php libapache2-mod-php php-c
 
 # DATA INPUT
 clear
-echo "_________________________________________________________________________"
+print_line
 echo ""
-echo "Installer of the XLX Multiprotocol Ham Radio Reflector and its dashboard"
+print_wrapped "Installer of the XLX Multiprotocol Ham Radio Reflector and its dashboard"
 echo ""
-echo "Below you will be asked for some information, answer the requested"
-echo "values or, if applicable, to accept the suggested value press [ENTER]"
-echo "_________________________________________________________________________"
+print_wrapped "Below you will be asked for some information, answer the requested values or, if applicable, to accept the suggested value press [ENTER]"
 echo ""
+print_line
 echo ""
 echo "REFLECTOR DATA INPUT"
 echo "===================="
@@ -56,7 +78,7 @@ done
 XRFNUM=XLX$XRFDIGIT
 echo "Using: $XRFNUM"
 while true; do
-echo "_________________________________________________________________________"
+print_line
 echo ""
     echo "Mandatory"
     read -r -p "02. What is the web address (FQDN) of the reflector dashboard? e.g., xlx.domain.com " XLXDOMAIN
@@ -68,7 +90,7 @@ echo ""
 done
 echo "Using: $XLXDOMAIN"
 while true; do
-echo "_________________________________________________________________________"
+print_line
 echo ""
     echo "Mandatory"
     read -r -p "03. What is the sysop e-mail address? " EMAIL
@@ -80,7 +102,7 @@ echo ""
 done
 echo "Using: $EMAIL"
 while true; do
-echo "_________________________________________________________________________"
+print_line
 echo ""
     echo "Mandatory"
     read -r -p "04. What is the sysop callsign? " CALLSIGN
@@ -92,7 +114,7 @@ echo ""
 done
 echo "Using: $CALLSIGN"
 while true; do
-echo "_________________________________________________________________________"
+print_line
 echo ""
     echo "Mandatory"
     read -r -p "05. What is the country of the reflector? " COUNTRY
@@ -103,7 +125,7 @@ echo ""
     fi
 done
 echo "Using: $COUNTRY"
-echo "_________________________________________________________________________"
+print_line
 echo ""
 COMMENT_DEFAULT="$XRFNUM Multiprotocol Reflector by $CALLSIGN, info: $EMAIL"
 echo "Suggested for next field: \"$COMMENT_DEFAULT\""
@@ -117,14 +139,14 @@ while true; do
     fi
 done
 echo "Using: $COMMENT"
-echo "_________________________________________________________________________"
+print_line
 echo ""
 echo "Suggested for next field: \"$XRFNUM\""
 read -r -p "07. Custom text on header of the dashboard webpage. " HEADER
 HEADER=${HEADER:-$XRFNUM}
 echo "Using: $HEADER"
 while true; do
-echo "_________________________________________________________________________"
+print_line
 echo ""
     echo "Suggested for next field: 6"
     read -r -p "08. How many active modules does the reflector have? (1-26) " MODQTD
@@ -138,7 +160,7 @@ done
 echo "Using: $MODQTD"
 # YSFNAME e YSFDESC input
 while true; do
-echo "_________________________________________________________________________"
+print_line
 echo ""
     echo "Suggested for next field: \"$XRFNUM\""
     echo "09. At https://register.ysfreflector.de the list of YSF reflectors is shown."
@@ -153,7 +175,7 @@ echo ""
 done
 echo "Using: $YSFNAME"
 while true; do
-echo "_________________________________________________________________________"
+print_line
 echo ""
     echo "Suggested for next field: \"$XLXDOMAIN\""
     echo -n "10. And what will be his description to appear on this list? (max. 16 characters) "
@@ -190,7 +212,7 @@ to_c_array() {
 YSFNAME_ARRAY=$(to_c_array "$YSFNAME")
 YSFDESC_ARRAY=$(to_c_array "$YSFDESC")
 while true; do
-echo "_________________________________________________________________________"
+print_line
 echo ""
     echo "Suggested for next field: 42000"
     read -r -p "11. What is the YSF UDP port number? (1-65535) " YSFPORT
@@ -203,7 +225,7 @@ echo ""
 done
 echo "Using: $YSFPORT"
 while true; do
-echo "_________________________________________________________________________"
+print_line
 echo ""
     echo "Suggested for next field: 433125000"
     read -r -p "12. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000) " YSFFREQ
@@ -215,7 +237,7 @@ echo ""
     fi
 done
 echo "Using: $YSFFREQ"
-echo "_________________________________________________________________________"
+print_line
 echo ""
 echo "Suggested for next field: 1"
 read -r -p "13. Is YSF auto-link enable? (1 = Yes / 0 = No) " AUTOLINK
@@ -224,7 +246,7 @@ echo "Using: $AUTOLINK"
 VALID_MODULES=($(echo {A..Z} | cut -d' ' -f1-"$MODQTD"))
 if [ "$AUTOLINK" -eq 1 ]; then
     while true; do
-    echo "_________________________________________________________________________"
+    print_line
     echo ""
         echo "Suggested for next field: C"
         read -r -p "14. What module to be auto-link? (one of ${VALID_MODULES[*]}) " MODAUTO
