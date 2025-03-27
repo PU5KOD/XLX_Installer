@@ -8,7 +8,7 @@ sudo systemctl disable xlxd.service
 /usr/sbin/a2ensite 000-default
 sudo systemctl reload apache2.service
 sudo rm -r /usr/src/xlxd/ /xlxd/ /var/www/html/xlxd/
-sudo rm /etc/init.d/xlxd /var/log/xlxd.* /etc/apache2/sites-available/$XLXDOMAIN
+sudo rm /etc/init.d/xlxd /var/log/xlxd.* /etc/apache2/sites-available/$XLXDOMAIN.conf
 sudo systemctl daemon-reload
 echo ""
 echo "Uninstallation completed successfully!"
