@@ -309,12 +309,47 @@ while true; do
     print_wrapped "Using: $MODAUTO"
     line_type1
 fi
+# Data verification
+echo ""
+print_success "PLEASE REVIEW YOUR SETTINGS:"
+echo ""
+print_wrapped "Reflector ID: $XRFNUM"
+print_wrapped "FQD: $XLXDOMAIN"
+print_wrapped "E-mail: $EMAIL"
+print_wrapped "Callsign: $CALLSIGN"
+print_wrapped "Country: $COUNTRY"
+print_wrapped "Comment: $COMMENT"
+print_wrapped "Dashboard header text: $HEADER"
+print_wrapped "Modules: $MODQTD"
+print_wrapped "YSF name: $YSFNAME"
+print_wrapped "YSF description: $YSFDESC"
+print_wrapped "YSF UDP Port: $YSFPORT"
+print_wrapped "YSF frequency: $YSFFREQ"Hz
+print_wrapped "YSF autolink: $AUTOLINK (1 = Yes / 0 = No)"
+if [ "$AUTOLINK" -eq 1 ]; then
+        print_wrapped "YSF module autolink: $MODAUTO"
+        fi
+echo ""
+while true; do
+    print_wrapped "Are these settings correct? (y/n)"
+    printf "> "
+    read -r CONFIRM
+    CONFIRM=$(echo "$CONFIRM" | tr '[:lower:]' '[:upper:]')
+    if [[ "$CONFIRM" == "Y" || "$CONFIRM" == "N" ]]; then
+        break
+    else
+        print_wrapped "Please enter 'y' or 'n'."
+    fi
+done
+if [ "$CONFIRM" == "N" ]; then
+    print_wrapped "Installation aborted by user."
+    exit 1
+fi
 
 echo ""
 echo "UPDATING OS..."
 echo "=============="
 echo ""
-
 apt update && apt full-upgrade -y
 if [ $? -ne 0 ]; then
     print_wrapped "Error: Failed to update package lists. Check your internet connection or package manager configuration."
