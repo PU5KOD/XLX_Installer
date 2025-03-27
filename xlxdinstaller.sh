@@ -29,11 +29,13 @@ else
     width=$MAX_WIDTH
 fi
 
-# Function to create a line of underscores adjusted to the length
-print_line() {
+# Function to create different types of lines adjusted to length
+line_type1() {
     printf "%${width}s\n" | tr ' ' '_'
 }
-
+line_type2() {
+    printf "%${width}s\n" | tr ' ' '='
+}
 # Function to display text with adjusted line breaks
 print_wrapped() {
     echo "$1" | fold -s -w "$width"
@@ -50,13 +52,13 @@ APPS="git git-core make build-essential g++ apache2 php libapache2-mod-php php-c
 
 # DATA INPUT
 clear
-print_line
+line_type1
 echo ""
 print_wrapped "Installer of the XLX Multiprotocol Ham Radio Reflector and its dashboard"
 echo ""
 print_wrapped "Below you will be asked for some information, answer the requested values or, if applicable, to accept the suggested value press [ENTER]"
 echo ""
-print_line
+line_type1
 echo ""
 echo "REFLECTOR DATA INPUT"
 echo "===================="
@@ -78,7 +80,7 @@ done
 XRFNUM=XLX$XRFDIGIT
 echo "Using: $XRFNUM"
 while true; do
-print_line
+line_type1
 echo ""
     echo "Mandatory"
     read -r -p "02. What is the web address (FQDN) of the reflector dashboard? e.g., xlx.domain.com " XLXDOMAIN
@@ -90,7 +92,7 @@ echo ""
 done
 echo "Using: $XLXDOMAIN"
 while true; do
-print_line
+line_type1
 echo ""
     echo "Mandatory"
     read -r -p "03. What is the sysop e-mail address? " EMAIL
@@ -102,7 +104,7 @@ echo ""
 done
 echo "Using: $EMAIL"
 while true; do
-print_line
+line_type1
 echo ""
     echo "Mandatory"
     read -r -p "04. What is the sysop callsign? " CALLSIGN
@@ -114,7 +116,7 @@ echo ""
 done
 echo "Using: $CALLSIGN"
 while true; do
-print_line
+line_type1
 echo ""
     echo "Mandatory"
     read -r -p "05. What is the country of the reflector? " COUNTRY
@@ -125,7 +127,7 @@ echo ""
     fi
 done
 echo "Using: $COUNTRY"
-print_line
+line_type1
 echo ""
 COMMENT_DEFAULT="$XRFNUM Multiprotocol Reflector by $CALLSIGN, info: $EMAIL"
 echo "Suggested for next field: \"$COMMENT_DEFAULT\""
@@ -139,14 +141,14 @@ while true; do
     fi
 done
 echo "Using: $COMMENT"
-print_line
+line_type1
 echo ""
 echo "Suggested for next field: \"$XRFNUM\""
 read -r -p "07. Custom text on header of the dashboard webpage. " HEADER
 HEADER=${HEADER:-$XRFNUM}
 echo "Using: $HEADER"
 while true; do
-print_line
+line_type1
 echo ""
     echo "Suggested for next field: 6"
     read -r -p "08. How many active modules does the reflector have? (1-26) " MODQTD
@@ -160,7 +162,7 @@ done
 echo "Using: $MODQTD"
 # YSFNAME e YSFDESC input
 while true; do
-print_line
+line_type1
 echo ""
     echo "Suggested for next field: \"$XRFNUM\""
     echo "09. At https://register.ysfreflector.de the list of YSF reflectors is shown."
@@ -175,7 +177,7 @@ echo ""
 done
 echo "Using: $YSFNAME"
 while true; do
-print_line
+line_type1
 echo ""
     echo "Suggested for next field: \"$XLXDOMAIN\""
     echo -n "10. And what will be his description to appear on this list? (max. 16 characters) "
@@ -212,7 +214,7 @@ to_c_array() {
 YSFNAME_ARRAY=$(to_c_array "$YSFNAME")
 YSFDESC_ARRAY=$(to_c_array "$YSFDESC")
 while true; do
-print_line
+line_type1
 echo ""
     echo "Suggested for next field: 42000"
     read -r -p "11. What is the YSF UDP port number? (1-65535) " YSFPORT
@@ -225,7 +227,7 @@ echo ""
 done
 echo "Using: $YSFPORT"
 while true; do
-print_line
+line_type1
 echo ""
     echo "Suggested for next field: 433125000"
     read -r -p "12. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000) " YSFFREQ
@@ -237,7 +239,7 @@ echo ""
     fi
 done
 echo "Using: $YSFFREQ"
-print_line
+line_type1
 echo ""
 echo "Suggested for next field: 1"
 read -r -p "13. Is YSF auto-link enable? (1 = Yes / 0 = No) " AUTOLINK
@@ -246,7 +248,7 @@ echo "Using: $AUTOLINK"
 VALID_MODULES=($(echo {A..Z} | cut -d' ' -f1-"$MODQTD"))
 if [ "$AUTOLINK" -eq 1 ]; then
     while true; do
-    print_line
+    line_type1
     echo ""
         echo "Suggested for next field: C"
         read -r -p "14. What module to be auto-link? (one of ${VALID_MODULES[*]}) " MODAUTO
@@ -376,15 +378,15 @@ systemctl enable xlxd
 systemctl start xlxd | echo "Finishing, please wait......."
 
 echo ""
-echo "==========================================================================="
+line_type2
+echo ""
 echo "  Your Reflector $XRFNUM is now installed and running."
 echo "  For Public Reflectors:"
-echo "  If your XLX number is available it's expected to be listed"
-echo "  on the public list shortly, typically within an hour."
-echo "  If you don't want the reflector to be published just set callinghome"
-echo "  to [false] in the main file in $XLXCONFIG."
+print_wrapped "  If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour."
+print_wrapped "  If you don't want the reflector to be published just set callinghome to [false] in the main file in $XLXCONFIG."
 echo "  Many other settings can be changed in this file."
 echo "  More Information: $INFREF"
 echo "  Your $XRFNUM dashboard should now be accessible at http://$XLXDOMAIN "
 echo "  To get your site certified with https visit certbot.eff.org"
-echo "==========================================================================="
+echo ""
+line_type2
