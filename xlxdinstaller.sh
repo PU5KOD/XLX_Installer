@@ -98,102 +98,115 @@ print_wrapped "Using: $XLXDOMAIN"
 line_type1
 while true; do
 echo ""
-    echo "Mandatory"
-    read -r -p "03. What is the sysop e-mail address? " EMAIL
+    print_wrapped "Mandatory"
+    print_wrapped "03. What is the sysop e-mail address?"
+    printf "> "
+    read -r EMAIL
     if [ -z "$EMAIL" ]; then
-        echo "Error: This field is mandatory and cannot be empty. Try again!"
+        print_wrapped "Error: This field is mandatory and cannot be empty. Try again!"
     else
         break
     fi
 done
-echo "Using: $EMAIL"
+print_wrapped "Using: $EMAIL"
 line_type1
 while true; do
 echo ""
-    echo "Mandatory"
-    read -r -p "04. What is the sysop callsign? " CALLSIGN
+    print_wrapped "Mandatory"
+    print_wrapped "04. What is the sysop callsign?"
+    printf "> "
+    read -r CALLSIGN
     if [ -z "$CALLSIGN" ]; then
-        echo "Error: This field is mandatory and cannot be empty. Try again!"
+        print_wrapped "Error: This field is mandatory and cannot be empty. Try again!"
     else
         break
     fi
 done
-echo "Using: $CALLSIGN"
+print_wrapped "Using: $CALLSIGN"
 line_type1
 while true; do
 echo ""
-    echo "Mandatory"
-    read -r -p "05. What is the country of the reflector? " COUNTRY
+    print_wrapped "Mandatory"
+    print_wrapped "05. What is the country of the reflector?"
+    printf "> "
+    read -r COUNTRY
     if [ -z "$COUNTRY" ]; then
-        echo "Error: This field is mandatory and cannot be empty. Try again!"
+        print_wrapped "Error: This field is mandatory and cannot be empty. Try again!"
     else
         break
     fi
 done
-echo "Using: $COUNTRY"
+print_wrapped "Using: $COUNTRY"
 line_type1
+while true; do
 echo ""
 COMMENT_DEFAULT="$XRFNUM Multiprotocol Reflector by $CALLSIGN, info: $EMAIL"
-echo "Suggested for next field: \"$COMMENT_DEFAULT\""
-while true; do
-    read -r -p "06. What is the comment to be shown in the XLX Reflectors list? " COMMENT
+print_wrapped "Suggested for next field: \"$COMMENT_DEFAULT\""
+    print_wrapped "06. What is the comment to be shown in the XLX Reflectors list?"
+    printf "> "
+    read -r COMMENT
     COMMENT=${COMMENT:-"$COMMENT_DEFAULT"}
     if [ ${#COMMENT} -le 100 ]; then
         break
     else
-        echo "Error: Comment must be max 100 characters. Please try again!"
+        print_wrapped "Error: Comment must be max 100 characters. Please try again!"
     fi
 done
-echo "Using: $COMMENT"
+print_wrapped "Using: $COMMENT"
 line_type1
 echo ""
-echo "Suggested for next field: \"$XRFNUM\""
-read -r -p "07. Custom text on header of the dashboard webpage. " HEADER
+print_wrapped "Suggested for next field: \"$XRFNUM\""
+print_wrapped "07. Custom text on header of the dashboard webpage."
+printf "> "
+read -r HEADER
 HEADER=${HEADER:-$XRFNUM}
-echo "Using: $HEADER"
+print_wrapped "Using: $HEADER"
 line_type1
 while true; do
 echo ""
-    echo "Suggested for next field: 6"
-    read -r -p "08. How many active modules does the reflector have? (1-26) " MODQTD
+    print_wrapped "Suggested for next field: 6"
+    print_wrapped "08. How many active modules does the reflector have? (1-26)"
+    printf "> "
+    read -r MODQTD
     MODQTD=${MODQTD:-6}
     if [[ "$MODQTD" =~ ^[0-9]+$ && "$MODQTD" -ge 1 && "$MODQTD" -le 26 ]]; then
         break
     else
-        echo "Error: Must be a number between 1 and 26. Try again!"
+        print_wrapped "Error: Must be a number between 1 and 26. Try again!"
     fi
 done
-echo "Using: $MODQTD"
+print_wrapped "Using: $MODQTD"
 line_type1
 # YSFNAME e YSFDESC input
 while true; do
 echo ""
-    echo "Suggested for next field: \"$XRFNUM\""
-    echo "09. At https://register.ysfreflector.de the list of YSF reflectors is shown."
-    echo -n "    What name will this reflector have to appear in this list? (max. 16 characters) "
+    print_wrapped "Suggested for next field: \"$XRFNUM\""
+    print_wrapped "09. At https://register.ysfreflector.de the list of YSF reflectors is shown. What name will this reflector have to appear in this list? (max. 16 characters)"
+    printf "> "
     read -r YSFNAME
     YSFNAME=${YSFNAME:-$XRFNUM}
     if [ ${#YSFNAME} -le 16 ]; then
         break
     else
-        echo "Error: Name must be max 16 characters. Please try again!"
+        print_wrapped "Error: Name must be max 16 characters. Please try again!"
     fi
 done
-echo "Using: $YSFNAME"
+print_wrapped "Using: $YSFNAME"
 line_type1
 while true; do
 echo ""
-    echo "Suggested for next field: \"$XLXDOMAIN\""
-    echo -n "10. And what will be his description to appear on this list? (max. 16 characters) "
+    print_wrapped "Suggested for next field: \"$XLXDOMAIN\""
+    print_wrapped "10. And what will be his description to appear on this list? (max. 16 characters)"
+    printf "> "
     read -r YSFDESC
     YSFDESC=${YSFDESC:-$XLXDOMAIN}
     if [ ${#YSFDESC} -le 16 ]; then
         break
     else
-        echo "Error: Description must be max 16 characters. Please try again!"
+        print_wrapped "Error: Description must be max 16 characters. Please try again!"
     fi
 done
-echo "Using: $YSFDESC"
+print_wrapped "Using: $YSFDESC"
 # Fill with spaces on the right until reach 16 characters
 YSFNAME=$(printf "%-16s" "$YSFNAME")
 YSFDESC=$(printf "%-16s" "$YSFDESC")
@@ -220,58 +233,66 @@ YSFDESC_ARRAY=$(to_c_array "$YSFDESC")
 line_type1
 while true; do
 echo ""
-    echo "Suggested for next field: 42000"
-    read -r -p "11. What is the YSF UDP port number? (1-65535) " YSFPORT
+    print_wrapped "Suggested for next field: 42000"
+    print_wrapped "11. What is the YSF UDP port number? (1-65535)"
+    printf "> "
+    read -r YSFPORT
     YSFPORT=${YSFPORT:-42000}
     if [[ "$YSFPORT" =~ ^[0-9]+$ && "$YSFPORT" -ge 1 && "$YSFPORT" -le 65535 ]]; then
         break
     else
-        echo "Error: Must be a number between 1 and 65535. Try again!"
+        print_wrapped "Error: Must be a number between 1 and 65535. Try again!"
     fi
 done
-echo "Using: $YSFPORT"
+print_wrapped "Using: $YSFPORT"
 line_type1
 while true; do
 echo ""
-    echo "Suggested for next field: 433125000"
-    read -r -p "12. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000) " YSFFREQ
+    print_wrapped "Suggested for next field: 433125000"
+    print_wrapped "12. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000)"
+    printf "> "
+    read -r YSFFREQ
     YSFFREQ=${YSFFREQ:-433125000}
     if [[ "$YSFFREQ" =~ ^[0-9]{9}$ ]]; then
         break
     else
-        echo "Error: Must be exactly 9 numeric digits (e.g., 433125000). Try again!"
+        print_wrapped "Error: Must be exactly 9 numeric digits (e.g., 433125000). Try again!"
     fi
 done
-echo "Using: $YSFFREQ"
+print_wrapped "Using: $YSFFREQ"
 line_type1
 while true; do
     echo ""
-    echo "Suggested for next field: 1"
-    read -r -p "13. Is YSF auto-link enable? (1 = Yes / 0 = No) " AUTOLINK
+    print_wrapped "Suggested for next field: 1"
+    print_wrapped "13. Is YSF auto-link enable? (1 = Yes / 0 = No)"
+    printf "> "
+    read -r AUTOLINK
     AUTOLINK=${AUTOLINK:-1}  # Define 1 como padrão se nada for digitado
     if [[ "$AUTOLINK" =~ ^[0-1]$ ]]; then  # Verifica se é 0 ou 1
         break
     else
-        echo "Error: Must be either 1 (Yes) or 0 (No). Try again!"
+        print_wrapped "Error: Must be either 1 (Yes) or 0 (No). Try again!"
     fi
 done
-echo "Using: $AUTOLINK"
+print_wrapped "Using: $AUTOLINK"
 line_type1
+while true; do
 VALID_MODULES=($(echo {A..Z} | cut -d' ' -f1-"$MODQTD"))
-if [ "$AUTOLINK" -eq 1 ]; then
-    while true; do
+if [ "$AUTOLINK" -eq 1 ]; then  
     echo ""
-        echo "Suggested for next field: C"
-        read -r -p "14. What module to be auto-link? (one of ${VALID_MODULES[*]}) " MODAUTO
+        print_wrapped "Suggested for next field: C"
+        print_wrapped "14. What module to be auto-link? (one of ${VALID_MODULES[*]})"
+        printf "> "
+        read -r MODAUTO
         MODAUTO=${MODAUTO:-C}
         MODAUTO=$(echo "$MODAUTO" | tr '[:lower:]' '[:upper:]')
         if [[ " ${VALID_MODULES[@]} " =~ " $MODAUTO " ]]; then
             break
         else
-            echo "Invalid input for YSF autolink module. Must be one of ${VALID_MODULES[*]}. Try again!"
+            print_wrapped "Invalid input for YSF autolink module. Must be one of ${VALID_MODULES[*]}. Try again!"
         fi
     done
-    echo "Using: $MODAUTO"
+    print_wrapped "Using: $MODAUTO"
     line_type1
 fi
 
