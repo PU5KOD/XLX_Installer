@@ -133,6 +133,7 @@ echo ""
     if [ -z "$CALLSIGN" ]; then
         print_error "Error: This field is mandatory and cannot be empty. Try again!"
     else
+        CALLSIGN=$(echo "$CALLSIGN" | tr '[:lower:]' '[:upper:]')
         break
     fi
 done
