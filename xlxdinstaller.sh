@@ -81,8 +81,8 @@ while true; do
 done
 XRFNUM=XLX$XRFDIGIT
 print_wrapped "Using: $XRFNUM"
-while true; do
 line_type1
+while true; do
 echo ""
     print_wrapped "Mandatory"
     print_wrapped "02. What is the web address (FQDN) of the reflector dashboard? e.g., xlx.domain.com"
@@ -95,8 +95,8 @@ echo ""
     fi
 done
 print_wrapped "Using: $XLXDOMAIN"
-while true; do
 line_type1
+while true; do
 echo ""
     echo "Mandatory"
     read -r -p "03. What is the sysop e-mail address? " EMAIL
@@ -107,8 +107,8 @@ echo ""
     fi
 done
 echo "Using: $EMAIL"
-while true; do
 line_type1
+while true; do
 echo ""
     echo "Mandatory"
     read -r -p "04. What is the sysop callsign? " CALLSIGN
@@ -119,8 +119,8 @@ echo ""
     fi
 done
 echo "Using: $CALLSIGN"
-while true; do
 line_type1
+while true; do
 echo ""
     echo "Mandatory"
     read -r -p "05. What is the country of the reflector? " COUNTRY
@@ -151,8 +151,8 @@ echo "Suggested for next field: \"$XRFNUM\""
 read -r -p "07. Custom text on header of the dashboard webpage. " HEADER
 HEADER=${HEADER:-$XRFNUM}
 echo "Using: $HEADER"
-while true; do
 line_type1
+while true; do
 echo ""
     echo "Suggested for next field: 6"
     read -r -p "08. How many active modules does the reflector have? (1-26) " MODQTD
@@ -164,9 +164,9 @@ echo ""
     fi
 done
 echo "Using: $MODQTD"
+line_type1
 # YSFNAME e YSFDESC input
 while true; do
-line_type1
 echo ""
     echo "Suggested for next field: \"$XRFNUM\""
     echo "09. At https://register.ysfreflector.de the list of YSF reflectors is shown."
@@ -180,8 +180,8 @@ echo ""
     fi
 done
 echo "Using: $YSFNAME"
-while true; do
 line_type1
+while true; do
 echo ""
     echo "Suggested for next field: \"$XLXDOMAIN\""
     echo -n "10. And what will be his description to appear on this list? (max. 16 characters) "
@@ -217,8 +217,8 @@ to_c_array() {
 # Generate arrays C
 YSFNAME_ARRAY=$(to_c_array "$YSFNAME")
 YSFDESC_ARRAY=$(to_c_array "$YSFDESC")
-while true; do
 line_type1
+while true; do
 echo ""
     echo "Suggested for next field: 42000"
     read -r -p "11. What is the YSF UDP port number? (1-65535) " YSFPORT
@@ -230,8 +230,8 @@ echo ""
     fi
 done
 echo "Using: $YSFPORT"
-while true; do
 line_type1
+while true; do
 echo ""
     echo "Suggested for next field: 433125000"
     read -r -p "12. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000) " YSFFREQ
@@ -251,8 +251,8 @@ AUTOLINK=${AUTOLINK:-1}
 echo "Using: $AUTOLINK"
 VALID_MODULES=($(echo {A..Z} | cut -d' ' -f1-"$MODQTD"))
 if [ "$AUTOLINK" -eq 1 ]; then
-    while true; do
     line_type1
+    while true; do
     echo ""
         echo "Suggested for next field: C"
         read -r -p "14. What module to be auto-link? (one of ${VALID_MODULES[*]}) " MODAUTO
@@ -265,6 +265,7 @@ if [ "$AUTOLINK" -eq 1 ]; then
         fi
     done
     echo "Using: $MODAUTO"
+    line_type1
 fi
 
 echo ""
