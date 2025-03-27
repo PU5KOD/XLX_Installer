@@ -64,33 +64,37 @@ echo "REFLECTOR DATA INPUT"
 echo "===================="
 echo ""
 while true; do
-    echo "Mandatory"
-    read -r -p "01. What are the 3 digits of the XLX reflector that will be used? (e.g., 300, US1, BRA) " XRFDIGIT
+    print_wrapped "Mandatory"
+    print_wrapped "01. What are the 3 digits of the XLX reflector that will be used? (e.g., 300, US1, BRA)"
+    printf "> "
+    read -r XRFDIGIT
     if [ -z "$XRFDIGIT" ]; then
-        echo "Error: This field is mandatory and cannot be empty. Try again!"
+        print_wrapped "Error: This field is mandatory and cannot be empty. Try again!"
     else
         XRFDIGIT=$(echo "$XRFDIGIT" | tr '[:lower:]' '[:upper:]')
         if [[ "$XRFDIGIT" =~ ^[A-Z0-9]{3}$ ]]; then
             break
         else
-            echo "Error: Must be exactly 3 alphanumeric characters (e.g., 032, USA, BRA). Try again!"
+            print_wrapped "Error: Must be exactly 3 alphanumeric characters (e.g., 032, USA, BRA). Try again!"
         fi
     fi
 done
 XRFNUM=XLX$XRFDIGIT
-echo "Using: $XRFNUM"
+print_wrapped "Using: $XRFNUM"
 while true; do
 line_type1
 echo ""
-    echo "Mandatory"
-    read -r -p "02. What is the web address (FQDN) of the reflector dashboard? e.g., xlx.domain.com " XLXDOMAIN
+    print_wrapped "Mandatory"
+    print_wrapped "02. What is the web address (FQDN) of the reflector dashboard? e.g., xlx.domain.com"
+    printf "> "
+    read -r XLXDOMAIN
     if [ -z "$XLXDOMAIN" ]; then
-        echo "Error: This field is mandatory and cannot be empty. Try again!"
+        print_wrapped "Error: This field is mandatory and cannot be empty. Try again!"
     else
         break
     fi
 done
-echo "Using: $XLXDOMAIN"
+print_wrapped "Using: $XLXDOMAIN"
 while true; do
 line_type1
 echo ""
