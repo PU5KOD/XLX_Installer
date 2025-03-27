@@ -244,14 +244,21 @@ echo ""
 done
 echo "Using: $YSFFREQ"
 line_type1
-echo ""
-echo "Suggested for next field: 1"
-read -r -p "13. Is YSF auto-link enable? (1 = Yes / 0 = No) " AUTOLINK
-AUTOLINK=${AUTOLINK:-1}
+while true; do
+    echo ""
+    echo "Suggested for next field: 1"
+    read -r -p "13. Is YSF auto-link enable? (1 = Yes / 0 = No) " AUTOLINK
+    AUTOLINK=${AUTOLINK:-1}  # Define 1 como padrão se nada for digitado
+    if [[ "$AUTOLINK" =~ ^[0-1]$ ]]; then  # Verifica se é 0 ou 1
+        break
+    else
+        echo "Error: Must be either 1 (Yes) or 0 (No). Try again!"
+    fi
+done
 echo "Using: $AUTOLINK"
+line_type1
 VALID_MODULES=($(echo {A..Z} | cut -d' ' -f1-"$MODQTD"))
 if [ "$AUTOLINK" -eq 1 ]; then
-    line_type1
     while true; do
     echo ""
         echo "Suggested for next field: C"
