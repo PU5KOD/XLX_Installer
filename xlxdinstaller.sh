@@ -48,6 +48,7 @@ XLXDREPO="https://github.com/PU5KOD/xlxd.git"
 DMRIDURL="http://xlxapi.rlx.lu/api/exportdmr.php"
 WEBDIR="/var/www/html/xlxd"
 XLXINSTDIR="/usr/src"
+ACCEPT="| [ENTER] to accept..."
 APPS="git git-core make build-essential g++ apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl"
 
 # DATA INPUT
@@ -141,8 +142,8 @@ line_type1
 while true; do
 echo ""
 COMMENT_DEFAULT="$XRFNUM Multiprotocol Reflector by $CALLSIGN, info: $EMAIL"
-print_wrapped "Suggested for next field: \"$COMMENT_DEFAULT\""
     print_wrapped "06. What is the comment to be shown in the XLX Reflectors list?"
+    print_wrapped "Suggested: \"$COMMENT_DEFAULT\" $ACCEPT"
     printf "> "
     read -r COMMENT
     COMMENT=${COMMENT:-"$COMMENT_DEFAULT"}
@@ -155,8 +156,8 @@ done
 print_wrapped "Using: $COMMENT"
 line_type1
 echo ""
-print_wrapped "Suggested for next field: \"$XRFNUM\""
 print_wrapped "07. Custom text on header of the dashboard webpage."
+print_wrapped "Suggested: \"$XRFNUM\" $ACCEPT"
 printf "> "
 read -r HEADER
 HEADER=${HEADER:-$XRFNUM}
@@ -164,8 +165,8 @@ print_wrapped "Using: $HEADER"
 line_type1
 while true; do
 echo ""
-    print_wrapped "Suggested for next field: 6"
     print_wrapped "08. How many active modules does the reflector have? (1-26)"
+    print_wrapped "Suggested: 6 $ACCEPT"
     printf "> "
     read -r MODQTD
     MODQTD=${MODQTD:-6}
@@ -180,8 +181,8 @@ line_type1
 # YSFNAME e YSFDESC input
 while true; do
 echo ""
-    print_wrapped "Suggested for next field: \"$XRFNUM\""
     print_wrapped "09. At https://register.ysfreflector.de the list of YSF reflectors is shown. What name will this reflector have to appear in this list? (max. 16 characters)"
+    print_wrapped "Suggested: \"$XRFNUM\" $aCCEPT"
     printf "> "
     read -r YSFNAME
     YSFNAME=${YSFNAME:-$XRFNUM}
@@ -195,8 +196,8 @@ print_wrapped "Using: $YSFNAME"
 line_type1
 while true; do
 echo ""
-    print_wrapped "Suggested for next field: \"$XLXDOMAIN\""
     print_wrapped "10. And what will be his description to appear on this list? (max. 16 characters)"
+    print_wrapped "Suggested: \"$XLXDOMAIN\" $ACCEPT"
     printf "> "
     read -r YSFDESC
     YSFDESC=${YSFDESC:-$XLXDOMAIN}
@@ -233,8 +234,8 @@ YSFDESC_ARRAY=$(to_c_array "$YSFDESC")
 line_type1
 while true; do
 echo ""
-    print_wrapped "Suggested for next field: 42000"
     print_wrapped "11. What is the YSF UDP port number? (1-65535)"
+    print_wrapped "Suggested: 42000 $ACCEPT"
     printf "> "
     read -r YSFPORT
     YSFPORT=${YSFPORT:-42000}
@@ -248,8 +249,8 @@ print_wrapped "Using: $YSFPORT"
 line_type1
 while true; do
 echo ""
-    print_wrapped "Suggested for next field: 433125000"
     print_wrapped "12. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000)"
+    print_wrapped "Suggested: 433125000 $ACCEPT"
     printf "> "
     read -r YSFFREQ
     YSFFREQ=${YSFFREQ:-433125000}
@@ -263,8 +264,8 @@ print_wrapped "Using: $YSFFREQ"
 line_type1
 while true; do
     echo ""
-    print_wrapped "Suggested for next field: 1"
     print_wrapped "13. Is YSF auto-link enable? (1 = Yes / 0 = No)"
+    print_wrapped "Suggested: 1 $ACCEPT"
     printf "> "
     read -r AUTOLINK
     AUTOLINK=${AUTOLINK:-1}  # Define 1 como padrão se nada for digitado
@@ -280,8 +281,8 @@ VALID_MODULES=($(echo {A..Z} | cut -d' ' -f1-"$MODQTD"))
 if [ "$AUTOLINK" -eq 1 ]; then
 while true; do
     echo ""
-        print_wrapped "Suggested for next field: C"
         print_wrapped "14. What module to be auto-link? (one of ${VALID_MODULES[*]})"
+        print_wrapped "Suggested: C $ACCEPT"
         printf "> "
         read -r MODAUTO
         MODAUTO=${MODAUTO:-C}
