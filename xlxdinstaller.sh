@@ -276,9 +276,9 @@ while true; do
 done
 print_wrapped "Using: $AUTOLINK"
 line_type1
-while true; do
 VALID_MODULES=($(echo {A..Z} | cut -d' ' -f1-"$MODQTD"))
-if [ "$AUTOLINK" -eq 1 ]; then  
+if [ "$AUTOLINK" -eq 1 ]; then
+while true; do
     echo ""
         print_wrapped "Suggested for next field: C"
         print_wrapped "14. What module to be auto-link? (one of ${VALID_MODULES[*]})"
