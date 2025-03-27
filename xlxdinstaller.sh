@@ -49,6 +49,10 @@ DMRIDURL="http://xlxapi.rlx.lu/api/exportdmr.php"
 WEBDIR="/var/www/html/xlxd"
 XLXINSTDIR="/usr/src"
 ACCEPT="| [ENTER] to accept..."
+APACHE_USER=$(ps aux | grep -E '[a]pache|[h]ttpd' | grep -v root | head -1 | awk '{print $1}')
+if [ -z "$APACHE_USER" ]; then
+    APACHE_USER="www-data"  # Fallback para www-data
+fi
 APPS="git git-core make build-essential g++ apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl"
 
 # DATA INPUT
@@ -182,7 +186,7 @@ line_type1
 while true; do
 echo ""
     print_wrapped "09. At https://register.ysfreflector.de the list of YSF reflectors is shown. What name will this reflector have to appear in this list? (max. 16 characters)"
-    print_wrapped "Suggested: \"$XRFNUM\" $aCCEPT"
+    print_wrapped "Suggested: \"$XRFNUM\" $ACCEPT"
     printf "> "
     read -r YSFNAME
     YSFNAME=${YSFNAME:-$XRFNUM}
@@ -391,9 +395,9 @@ cp "$DIRDIR/templates/apache.tbd.conf" /etc/apache2/sites-available/"$XLXDOMAIN"
 sed -i "s|apache.tbd|$XLXDOMAIN|g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 sed -i "s#ysf-xlxd#html/xlxd#g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 
-chown -R www-data:www-data /var/log/xlxd.xml
-chown -R www-data:www-data "$WEBDIR/"
-chown -R www-data:www-data /xlxd/
+chown -R "$APACHE_USER:$APACHE_USER" /var/log/xlxd.xml
+chown -R "$APACHE_USER:$APACHE_USER" "$WEBDIR/"
+chown -R "$APACHE_USER:$APACHE_USER" /xlxd/
 
 /usr/sbin/a2ensite "$XLXDOMAIN".conf
 /usr/sbin/a2dissite 000-default
