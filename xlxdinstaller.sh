@@ -335,7 +335,7 @@ while true; do
 fi
 # Data verification
 echo ""
-print_green "PLEASE REVIEW YOUR SETTINGS:"
+print_yellow "PLEASE REVIEW YOUR SETTINGS:"
 echo ""
 print_wrapped "Reflector ID: $XRFNUM"
 print_wrapped "FQD: $XLXDOMAIN"
@@ -355,18 +355,18 @@ if [ "$AUTOLINK" -eq 1 ]; then
         fi
 echo ""
 while true; do
-    print_wrapped "Are these settings correct? (y/n)"
+    print_yellow "Are these settings correct? (y/n)"
     printf "> "
     read -r CONFIRM
     CONFIRM=$(echo "$CONFIRM" | tr '[:lower:]' '[:upper:]')
     if [[ "$CONFIRM" == "Y" || "$CONFIRM" == "N" ]]; then
         break
     else
-        print_wrapped "Please enter 'y' or 'n'."
+        print_yellow "Please enter 'Y' or 'N'."
     fi
 done
 if [ "$CONFIRM" == "N" ]; then
-    print_wrapped "Installation aborted by user."
+    print_red "Installation aborted by user."
     exit 1
 fi
 
@@ -389,11 +389,11 @@ mkdir -p "$XLXINSTDIR"
 apt -y install $APPS
 
 if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
-    echo "=================================================================================="
-    echo "|           XLXD ALREADY COMPILED!!! Delete the following directories            |"
-    echo "|    '/usr/src/xlxd', '/xlxd', '/var/www/html/xlxd' and the following files      |"
-    echo "| '/etc/init.d/xlxd.*', 'var/log/xlxd.*' and '/etc/apache2/sites-available/xlx*' |"
-    echo "=================================================================================="
+    print_red "=================================================================================="
+    print_red "|           XLXD ALREADY COMPILED!!! Delete the following directories            |"
+    print_red "|    '/usr/src/xlxd', '/xlxd', '/var/www/html/xlxd' and the following files      |"
+    print_red "| '/etc/init.d/xlxd.*', 'var/log/xlxd.*' and '/etc/apache2/sites-available/xlx*' |"
+    print_red "=================================================================================="
     exit 1
 else
     echo ""
@@ -501,7 +501,7 @@ systemctl start xlxd | print_yellow "Finishing, please wait......."
 echo ""
 line_type2
 echo ""
-print_green "  Your Reflector $XRFNUM is now installed and running."
+print_green "  Your Reflector $XRFNUM is now installed and running!"
 echo ""
 print_wrapped "  For Public Reflectors:"
 print_wrapped "  If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour."
