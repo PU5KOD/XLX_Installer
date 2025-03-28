@@ -335,7 +335,7 @@ while true; do
 fi
 # Data verification
 echo ""
-print_yellow "PLEASE REVIEW YOUR SETTINGS:"
+print_blueb "PLEASE REVIEW YOUR SETTINGS:"
 echo ""
 print_wrapped "Reflector ID: $XRFNUM"
 print_wrapped "FQD: $XLXDOMAIN"
