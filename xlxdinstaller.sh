@@ -56,12 +56,10 @@ WEBDIR="/var/www/html/xlxd"
 XLXINSTDIR="/usr/src"
 ACCEPT="| [ENTER] to accept..."
 APPS="git git-core make build-essential g++ apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl"
-
-# Colors for better user experience
 RED='\033[0;31m'
 RED_BRIGHT='\033[1;31m'
 GREEN='\033[0;32m'
-GREEN_BRIGHT='\033[1;32m'  
+GREEN_BRIGHT='\033[1;32m'
 BLUE='\033[0;34m'
 BLUE_BRIGHT='\033[1;34m'
 YELLOW='\033[1;33m'
@@ -99,11 +97,11 @@ print_wrapped "Below you will be asked for some information, answer the requeste
 echo ""
 line_type1
 echo ""
-echo "REFLECTOR DATA INPUT"
-echo "===================="
+print_blueb "REFLECTOR DATA INPUT"
+print_blue "===================="
 echo ""
 while true; do
-    print_wrapped "Mandatory"
+    print_redb "Mandatory"
     print_wrapped "01. What are the 3 digits of the XLX reflector that will be used? (e.g., 300, US1, BRA)"
     printf "> "
     read -r XRFDIGIT
@@ -119,11 +117,11 @@ while true; do
     fi
 done
 XRFNUM=XLX$XRFDIGIT
-print_wrapped "Using: $XRFNUM"
+print_yellow "Using: $XRFNUM"
 line_type1
 while true; do
 echo ""
-    print_wrapped "Mandatory"
+    print_redb "Mandatory"
     print_wrapped "02. What is the web address (FQDN) of the reflector dashboard? e.g., xlx.domain.com"
     printf "> "
     read -r XLXDOMAIN
@@ -133,11 +131,11 @@ echo ""
         break
     fi
 done
-print_wrapped "Using: $XLXDOMAIN"
+print_yellow "Using: $XLXDOMAIN"
 line_type1
 while true; do
 echo ""
-    print_wrapped "Mandatory"
+    print_redb "Mandatory"
     print_wrapped "03. What is the sysop e-mail address?"
     printf "> "
     read -r EMAIL
@@ -147,11 +145,11 @@ echo ""
         break
     fi
 done
-print_wrapped "Using: $EMAIL"
+print_yellow "Using: $EMAIL"
 line_type1
 while true; do
 echo ""
-    print_wrapped "Mandatory"
+    print_redb "Mandatory"
     print_wrapped "04. What is the sysop callsign?"
     printf "> "
     read -r CALLSIGN
@@ -162,11 +160,11 @@ echo ""
         break
     fi
 done
-print_wrapped "Using: $CALLSIGN"
+print_yellow "Using: $CALLSIGN"
 line_type1
 while true; do
 echo ""
-    print_wrapped "Mandatory"
+    print_redb "Mandatory"
     print_wrapped "05. What is the country of the reflector?"
     printf "> "
     read -r COUNTRY
@@ -176,7 +174,7 @@ echo ""
         break
     fi
 done
-print_wrapped "Using: $COUNTRY"
+print_yellow "Using: $COUNTRY"
 line_type1
 while true; do
 echo ""
@@ -192,7 +190,7 @@ COMMENT_DEFAULT="$XRFNUM Multiprotocol Reflector by $CALLSIGN, info: $EMAIL"
         print_red "Error: Comment must be max 100 characters. Please try again!"
     fi
 done
-print_wrapped "Using: $COMMENT"
+print_yellow "Using: $COMMENT"
 line_type1
 echo ""
 print_wrapped "07. Custom text on header of the dashboard webpage."
@@ -200,7 +198,7 @@ print_wrapped "Suggested: \"$XRFNUM\" $ACCEPT"
 printf "> "
 read -r HEADER
 HEADER=${HEADER:-$XRFNUM}
-print_wrapped "Using: $HEADER"
+print_yellow "Using: $HEADER"
 line_type1
 while true; do
 echo ""
@@ -215,7 +213,7 @@ echo ""
         print_red "Error: Must be a number between 1 and 26. Try again!"
     fi
 done
-print_wrapped "Using: $MODQTD"
+print_yellow "Using: $MODQTD"
 line_type1
 # YSFNAME e YSFDESC input
 while true; do
@@ -231,7 +229,7 @@ echo ""
         print_red "Error: Name must be max 16 characters. Please try again!"
     fi
 done
-print_wrapped "Using: $YSFNAME"
+print_yellow "Using: $YSFNAME"
 line_type1
 while true; do
 echo ""
@@ -246,7 +244,7 @@ echo ""
         print_red "Error: Description must be max 16 characters. Please try again!"
     fi
 done
-print_wrapped "Using: $YSFDESC"
+print_yellow "Using: $YSFDESC"
 # Fill with spaces on the right until reach 16 characters
 YSFNAME=$(printf "%-16s" "$YSFNAME")
 YSFDESC=$(printf "%-16s" "$YSFDESC")
@@ -284,7 +282,7 @@ echo ""
         print_red "Error: Must be a number between 1 and 65535. Try again!"
     fi
 done
-print_wrapped "Using: $YSFPORT"
+print_yellow "Using: $YSFPORT"
 line_type1
 while true; do
 echo ""
@@ -299,7 +297,7 @@ echo ""
         print_red "Error: Must be exactly 9 numeric digits (e.g., 433125000). Try again!"
     fi
 done
-print_wrapped "Using: $YSFFREQ"
+print_yellow "Using: $YSFFREQ"
 line_type1
 while true; do
     echo ""
@@ -314,7 +312,7 @@ while true; do
         print_red "Error: Must be either 1 (Yes) or 0 (No). Try again!"
     fi
 done
-print_wrapped "Using: $AUTOLINK"
+print_yellow "Using: $AUTOLINK"
 line_type1
 VALID_MODULES=($(echo {A..Z} | cut -d' ' -f1-"$MODQTD"))
 if [ "$AUTOLINK" -eq 1 ]; then
@@ -332,7 +330,7 @@ while true; do
             print_red "Invalid input for YSF autolink module. Must be one of ${VALID_MODULES[*]}. Try again!"
         fi
     done
-    print_wrapped "Using: $MODAUTO"
+    print_yellow "Using: $MODAUTO"
     line_type1
 fi
 # Data verification
@@ -373,8 +371,8 @@ if [ "$CONFIRM" == "N" ]; then
 fi
 
 echo ""
-echo "UPDATING OS..."
-echo "=============="
+print_blueb "UPDATING OS..."
+print_blue "=============="
 echo ""
 apt update && apt full-upgrade -y
 if [ $? -ne 0 ]; then
@@ -383,8 +381,8 @@ if [ $? -ne 0 ]; then
 fi
 
 echo ""
-echo "INSTALLING DEPENDENCIES..."
-echo "=========================="
+print_blueb "INSTALLING DEPENDENCIES..."
+print_blue "=========================="
 echo ""
 
 mkdir -p "$XLXINSTDIR"
@@ -399,8 +397,8 @@ if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
     exit 1
 else
     echo ""
-    echo "DOWNLOADING APPLICATION..."
-    echo "=========================="
+    print_blueb "DOWNLOADING APPLICATION..."
+    print_blue "=========================="
     echo ""
     cd "$XLXINSTDIR"
     git clone "$XLXDREPO"
@@ -419,8 +417,8 @@ else
     sed -i "s|uint8 callsign\[16\];|uint8 callsign[16] = { $YSFNAME_ARRAY };|g" "$CYSF_FILE"
     sed -i "s|uint8 description\[\] = { 'X','L','X',' ','r','e','f','l','e','c','t','o','r',' ' };|uint8 description[] = { $YSFDESC_ARRAY };|g" "$CYSF_FILE"
     echo ""
-    echo "COMPILING..."
-    echo "============"
+    print_blueb "COMPILING..."
+    print_blue "============"
     echo ""
     make
     make install
@@ -441,8 +439,8 @@ else
     exit 1
 fi
 
-echo "COPYING FILES..."
-echo "================"
+print_blueb "COPYING FILES..."
+print_blue "================"
 echo ""
 mkdir -p /xlxd
 mkdir -p "$WEBDIR"
@@ -453,8 +451,8 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "INSTALLING DASHBOARD..."
-echo "======================="
+print_blueb "INSTALLING DASHBOARD..."
+print_blue "======================="
 echo ""
 cp -R "$XLXINSTDIR/xlxd/dashboard/"* "$WEBDIR/"
 cp "$XLXINSTDIR/xlxd/scripts/xlxd" /etc/init.d/xlxd
@@ -494,11 +492,11 @@ print_green "========================================="
 print_green "|  REFLECTOR INSTALLED SUCCESSFULLY!!!  |"
 print_green "========================================="
 echo ""
-echo "STARTING $XRFNUM REFLECTOR..."
-echo "============================"
+print_blueb "STARTING $XRFNUM REFLECTOR..."
+print_blue "============================"
 echo ""
 systemctl enable xlxd
-systemctl start xlxd | echo "Finishing, please wait......."
+systemctl start xlxd | print_yellow "Finishing, please wait......."
 
 echo ""
 line_type2
