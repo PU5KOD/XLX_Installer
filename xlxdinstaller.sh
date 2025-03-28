@@ -51,9 +51,7 @@ XLXINSTDIR="/usr/src"
 ACCEPT="| [ENTER] to accept..."
 APPS="git git-core make build-essential g++ apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl"
 LOGFILE="$DIRDIR/xlx_install_$(date +%F_%H-%M-%S).log"
-log() {
-    echo "$(date +%F\ %T) - $1" | tee -a "$LOGFILE"
-}
+log() {echo "$(date +%F\ %T) - $1" | tee -a "$LOGFILE"}
 RED='\033[0;31m'
 RED_BRIGHT='\033[1;31m'
 GREEN='\033[0;32m'
@@ -63,27 +61,13 @@ BLUE_BRIGHT='\033[1;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 # Functions to display text with adjusted line breaks and colors
-print_red() {
-    echo -e "${RED}$(echo "$1" | fold -s -w "$width")${NC}"
-}
-print_redb() {
-    echo -e "${RED_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"
-}
-print_green() {
-    echo -e "${GREEN}$(echo "$1" | fold -s -w "$width")${NC}"
-}
-print_greenb() {
-    echo -e "${GREEN_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"
-}
-print_blue() {
-    echo -e "${BLUE}$(echo "$1" | fold -s -w "$width")${NC}"
-}
-print_blueb() {
-    echo -e "${BLUE_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"
-}
-print_yellow() {
-    echo -e "${YELLOW}$(echo "$1" | fold -s -w "$width")${NC}"
-}
+print_red() {echo -e "${RED}$(echo "$1" | fold -s -w "$width")${NC}"}
+print_redb() {echo -e "${RED_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"}
+print_green() {echo -e "${GREEN}$(echo "$1" | fold -s -w "$width")${NC}"}
+print_greenb() {echo -e "${GREEN_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"}
+print_blue() {echo -e "${BLUE}$(echo "$1" | fold -s -w "$width")${NC}"}
+print_blueb() {echo -e "${BLUE_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"}
+print_yellow() {echo -e "${YELLOW}$(echo "$1" | fold -s -w "$width")${NC}"}
 
 # DATA INPUT
 clear
