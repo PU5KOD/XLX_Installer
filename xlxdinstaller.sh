@@ -9,26 +9,21 @@ if [ "$(whoami)" != "root" ]; then
     echo "You must be root to run this script!"
     exit 1
 fi
-
 # Distro check
 if [ ! -e "/etc/debian_version" ]; then
     echo "This script is only tested on Debian-based distributions."
     exit 1
 fi
-
 # Set the fixed character limit
 MAX_WIDTH=90
-
 # Get the number of columns from the terminal
 cols=$(tput cols 2>/dev/null || echo 90)
-
 # Decide the length to use: the smaller of MAX_WIDTH and cols
 if [ "$cols" -lt "$MAX_WIDTH" ]; then
     width=$cols
 else
     width=$MAX_WIDTH
 fi
-
 # Function to create different types of lines adjusted to length
 line_type1() {
     printf "%${width}s\n" | tr ' ' '_'
@@ -40,7 +35,6 @@ line_type2() {
 print_wrapped() {
     echo "$1" | fold -s -w "$width"
 }
-
 DIRDIR=$(pwd)
 LOCAL_IP=$(hostname -I | awk '{print $1}')
 INFREF="https://n5amd.com/digital-radio-how-tos/create-xlx-xrf-d-star-reflector/"
@@ -51,7 +45,7 @@ XLXINSTDIR="/usr/src"
 ACCEPT="| [ENTER] to accept..."
 APPS="git git-core make build-essential g++ apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl"
 LOGFILE="$DIRDIR/xlx_install_$(date +%F_%H-%M-%S).log"
-log() {echo "$(date +%F\ %T) - $1" | tee -a "$LOGFILE"}
+log() { echo "$(date +%F\ %T) - $1" | tee -a "$LOGFILE"; }
 RED='\033[0;31m'
 RED_BRIGHT='\033[1;31m'
 GREEN='\033[0;32m'
@@ -61,15 +55,14 @@ BLUE_BRIGHT='\033[1;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 # Functions to display text with adjusted line breaks and colors
-print_red() {echo -e "${RED}$(echo "$1" | fold -s -w "$width")${NC}"}
-print_redb() {echo -e "${RED_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"}
-print_green() {echo -e "${GREEN}$(echo "$1" | fold -s -w "$width")${NC}"}
-print_greenb() {echo -e "${GREEN_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"}
-print_blue() {echo -e "${BLUE}$(echo "$1" | fold -s -w "$width")${NC}"}
-print_blueb() {echo -e "${BLUE_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"}
-print_yellow() {echo -e "${YELLOW}$(echo "$1" | fold -s -w "$width")${NC}"}
-
-# DATA INPUT
+print_red() { echo -e "${RED}$(echo "$1" | fold -s -w "$width")${NC}"; }
+print_redb() { echo -e "${RED_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"; }
+print_green() { echo -e "${GREEN}$(echo "$1" | fold -s -w "$width")${NC}"; }
+print_greenb() { echo -e "${GREEN_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"; }
+print_blue() { echo -e "${BLUE}$(echo "$1" | fold -s -w "$width")${NC}"; }
+print_blueb() { echo -e "${BLUE_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"; }
+print_yellow() { echo -e "${YELLOW}$(echo "$1" | fold -s -w "$width")${NC}"; }
+# Start of data collection.
 clear
 line_type1
 echo ""
@@ -78,6 +71,7 @@ echo ""
 print_greenb "Below you will be asked for some information, answer the requested values or, if applicable, to accept the suggested value press [ENTER]"
 echo ""
 line_type1
+
 echo ""
 print_blueb "REFLECTOR DATA INPUT"
 print_blue "===================="
@@ -366,10 +360,8 @@ echo ""
 print_blueb "INSTALLING DEPENDENCIES..."
 print_blue "=========================="
 echo ""
-
 mkdir -p "$XLXINSTDIR"
 apt -y install $APPS
-
 if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
     print_red "=================================================================================="
     print_red "|           XLXD ALREADY COMPILED!!! Delete the following directories            |"
@@ -378,6 +370,7 @@ if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
     print_red "=================================================================================="
     exit 1
 else
+
     echo ""
     print_blueb "DOWNLOADING APPLICATION..."
     print_blue "=========================="
@@ -398,6 +391,7 @@ else
     CYSF_FILE="$XLXINSTDIR/xlxd/src/cysfprotocol.cpp"
     sed -i "s|uint8 callsign\[16\];|uint8 callsign[16] = { $YSFNAME_ARRAY };|g" "$CYSF_FILE"
     sed -i "s|uint8 description\[\] = { 'X','L','X',' ','r','e','f','l','e','c','t','o','r',' ' };|uint8 description[] = { $YSFDESC_ARRAY };|g" "$CYSF_FILE"
+
     echo ""
     print_blueb "COMPILING..."
     print_blue "============"
@@ -440,7 +434,6 @@ cp -R "$XLXINSTDIR/xlxd/dashboard/"* "$WEBDIR/"
 cp "$XLXINSTDIR/xlxd/scripts/xlxd" /etc/init.d/xlxd
 sed -i "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM $LOCAL_IP 127.0.0.1|g" /etc/init.d/xlxd
 /usr/sbin/update-rc.d xlxd defaults
-
 XLXCONFIG="$WEBDIR/pgs/config.inc.php"
 sed -i "s|your_email|$EMAIL|g" "$XLXCONFIG"
 sed -i "s|LX1IQ|$CALLSIGN|g" "$XLXCONFIG"
@@ -451,11 +444,9 @@ sed -i "s|your_country|$COUNTRY|g" "$XLXCONFIG"
 sed -i "s|your_comment|$COMMENT|g" "$XLXCONFIG"
 sed -i "s#/tmp/callinghome.php#/xlxd/callinghome.php#g" "$XLXCONFIG"
 sed -i "s#/tmp/lastcallhome.php#/xlxd/lastcallhome.php#g" "$XLXCONFIG"
-
 cp "$DIRDIR/templates/apache.tbd.conf" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 sed -i "s|apache.tbd|$XLXDOMAIN|g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 sed -i "s#ysf-xlxd#html/xlxd#g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
-
 APACHE_USER=$(ps aux | grep -E '[a]pache|[h]ttpd' | grep -v root | head -1 | awk '{print $1}')
 if [ -z "$APACHE_USER" ]; then
     APACHE_USER="www-data"
@@ -463,23 +454,23 @@ fi
 chown -R "$APACHE_USER:$APACHE_USER" /var/log/xlxd.xml
 chown -R "$APACHE_USER:$APACHE_USER" "$WEBDIR/"
 chown -R "$APACHE_USER:$APACHE_USER" /xlxd/
-
 /usr/sbin/a2ensite "$XLXDOMAIN".conf
 /usr/sbin/a2dissite 000-default
 systemctl stop apache2
 systemctl start apache2
 systemctl daemon-reload
+
 echo ""
 print_green "========================================="
 print_green "|  REFLECTOR INSTALLED SUCCESSFULLY!!!  |"
 print_green "========================================="
+
 echo ""
 print_blueb "STARTING $XRFNUM REFLECTOR..."
 print_blue "============================"
 echo ""
 systemctl enable xlxd
 systemctl start xlxd | print_yellow "Finishing, please wait......."
-
 echo ""
 line_type1
 echo ""
