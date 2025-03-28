@@ -29,12 +29,6 @@ else
     width=$MAX_WIDTH
 fi
 
-# Log function
-LOGFILE="/var/log/xlx_install_$(date +%F_%H-%M-%S).log"
-log() {
-    echo "$(date +%F\ %T) - $1" | tee -a "$LOGFILE"
-}
-
 # Function to create different types of lines adjusted to length
 line_type1() {
     printf "%${width}s\n" | tr ' ' '_'
@@ -56,13 +50,10 @@ WEBDIR="/var/www/html/xlxd"
 XLXINSTDIR="/usr/src"
 ACCEPT="| [ENTER] to accept..."
 APPS="git git-core make build-essential g++ apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl"
-
-# Log function
 LOGFILE="$DIRDIR/xlx_install_$(date +%F_%H-%M-%S).log"
 log() {
     echo "$(date +%F\ %T) - $1" | tee -a "$LOGFILE"
 }
-
 RED='\033[0;31m'
 RED_BRIGHT='\033[1;31m'
 GREEN='\033[0;32m'
