@@ -4,6 +4,9 @@
 # Customized by Daniel K., PU5KOD
 # Lets begin!!!
 
+# Redirect all output to the log and keep it in the terminal
+LOGFILE="$PWD/xlx_install_$(date +%F_%H-%M-%S).log"
+exec > >(tee -a "$LOGFILE") 2>&1
 # root user check
 if [ "$(whoami)" != "root" ]; then
     echo "You must be root to run this script!"
@@ -44,8 +47,6 @@ WEBDIR="/var/www/html/xlxd"
 XLXINSTDIR="/usr/src"
 ACCEPT="| [ENTER] to accept..."
 APPS="git git-core make build-essential g++ apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl"
-LOGFILE="$DIRDIR/xlx_install_$(date +%F_%H-%M-%S).log"
-log() { echo "$(date +%F\ %T) - $1" | tee -a "$LOGFILE"; }
 RED='\033[0;31m'
 RED_BRIGHT='\033[1;31m'
 GREEN='\033[0;32m'
