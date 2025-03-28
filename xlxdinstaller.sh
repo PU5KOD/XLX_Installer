@@ -56,14 +56,25 @@ WEBDIR="/var/www/html/xlxd"
 XLXINSTDIR="/usr/src"
 ACCEPT="| [ENTER] to accept..."
 APPS="git git-core make build-essential g++ apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl"
+
+# Colors for better user experience
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
-print_error() {
+# Functions to display text with adjusted line breaks and colors
+print_red() {
     echo -e "${RED}$(echo "$1" | fold -s -w "$width")${NC}"
 }
-print_success() {
+print_green() {
     echo -e "${GREEN}$(echo "$1" | fold -s -w "$width")${NC}"
+}
+print_blue() {
+    echo -e "${BLUE}$(echo "$1" | fold -s -w "$width")${NC}"
+}
+print_yellow() {
+    echo -e "${YELLOW}$(echo "$1" | fold -s -w "$width")${NC}"
 }
 
 # DATA INPUT
@@ -85,13 +96,13 @@ while true; do
     printf "> "
     read -r XRFDIGIT
     if [ -z "$XRFDIGIT" ]; then
-        print_error "Error: This field is mandatory and cannot be empty. Try again!"
+        print_red "Error: This field is mandatory and cannot be empty. Try again!"
     else
         XRFDIGIT=$(echo "$XRFDIGIT" | tr '[:lower:]' '[:upper:]')
         if [[ "$XRFDIGIT" =~ ^[A-Z0-9]{3}$ ]]; then
             break
         else
-            print_error "Error: Must be exactly 3 alphanumeric characters (e.g., 032, USA, BRA). Try again!"
+            print_red "Error: Must be exactly 3 alphanumeric characters (e.g., 032, USA, BRA). Try again!"
         fi
     fi
 done
@@ -105,7 +116,7 @@ echo ""
     printf "> "
     read -r XLXDOMAIN
     if [ -z "$XLXDOMAIN" ]; then
-        print_error "Error: This field is mandatory and cannot be empty. Try again!"
+        print_red "Error: This field is mandatory and cannot be empty. Try again!"
     else
         break
     fi
@@ -119,7 +130,7 @@ echo ""
     printf "> "
     read -r EMAIL
     if [ -z "$EMAIL" ]; then
-        print_error "Error: This field is mandatory and cannot be empty. Try again!"
+        print_red "Error: This field is mandatory and cannot be empty. Try again!"
     else
         break
     fi
@@ -133,7 +144,7 @@ echo ""
     printf "> "
     read -r CALLSIGN
     if [ -z "$CALLSIGN" ]; then
-        print_error "Error: This field is mandatory and cannot be empty. Try again!"
+        print_red "Error: This field is mandatory and cannot be empty. Try again!"
     else
         CALLSIGN=$(echo "$CALLSIGN" | tr '[:lower:]' '[:upper:]')
         break
@@ -148,7 +159,7 @@ echo ""
     printf "> "
     read -r COUNTRY
     if [ -z "$COUNTRY" ]; then
-        print_error "Error: This field is mandatory and cannot be empty. Try again!"
+        print_red "Error: This field is mandatory and cannot be empty. Try again!"
     else
         break
     fi
@@ -166,7 +177,7 @@ COMMENT_DEFAULT="$XRFNUM Multiprotocol Reflector by $CALLSIGN, info: $EMAIL"
     if [ ${#COMMENT} -le 100 ]; then
         break
     else
-        print_error "Error: Comment must be max 100 characters. Please try again!"
+        print_red "Error: Comment must be max 100 characters. Please try again!"
     fi
 done
 print_wrapped "Using: $COMMENT"
@@ -189,7 +200,7 @@ echo ""
     if [[ "$MODQTD" =~ ^[0-9]+$ && "$MODQTD" -ge 1 && "$MODQTD" -le 26 ]]; then
         break
     else
-        print_error "Error: Must be a number between 1 and 26. Try again!"
+        print_red "Error: Must be a number between 1 and 26. Try again!"
     fi
 done
 print_wrapped "Using: $MODQTD"
@@ -205,7 +216,7 @@ echo ""
     if [ ${#YSFNAME} -le 16 ]; then
         break
     else
-        print_error "Error: Name must be max 16 characters. Please try again!"
+        print_red "Error: Name must be max 16 characters. Please try again!"
     fi
 done
 print_wrapped "Using: $YSFNAME"
@@ -220,7 +231,7 @@ echo ""
     if [ ${#YSFDESC} -le 16 ]; then
         break
     else
-        print_error "Error: Description must be max 16 characters. Please try again!"
+        print_red "Error: Description must be max 16 characters. Please try again!"
     fi
 done
 print_wrapped "Using: $YSFDESC"
@@ -258,7 +269,7 @@ echo ""
     if [[ "$YSFPORT" =~ ^[0-9]+$ && "$YSFPORT" -ge 1 && "$YSFPORT" -le 65535 ]]; then
         break
     else
-        print_error "Error: Must be a number between 1 and 65535. Try again!"
+        print_red "Error: Must be a number between 1 and 65535. Try again!"
     fi
 done
 print_wrapped "Using: $YSFPORT"
@@ -273,7 +284,7 @@ echo ""
     if [[ "$YSFFREQ" =~ ^[0-9]{9}$ ]]; then
         break
     else
-        print_error "Error: Must be exactly 9 numeric digits (e.g., 433125000). Try again!"
+        print_red "Error: Must be exactly 9 numeric digits (e.g., 433125000). Try again!"
     fi
 done
 print_wrapped "Using: $YSFFREQ"
@@ -288,7 +299,7 @@ while true; do
     if [[ "$AUTOLINK" =~ ^[0-1]$ ]]; then
         break
     else
-        print_error "Error: Must be either 1 (Yes) or 0 (No). Try again!"
+        print_red "Error: Must be either 1 (Yes) or 0 (No). Try again!"
     fi
 done
 print_wrapped "Using: $AUTOLINK"
@@ -306,7 +317,7 @@ while true; do
         if [[ " ${VALID_MODULES[@]} " =~ " $MODAUTO " ]]; then
             break
         else
-            print_error "Invalid input for YSF autolink module. Must be one of ${VALID_MODULES[*]}. Try again!"
+            print_red "Invalid input for YSF autolink module. Must be one of ${VALID_MODULES[*]}. Try again!"
         fi
     done
     print_wrapped "Using: $MODAUTO"
@@ -355,7 +366,7 @@ echo "=============="
 echo ""
 apt update && apt full-upgrade -y
 if [ $? -ne 0 ]; then
-    print_wrapped "Error: Failed to update package lists. Check your internet connection or package manager configuration."
+    print_red "Error: Failed to update package lists. Check your internet connection or package manager configuration."
     exit 1
 fi
 
@@ -405,15 +416,15 @@ fi
 
 if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
     echo ""
-    print_success "==============================="
-    print_success "|  COMPILATION SUCCESSFUL!!!  |"
-    print_success "==============================="
+    print_green "==============================="
+    print_green "|  COMPILATION SUCCESSFUL!!!  |"
+    print_green "==============================="
     echo ""
 else
     echo ""
-    print_error "======================================================"
-    print_error "|  Compilation FAILED. Check the output for errors.  |"
-    print_error "======================================================"
+    print_red "======================================================"
+    print_red "|  Compilation FAILED. Check the output for errors.  |"
+    print_red "======================================================"
     echo ""
     exit 1
 fi
@@ -426,7 +437,7 @@ mkdir -p "$WEBDIR"
 touch /var/log/xlxd.xml
 wget -O /xlxd/dmrid.dat "$DMRIDURL"
 if [ $? -ne 0 ]; then
-    print_wrapped_error "Error: Failed to download DMR ID file."
+    print_red "Error: Failed to download DMR ID file."
     exit 1
 fi
 
@@ -467,9 +478,9 @@ systemctl stop apache2
 systemctl start apache2
 systemctl daemon-reload
 echo ""
-print_success "========================================="
-print_success "|  REFLECTOR INSTALLED SUCCESSFULLY!!!  |"
-print_success "========================================="
+print_green "========================================="
+print_green "|  REFLECTOR INSTALLED SUCCESSFULLY!!!  |"
+print_green "========================================="
 echo ""
 echo "STARTING $XRFNUM REFLECTOR..."
 echo "============================"
@@ -480,7 +491,8 @@ systemctl start xlxd | echo "Finishing, please wait......."
 echo ""
 line_type2
 echo ""
-print_wrapped "  Your Reflector $XRFNUM is now installed and running."
+print_green "  Your Reflector $XRFNUM is now installed and running."
+echo ""
 print_wrapped "  For Public Reflectors:"
 print_wrapped "  If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour."
 print_wrapped "  If you don't want the reflector to be published just set callinghome to [false] in the main file in $XLXCONFIG."
