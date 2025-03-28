@@ -20,7 +20,7 @@ fi
 MAX_WIDTH=90
 
 # Get the number of columns from the terminal
-cols=$(tput cols)
+cols=$(tput cols 2>/dev/null || echo 90)
 
 # Decide the length to use: the smaller of MAX_WIDTH and cols
 if [ "$cols" -lt "$MAX_WIDTH" ]; then
@@ -56,6 +56,13 @@ WEBDIR="/var/www/html/xlxd"
 XLXINSTDIR="/usr/src"
 ACCEPT="| [ENTER] to accept..."
 APPS="git git-core make build-essential g++ apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl"
+
+# Log function
+LOGFILE="$DIRDIR/xlx_install_$(date +%F_%H-%M-%S).log"
+log() {
+    echo "$(date +%F\ %T) - $1" | tee -a "$LOGFILE"
+}
+
 RED='\033[0;31m'
 RED_BRIGHT='\033[1;31m'
 GREEN='\033[0;32m'
@@ -446,8 +453,8 @@ mkdir -p /xlxd
 mkdir -p "$WEBDIR"
 touch /var/log/xlxd.xml
 wget -O /xlxd/dmrid.dat "$DMRIDURL"
-if [ $? -ne 0 ]; then
-    print_red "Error: Failed to download DMR ID file."
+if [ $? -ne 0 ] || [ ! -s /xlxd/dmrid.dat ]; then
+    print_red "Error: Failed to download or empty DMR ID file."
     exit 1
 fi
 
@@ -499,16 +506,33 @@ systemctl enable xlxd
 systemctl start xlxd | print_yellow "Finishing, please wait......."
 
 echo ""
-line_type2
+line_type1
 echo ""
 print_greenb "  Your Reflector $XRFNUM is now installed and running!"
+print_greenb "  If you want to install the ssl certification for your website, then you have the opportunity to do it now, but if you want to perform this process later, just decline."
+echo ""
+while true; do
+    print_yellow "Would you like to install Certbot for HTTPS? (y/n)"
+    read -r HTTPS_CONFIRM
+    HTTPS_CONFIRM=$(echo "$HTTPS_CONFIRM" | tr '[:lower:]' '[:upper:]')
+    if [[ "$HTTPS_CONFIRM" == "Y" || "$HTTPS_CONFIRM" == "N" ]]; then
+        break
+    else
+        print_red "Please enter 'Y' or 'N'."
+    fi
+done
+if [ "$HTTPS_CONFIRM" == "Y" ]; then
+    apt install -y certbot python3-certbot-apache
+    certbot --apache -d "$XLXDOMAIN"
+fi
+echo ""
+line_type2
 echo ""
 print_wrapped "  For Public Reflectors:"
-print_wrapped "  If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour."
-print_wrapped "  If you don't want the reflector to be published just set callinghome to [false] in the main file in $XLXCONFIG."
+print_wrapped "  If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour. If you don't want the reflector to be published just set callinghome to [false] in the main file in $XLXCONFIG."
 print_wrapped "  Many other settings can be changed in this file."
-print_wrapped "  More Information: $INFREF"
-print_wrapped "  Your $XRFNUM dashboard should now be accessible at http://$XLXDOMAIN "
-print_wrapped "  To get your site certified with https visit certbot.eff.org"
+#print_wrapped "  More Information: $INFREF"
+print_wrapped "  Your $XRFNUM dashboard should now be accessible at http://$XLXDOMAIN"
+#print_wrapped "  To get your site certified with https visit certbot.eff.org"
 echo ""
 line_type2
