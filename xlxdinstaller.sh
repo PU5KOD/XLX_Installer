@@ -422,11 +422,12 @@ echo ""
 mkdir -p /xlxd
 mkdir -p "$WEBDIR"
 touch /var/log/xlxd.xml
-wget -O /xlxd/dmrid.dat "$DMRIDURL"
+wget -O /xlxd/dmrid.dat "$DMRIDURL" 2>/dev/null
 if [ $? -ne 0 ] || [ ! -s /xlxd/dmrid.dat ]; then
     print_red "Error: Failed to download or empty DMR ID file."
     exit 1
 fi
+print_green "DMR ID file downloaded successfully"
 
 print_blueb "INSTALLING DASHBOARD..."
 print_blue "======================="
