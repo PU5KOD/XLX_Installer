@@ -17,7 +17,7 @@ if [ ! -e "/etc/debian_version" ]; then
 fi
 
 # Set the fixed character limit
-MAX_WIDTH=100
+MAX_WIDTH=90
 
 # Get the number of columns from the terminal
 cols=$(tput cols)
@@ -59,6 +59,7 @@ APPS="git git-core make build-essential g++ apache2 php libapache2-mod-php php-c
 
 # Colors for better user experience
 RED='\033[0;31m'
+RED_BRIGHT='\033[1;31m'
 GREEN='\033[0;32m'
 GREEN_BRIGHT='\033[1;32m'  
 BLUE='\033[0;34m'
@@ -69,11 +70,20 @@ NC='\033[0m' # No Color
 print_red() {
     echo -e "${RED}$(echo "$1" | fold -s -w "$width")${NC}"
 }
+print_redb() {
+    echo -e "${RED_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"
+}
 print_green() {
     echo -e "${GREEN}$(echo "$1" | fold -s -w "$width")${NC}"
 }
+print_greenb() {
+    echo -e "${GREEN_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"
+}
 print_blue() {
     echo -e "${BLUE}$(echo "$1" | fold -s -w "$width")${NC}"
+}
+print_blueb() {
+    echo -e "${BLUE_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"
 }
 print_yellow() {
     echo -e "${YELLOW}$(echo "$1" | fold -s -w "$width")${NC}"
