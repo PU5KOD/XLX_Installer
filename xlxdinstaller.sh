@@ -29,6 +29,12 @@ else
     width=$MAX_WIDTH
 fi
 
+# Log function
+LOGFILE="/var/log/xlx_install_$(date +%F_%H-%M-%S).log"
+log() {
+    echo "$(date +%F\ %T) - $1" | tee -a "$LOGFILE"
+}
+
 # Function to create different types of lines adjusted to length
 line_type1() {
     printf "%${width}s\n" | tr ' ' '_'
@@ -49,10 +55,6 @@ DMRIDURL="http://xlxapi.rlx.lu/api/exportdmr.php"
 WEBDIR="/var/www/html/xlxd"
 XLXINSTDIR="/usr/src"
 ACCEPT="| [ENTER] to accept..."
-APACHE_USER=$(ps aux | grep -E '[a]pache|[h]ttpd' | grep -v root | head -1 | awk '{print $1}')
-if [ -z "$APACHE_USER" ]; then
-    APACHE_USER="www-data"  # Fallback para www-data
-fi
 APPS="git git-core make build-essential g++ apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl"
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -415,6 +417,7 @@ else
     echo ""
     exit 1
 fi
+
 echo "COPYING FILES..."
 echo "================"
 echo ""
@@ -422,6 +425,11 @@ mkdir -p /xlxd
 mkdir -p "$WEBDIR"
 touch /var/log/xlxd.xml
 wget -O /xlxd/dmrid.dat "$DMRIDURL"
+if [ $? -ne 0 ]; then
+    print_wrapped_error "Error: Failed to download DMR ID file."
+    exit 1
+fi
+
 echo "INSTALLING DASHBOARD..."
 echo "======================="
 echo ""
@@ -445,6 +453,10 @@ cp "$DIRDIR/templates/apache.tbd.conf" /etc/apache2/sites-available/"$XLXDOMAIN"
 sed -i "s|apache.tbd|$XLXDOMAIN|g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 sed -i "s#ysf-xlxd#html/xlxd#g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 
+APACHE_USER=$(ps aux | grep -E '[a]pache|[h]ttpd' | grep -v root | head -1 | awk '{print $1}')
+if [ -z "$APACHE_USER" ]; then
+    APACHE_USER="www-data"
+fi
 chown -R "$APACHE_USER:$APACHE_USER" /var/log/xlxd.xml
 chown -R "$APACHE_USER:$APACHE_USER" "$WEBDIR/"
 chown -R "$APACHE_USER:$APACHE_USER" /xlxd/
