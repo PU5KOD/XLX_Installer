@@ -348,10 +348,10 @@ print_wrapped "Modules: $MODQTD"
 print_wrapped "YSF name: $YSFNAME"
 print_wrapped "YSF description: $YSFDESC"
 print_wrapped "YSF UDP Port: $YSFPORT"
-print_wrapped "YSF frequency: $YSFFREQ"Hz
+print_wrapped "YSF frequency: $YSFFREQ"
 print_wrapped "YSF autolink: $AUTOLINK (1 = Yes / 0 = No)"
 if [ "$AUTOLINK" -eq 1 ]; then
-        print_wrapped "YSF module autolink: $MODAUTO"
+        print_wrapped "YSF module: $MODAUTO"
         fi
 echo ""
 while true; do
