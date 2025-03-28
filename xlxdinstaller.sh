@@ -37,7 +37,7 @@ print_wrapped() {
 }
 DIRDIR=$(pwd)
 LOCAL_IP=$(hostname -I | awk '{print $1}')
-INFREF="https://n5amd.com/digital-radio-how-tos/create-xlx-xrf-d-star-reflector/"
+INFREF="https://xlxbbs.epf.lu/"
 XLXDREPO="https://github.com/PU5KOD/xlxd.git"
 DMRIDURL="http://xlxapi.rlx.lu/api/exportdmr.php"
 WEBDIR="/var/www/html/xlxd"
@@ -363,11 +363,11 @@ echo ""
 mkdir -p "$XLXINSTDIR"
 apt -y install $APPS
 if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
-    print_red "=================================================================================="
-    print_red "|           XLXD ALREADY COMPILED!!! Delete the following directories            |"
-    print_red "|    '/usr/src/xlxd', '/xlxd', '/var/www/html/xlxd' and the following files      |"
-    print_red "| '/etc/init.d/xlxd.*', 'var/log/xlxd.*' and '/etc/apache2/sites-available/xlx*' |"
-    print_red "=================================================================================="
+    line_type2
+    print_red "XLXD ALREADY COMPILED!!! Delete the following directories"
+    print_red "'/usr/src/xlxd', '/xlxd', '/var/www/html/xlxd' and the following files"
+    print_red "'/etc/init.d/xlxd.*', 'var/log/xlxd.*' and '/etc/apache2/sites-available/xlx*'"
+    line_type2
     exit 1
 else
 
@@ -474,8 +474,8 @@ systemctl start xlxd | print_yellow "Finishing, please wait......."
 echo ""
 line_type1
 echo ""
-print_greenb "  Your Reflector $XRFNUM is now installed and running!"
-print_greenb "  If you want to install the ssl certification for your website, then you have the opportunity to do it now, but if you want to perform this process later, just decline."
+print_greenb "Your Reflector $XRFNUM is now installed and running!"
+print_greenb "If you want to install the ssl certificate for your website, then you have the opportunity to do it now, but if you want to perform this process later, just decline and the process will be complete."
 echo ""
 while true; do
     print_yellow "Would you like to install Certbot for HTTPS? (y/n)"
@@ -494,11 +494,11 @@ fi
 echo ""
 line_type2
 echo ""
-print_wrapped "  For Public Reflectors:"
-print_wrapped "  If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour. If you don't want the reflector to be published just set callinghome to [false] in the main file in $XLXCONFIG."
-print_wrapped "  Many other settings can be changed in this file."
-#print_wrapped "  More Information: $INFREF"
-print_wrapped "  Your $XRFNUM dashboard should now be accessible at http://$XLXDOMAIN"
-#print_wrapped "  To get your site certified with https visit certbot.eff.org"
+print_greenb "For Public Reflectors:"
+print_greenb "If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour. If you don't want the reflector to be published just set callinghome to [false] in the main file in $XLXCONFIG."
+print_greenb "Many other settings can be changed in this file."
+print_greenb "More Information about XLX Reflectors check $INFREF"
+print_greenb "Your $XRFNUM dashboard should now be accessible at http://$XLXDOMAIN"
+print_greenb "For more details about ssl certification visit certbot.eff.org"
 echo ""
 line_type2
