@@ -60,8 +60,10 @@ APPS="git git-core make build-essential g++ apache2 php libapache2-mod-php php-c
 # Colors for better user experience
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+GREEN_BRIGHT='\033[1;32m'  
 BLUE='\033[0;34m'
-YELLOW='\033[0;33m'
+BLUE_BRIGHT='\033[1;34m'
+YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 # Functions to display text with adjusted line breaks and colors
 print_red() {
