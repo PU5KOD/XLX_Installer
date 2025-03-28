@@ -91,9 +91,9 @@ print_yellow() {
 clear
 line_type1
 echo ""
-print_wrapped "Installer of the XLX Multiprotocol Ham Radio Reflector and its dashboard"
+print_greenb "Installer of the XLX Multiprotocol Ham Radio Reflector and its dashboard"
 echo ""
-print_wrapped "Below you will be asked for some information, answer the requested values or, if applicable, to accept the suggested value press [ENTER]"
+print_greenb "Below you will be asked for some information, answer the requested values or, if applicable, to accept the suggested value press [ENTER]"
 echo ""
 line_type1
 echo ""
@@ -501,7 +501,7 @@ systemctl start xlxd | print_yellow "Finishing, please wait......."
 echo ""
 line_type2
 echo ""
-print_green "  Your Reflector $XRFNUM is now installed and running!"
+print_greenb "  Your Reflector $XRFNUM is now installed and running!"
 echo ""
 print_wrapped "  For Public Reflectors:"
 print_wrapped "  If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour."
