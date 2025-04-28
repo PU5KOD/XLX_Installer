@@ -73,11 +73,10 @@ echo ""
 print_greenb "Below you will be asked for some information, answer the requested values or, if applicable, to accept the suggested value press [ENTER]"
 echo ""
 line_type1
-
 echo ""
 print_blueb "REFLECTOR DATA INPUT"
 print_blue "===================="
-
+echo ""
 while true; do
     print_redb "Mandatory"
     print_wrapped "01. What are the 3 digits of the XLX reflector that will be used? (e.g., 300, US1, BRA)"
@@ -357,7 +356,7 @@ if [ $? -ne 0 ]; then
     print_red "Error: Failed to update package lists. Check your internet connection or package manager configuration."
     exit 1
 fi
-
+echo ""
 print_blueb "INSTALLING DEPENDENCIES..."
 print_blue "=========================="
 echo ""
@@ -371,7 +370,7 @@ if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
     line_type2
     exit 1
 else
-
+    echo ""
     print_blueb "DOWNLOADING APPLICATION..."
     print_blue "=========================="
     echo ""
@@ -414,7 +413,7 @@ else
     echo ""
     exit 1
 fi
-
+echo ""
 print_blueb "COPYING FILES..."
 print_blue "================"
 echo ""
@@ -426,8 +425,7 @@ if [ $? -ne 0 ] || [ ! -s /xlxd/dmrid.dat ]; then
     print_red "Error: Failed to download or empty DMR ID file."
     exit 1
 fi
-print_green "DMR ID file downloaded successfully"
-
+print_green "Files downloaded successfully"
 echo ""
 print_blueb "INSTALLING ECHO TEST SERVER..."
 print_blue "=============================="
@@ -438,10 +436,8 @@ cd XLXEcho/
 gcc -o xlxecho xlxecho.c
 cp xlxecho /xlxd/
 cp "$XLXINSTDIR/xlxd/scripts/xlxecho.service" /etc/systemd/system/
-systemctl enable xlxecho.service
-systemctl start xlxecho.service
+echo ""
 print_green "Echo test server successfully installed"
-
 echo ""
 print_blueb "INSTALLING DASHBOARD..."
 print_blue "======================="
@@ -487,6 +483,8 @@ print_blue "============================"
 echo ""
 systemctl enable xlxd
 systemctl start xlxd | print_yellow "Finishing, please wait......."
+systemctl enable xlxecho.service
+systemctl start xlxecho.service
 echo ""
 line_type1
 echo ""
