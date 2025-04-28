@@ -42,6 +42,7 @@ DIRDIR=$(pwd)
 LOCAL_IP=$(hostname -I | awk '{print $1}')
 INFREF="https://xlxbbs.epf.lu/"
 XLXDREPO="https://github.com/PU5KOD/xlxd.git"
+XLXECHO="https://github.com/narspt/XLXEcho.git"
 DMRIDURL="http://xlxapi.rlx.lu/api/exportdmr.php"
 WEBDIR="/var/www/html/xlxd"
 XLXINSTDIR="/usr/src"
@@ -366,8 +367,8 @@ apt -y install $APPS
 if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
     line_type2
     print_red "XLXD ALREADY COMPILED!!! Delete the following directories"
-    print_red "'/usr/src/xlxd', '/xlxd', '/var/www/html/xlxd' and the following files"
-    print_red "'/etc/init.d/xlxd.*', 'var/log/xlxd.*' and '/etc/apache2/sites-available/xlx*'"
+    print_red "'/usr/src/xlxd', '/xlxd', '/var/www/html/xlxd', '/usr/src/XLXEcho' and the following files"
+    print_red "'/etc/init.d/xlxd.*', 'var/log/xlxd.*', '/etc/systemd/system/xlxecho.service' and '/etc/apache2/sites-available/xlx*'"
     line_type2
     exit 1
 else
@@ -429,6 +430,18 @@ if [ $? -ne 0 ] || [ ! -s /xlxd/dmrid.dat ]; then
 fi
 print_green "DMR ID file downloaded successfully"
 
+echo ""
+print_blueb "INSTALLING ECHO TEST SERVER..."
+print_blue "=============================="
+cd "$XLXINSTDIR"
+git clone "$XLXECHO"
+cd XLXEcho/
+gcc -o xlxecho xlxecho.c
+cp xlxecho /xlxd/
+cp "$XLXINSTDIR/xlxd/scripts/xlxecho.service" /etc/systemd/system/
+print_green "Echo test server successfully installed"
+
+echo ""
 print_blueb "INSTALLING DASHBOARD..."
 print_blue "======================="
 echo ""
@@ -472,7 +485,9 @@ print_blueb "STARTING $XRFNUM REFLECTOR..."
 print_blue "============================"
 echo ""
 systemctl enable xlxd
-systemctl start xlxd | print_yellow "Finishing, please wait......."
+systemctl start xlxd
+systemctl enable xlxecho.service
+systemctl start xlxecho.service | print_yellow "Finishing, please wait......."
 echo ""
 line_type1
 echo ""
