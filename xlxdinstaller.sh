@@ -77,7 +77,7 @@ line_type1
 echo ""
 print_blueb "REFLECTOR DATA INPUT"
 print_blue "===================="
-echo ""
+
 while true; do
     print_redb "Mandatory"
     print_wrapped "01. What are the 3 digits of the XLX reflector that will be used? (e.g., 300, US1, BRA)"
@@ -358,7 +358,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo ""
 print_blueb "INSTALLING DEPENDENCIES..."
 print_blue "=========================="
 echo ""
@@ -373,7 +372,6 @@ if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
     exit 1
 else
 
-    echo ""
     print_blueb "DOWNLOADING APPLICATION..."
     print_blue "=========================="
     echo ""
@@ -433,12 +431,15 @@ print_green "DMR ID file downloaded successfully"
 echo ""
 print_blueb "INSTALLING ECHO TEST SERVER..."
 print_blue "=============================="
+echo ""
 cd "$XLXINSTDIR"
 git clone "$XLXECHO"
 cd XLXEcho/
 gcc -o xlxecho xlxecho.c
 cp xlxecho /xlxd/
 cp "$XLXINSTDIR/xlxd/scripts/xlxecho.service" /etc/systemd/system/
+systemctl enable xlxecho.service
+systemctl start xlxecho.service
 print_green "Echo test server successfully installed"
 
 echo ""
@@ -485,9 +486,7 @@ print_blueb "STARTING $XRFNUM REFLECTOR..."
 print_blue "============================"
 echo ""
 systemctl enable xlxd
-systemctl start xlxd
-systemctl enable xlxecho.service
-systemctl start xlxecho.service | print_yellow "Finishing, please wait......."
+systemctl start xlxd | print_yellow "Finishing, please wait......."
 echo ""
 line_type1
 echo ""
