@@ -170,24 +170,24 @@ done
 print_yellow "Using: $COMMENT"
 line_type1
 echo ""
-print_wrapped "07. Custom text on header of the dashboard webpage."
-print_wrapped "Suggested: \"$XRFNUM\" $ACCEPT"
-printf "> "
-read -r HEADER
-HEADER=${HEADER:-$XRFNUM}
+    print_wrapped "07. Custom text on header of the dashboard webpage."
+    print_wrapped "Suggested: \"$XRFNUM\" $ACCEPT"
+    printf "> "
+    read -r HEADER
+    HEADER=${HEADER:-$XRFNUM}
 print_yellow "Using: $HEADER"
 line_type1
 while true; do
 echo ""
-    print_wrapped "08. How many active modules does the reflector have? (1-26)"
-    print_wrapped "Suggested: 6 $ACCEPT"
+    print_wrapped "08. How many active modules does the reflector have? (5-26)"
+    print_wrapped "Suggested: 5 $ACCEPT"
     printf "> "
     read -r MODQTD
-    MODQTD=${MODQTD:-6}
-    if [[ "$MODQTD" =~ ^[0-9]+$ && "$MODQTD" -ge 1 && "$MODQTD" -le 26 ]]; then
+    MODQTD=${MODQTD:-5}
+    if [[ "$MODQTD" =~ ^[0-9]+$ && "$MODQTD" -ge 5 && "$MODQTD" -le 26 ]]; then
         break
     else
-        print_red "Error: Must be a number between 1 and 26. Try again!"
+        print_red "Error: Must be a number between 5 and 26. Try again!"
     fi
 done
 print_yellow "Using: $MODQTD"
