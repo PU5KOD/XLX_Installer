@@ -47,7 +47,7 @@ DMRIDURL="http://xlxapi.rlx.lu/api/exportdmr.php"
 WEBDIR="/var/www/html/xlxd"
 XLXINSTDIR="/usr/src"
 ACCEPT="| [ENTER] to accept..."
-APPS="git git-core make build-essential g++ apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl"
+APPS="git git-core make gcc g++ apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl build-essential"
 RED='\033[0;31m'
 RED_BRIGHT='\033[1;31m'
 GREEN='\033[0;32m'
@@ -155,7 +155,7 @@ print_yellow "Using: $COUNTRY"
 line_type1
 while true; do
 echo ""
-COMMENT_DEFAULT="$XRFNUM Multiprotocol Reflector by $CALLSIGN, info: $EMAIL"
+    COMMENT_DEFAULT="$XRFNUM Multiprotocol Reflector by $CALLSIGN, info: $EMAIL"
     print_wrapped "06. What is the comment to be shown in the XLX Reflectors list?"
     print_wrapped "Suggested: \"$COMMENT_DEFAULT\" $ACCEPT"
     printf "> "
@@ -277,7 +277,7 @@ done
 print_yellow "Using: $YSFFREQ"
 line_type1
 while true; do
-    echo ""
+echo ""
     print_wrapped "13. Is YSF auto-link enable? (1 = Yes / 0 = No)"
     print_wrapped "Suggested: 1 $ACCEPT"
     printf "> "
@@ -482,7 +482,7 @@ print_blueb "STARTING $XRFNUM REFLECTOR..."
 print_blue "============================"
 echo ""
 systemctl enable xlxd
-systemctl start xlxd | print_yellow "Finishing, please wait......."
+systemctl start xlxd | print_yellow "Finishing, please wait..."
 systemctl enable xlxecho.service
 systemctl start xlxecho.service
 echo "ECHO 127.0.0.1 E" | sudo tee -a /xlxd/xlxd.interlink
