@@ -40,6 +40,7 @@ print_wrapped() {
 }
 DIRDIR=$(pwd)
 LOCAL_IP=$(hostname -I | awk '{print $1}')
+PUBLIC_IP=$(curl ifconfig.me)
 INFREF="https://xlxbbs.epf.lu/"
 XLXDREPO="https://github.com/PU5KOD/xlxd.git"
 XLXECHO="https://github.com/narspt/XLXEcho.git"
@@ -292,6 +293,7 @@ done
 print_yellow "Using: $AUTOLINK"
 line_type1
 VALID_MODULES=($(echo {A..Z} | cut -d' ' -f1-"$MODQTD"))
+MODLIST=$(echo {A..Z} | tr -d ' ' | head -c "$MODQTD")
 if [ "$AUTOLINK" -eq 1 ]; then
 while true; do
     echo ""
@@ -414,8 +416,8 @@ else
     exit 1
 fi
 echo ""
-print_blueb "COPYING FILES..."
-print_blue "================"
+print_blueb "COPYING FILES AND FOLDERS..."
+print_blue "============================"
 echo ""
 mkdir -p /xlxd
 mkdir -p "$WEBDIR"
@@ -425,7 +427,13 @@ if [ $? -ne 0 ] || [ ! -s /xlxd/dmrid.dat ]; then
     print_red "Error: Failed to download or empty DMR ID file."
     exit 1
 fi
-print_green "Files downloaded successfully"
+TERMXLX="/xlxd/xlxd.terminal"
+sed -i "s|#address|address $PUBLIC_IP|g" "$TERMXLX"
+sed -i "s|#modules|modules $MODLIST|g" "$TERMXLX"
+cp "$XLXINSTDIR/xlxd/scripts/xlxd" /etc/init.d/xlxd
+sed -i "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM $LOCAL_IP 127.0.0.1|g" /etc/init.d/xlxd
+/usr/sbin/update-rc.d xlxd defaults
+print_green "Success"
 echo ""
 print_blueb "INSTALLING ECHO TEST SERVER..."
 print_blue "=============================="
@@ -443,9 +451,6 @@ print_blueb "INSTALLING DASHBOARD..."
 print_blue "======================="
 echo ""
 cp -R "$XLXINSTDIR/xlxd/dashboard/"* "$WEBDIR/"
-cp "$XLXINSTDIR/xlxd/scripts/xlxd" /etc/init.d/xlxd
-sed -i "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM $LOCAL_IP 127.0.0.1|g" /etc/init.d/xlxd
-/usr/sbin/update-rc.d xlxd defaults
 XLXCONFIG="$WEBDIR/pgs/config.inc.php"
 sed -i "s|your_email|$EMAIL|g" "$XLXCONFIG"
 sed -i "s|LX1IQ|$CALLSIGN|g" "$XLXCONFIG"
@@ -485,7 +490,6 @@ systemctl enable xlxd
 systemctl start xlxd | print_yellow "Finishing, please wait..."
 systemctl enable xlxecho.service
 systemctl start xlxecho.service
-#echo "ECHO 127.0.0.1 E" | sudo tee -a /xlxd/xlxd.interlink
 echo ""
 line_type1
 echo ""
