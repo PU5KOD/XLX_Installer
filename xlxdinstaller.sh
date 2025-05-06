@@ -40,7 +40,7 @@ print_wrapped() {
 }
 DIRDIR=$(pwd)
 LOCAL_IP=$(hostname -I | awk '{print $1}')
-PUBLIC_IP=$(curl ifconfig.me)
+PUBLIC_IP=$(curl v4.ident.me)
 INFREF="https://xlxbbs.epf.lu/"
 XLXDREPO="https://github.com/PU5KOD/xlxd.git"
 XLXECHO="https://github.com/narspt/XLXEcho.git"
