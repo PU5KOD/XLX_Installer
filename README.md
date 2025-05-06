@@ -1,5 +1,5 @@
 # XLX Debian Installer
-This project was writed by Daniel K. [PU5KOD](https://www.qrz.com/db/PU5KOD) and is inspired in the one initially created by [N5AMD](https://github.com/n5amd/xlxd-debian-installer) that facilitates the installation process of the XLX reflector developed by [LX3JL](https://github.com/LX3JL/xlxd) and many implementations have been made since then. The idea here is to offer a system that asks the user for the main information for creating the reflector as well as the respective dashboard, so when running it several variables are requested so that in the end you have an XLX reflector working without the need for intervention. Therefore what this script does is automate as many processes as possible so that the installation of the reflector and dashboard is carried out with just a few commands and with minimal user intervention. As previously mentioned, in addition to the reflector, it also installs a dashboard so you can monitor the activity in the reflector in real time, along with this, an Echo Test service (Parrot) will also be installed, it will be linked by default to Module E but can be changed later without any major problems, the service is very useful for users to be able to perform audio tests.
+This project was writed by Daniel K. [PU5KOD](https://www.qrz.com/db/PU5KOD) and is inspired in the one initially created by [N5AMD](https://github.com/n5amd/xlxd-debian-installer) that facilitates the installation process of the XLX reflector developed by [LX3JL](https://github.com/LX3JL/xlxd) and many implementations have been made since then. The idea here is to offer a system that asks the user for the main information for creating the reflector as well as the respective dashboard, so when running it several variables are requested so that in the end you have an XLX reflector working without the need for intervention. Therefore what this script does is automate as many processes as possible so that the installation of the reflector and dashboard is carried out with just a few commands and with minimal user intervention. As previously mentioned, in addition to the reflector, it also installs a dashboard so you can monitor the activity in the reflector in real time, along with this, an Echo Test service (Parrot) will also be offered, it will be linked by default to Module E but can be changed later without any major problems, the service is very useful for users to be able to perform audio tests.
 
 At the start of 2020 a new version of XLX was released that allows for native C4FM connections, this means it's even simpler to run a multi-mode reflector. The XLX now natively supports D-Star, C4FM and DMR modes, between C4FM and DMR do not require any transcoding hardware (AMBE) to work together, so if you plan to use D-Star with any of the other modes you will need hardware AMBE chips, however if your plan is just a DStar only reflector OR a YSF/DMR reflector this is not necessary.
 This script always installs the latest version of the official LX3JL project (v_2.5.3 of the XLX reflector and v_2.4.2 of the dashboard at the time I write this), it has been tested and works perfectly on Debian 10, 11 and 12 (preferably on the 12) and their derivatives such as RaspiOS for Raspberry Pi, and does not require many hardware resources which can be easily run on a Raspberry Pi Zero or similar.
@@ -33,13 +33,14 @@ When running the above last command the process will start and some questions wi
 05. What is the country of the reflector?
 06. What is the comment to be shown in the XLX Reflectors list?
 07. Custom text on header of the dashboard webpage
-08. How many active modules does the reflector have? (5-26)
-09. What name will this reflector have to appear in YSF reflectors list? (max. 16 characters)
-10. And what will be his description to appear on YSF reflectors list? (max. 16 characters)
-11. What is the YSF UDP port number? (1-65535)
-12. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000)
-13. Is YSF auto-link enable? (1 = Yes / 0 = No)
-14. What module to be auto-link? (*)
+08. Do you want to install Echo Test Server? (Y/N)
+09. How many active modules does the reflector have? (1-26)
+10. What name will this reflector have to appear in YSF reflectors list? (max. 16 characters)
+11. And what will be his description to appear on YSF reflectors list? (max. 16 characters)
+12. What is the YSF UDP port number? (1-65535)
+13. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000)
+14. Is YSF auto-link enable? (1 = Yes / 0 = No)
+15. What module to be auto-link? (*)
 
 (*) The last question will only be asked if the answer to the previous one is positive.
 
