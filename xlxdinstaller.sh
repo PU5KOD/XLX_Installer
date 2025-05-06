@@ -180,23 +180,41 @@ print_yellow "Using: $HEADER"
 line_type1
 while true; do
 echo ""
-    print_wrapped "08. How many active modules does the reflector have? (5-26)"
+    print_wrapped "08. Do you want to install Echo Test Server? (Y/N)"
+    print_wrapped "Suggested: Y $ACCEPT"
+    printf "> "
+    read -r INSTALL_ECHO
+    INSTALL_ECHO=$(echo "${INSTALL_ECHO:-Y}" | tr '[:lower:]' '[:upper:]')
+    if [[ "$INSTALL_ECHO" == "Y" || "$INSTALL_ECHO" == "N" ]]; then
+        break
+    else
+        print_red "Please enter 'Y' or 'N'."
+    fi
+done
+print_yellow "Using: $INSTALL_ECHO"
+line_type1
+while true; do
+echo ""
+    MIN_MODULES=1
+    if [ "$INSTALL_ECHO" == "Y" ]; then
+        MIN_MODULES=5
+    fi
+    print_wrapped "09. How many active modules does the reflector have? ($MIN_MODULES-26)"
     print_wrapped "Suggested: 5 $ACCEPT"
     printf "> "
     read -r MODQTD
     MODQTD=${MODQTD:-5}
-    if [[ "$MODQTD" =~ ^[0-9]+$ && "$MODQTD" -ge 5 && "$MODQTD" -le 26 ]]; then
+    if [[ "$MODQTD" =~ ^[0-9]+$ && "$MODQTD" -ge "$MIN_MODULES" && "$MODQTD" -le 26 ]]; then
         break
     else
-        print_red "Error: Must be a number between 5 and 26. Try again!"
+        print_red "Error: Must be a number between $MIN_MODULES and 26. Try again!"
     fi
 done
 print_yellow "Using: $MODQTD"
 line_type1
-# YSFNAME e YSFDESC input
 while true; do
 echo ""
-    print_wrapped "09. At https://register.ysfreflector.de the list of YSF reflectors is shown. What name will this reflector have to appear in this list? (max. 16 characters)"
+    print_wrapped "10. At https://register.ysfreflector.de the list of YSF reflectors is shown. What name will this reflector have to appear in this list? (max. 16 characters)"
     print_wrapped "Suggested: \"$XRFNUM\" $ACCEPT"
     printf "> "
     read -r YSFNAME
@@ -211,7 +229,7 @@ print_yellow "Using: $YSFNAME"
 line_type1
 while true; do
 echo ""
-    print_wrapped "10. And what will be his description to appear on this list? (max. 16 characters)"
+    print_wrapped "11. And what will be his description to appear on this list? (max. 16 characters)"
     print_wrapped "Suggested: \"$XLXDOMAIN\" $ACCEPT"
     printf "> "
     read -r YSFDESC
@@ -249,7 +267,7 @@ YSFDESC_ARRAY=$(to_c_array "$YSFDESC")
 line_type1
 while true; do
 echo ""
-    print_wrapped "11. What is the YSF UDP port number? (1-65535)"
+    print_wrapped "12. What is the YSF UDP port number? (1-65535)"
     print_wrapped "Suggested: 42000 $ACCEPT"
     printf "> "
     read -r YSFPORT
@@ -264,7 +282,7 @@ print_yellow "Using: $YSFPORT"
 line_type1
 while true; do
 echo ""
-    print_wrapped "12. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000)"
+    print_wrapped "13. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000)"
     print_wrapped "Suggested: 433125000 $ACCEPT"
     printf "> "
     read -r YSFFREQ
@@ -279,7 +297,7 @@ print_yellow "Using: $YSFFREQ"
 line_type1
 while true; do
 echo ""
-    print_wrapped "13. Is YSF auto-link enable? (1 = Yes / 0 = No)"
+    print_wrapped "14. Is YSF auto-link enable? (1 = Yes / 0 = No)"
     print_wrapped "Suggested: 1 $ACCEPT"
     printf "> "
     read -r AUTOLINK
@@ -297,7 +315,7 @@ MODLIST=$(echo {A..Z} | tr -d ' ' | head -c "$MODQTD")
 if [ "$AUTOLINK" -eq 1 ]; then
 while true; do
     echo ""
-        print_wrapped "14. What module to be auto-link? (one of ${VALID_MODULES[*]})"
+        print_wrapped "15. What module to be auto-link? (one of ${VALID_MODULES[*]})"
         print_wrapped "Suggested: C $ACCEPT"
         printf "> "
         read -r MODAUTO
@@ -317,12 +335,13 @@ echo ""
 print_blueb "PLEASE REVIEW YOUR SETTINGS:"
 echo ""
 print_wrapped "Reflector ID: $XRFNUM"
-print_wrapped "FQD: $XLXDOMAIN"
+print_wrapped "FQDN: $XLXDOMAIN"
 print_wrapped "E-mail: $EMAIL"
 print_wrapped "Callsign: $CALLSIGN"
 print_wrapped "Country: $COUNTRY"
 print_wrapped "Comment: $COMMENT"
 print_wrapped "Dashboard header text: $HEADER"
+print_wrapped "Echo Test: $INSTALL_ECHO" (Yes / No)
 print_wrapped "Modules: $MODQTD"
 print_wrapped "YSF name: $YSFNAME"
 print_wrapped "YSF description: $YSFDESC"
@@ -331,10 +350,10 @@ print_wrapped "YSF frequency: $YSFFREQ"
 print_wrapped "YSF autolink: $AUTOLINK (1 = Yes / 0 = No)"
 if [ "$AUTOLINK" -eq 1 ]; then
         print_wrapped "YSF module: $MODAUTO"
-        fi
+fi
 echo ""
 while true; do
-    print_yellow "Are these settings correct? (y/n)"
+    print_yellow "Are these settings correct? (Y/N)"
     printf "> "
     read -r CONFIRM
     CONFIRM=$(echo "$CONFIRM" | tr '[:lower:]' '[:upper:]')
@@ -433,20 +452,27 @@ sed -i "s|#modules|modules $MODLIST|g" "$TERMXLX"
 cp "$XLXINSTDIR/xlxd/scripts/xlxd" /etc/init.d/xlxd
 sed -i "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM $LOCAL_IP 127.0.0.1|g" /etc/init.d/xlxd
 /usr/sbin/update-rc.d xlxd defaults
+# Comment out the line "ECHO 127.0.0.1 E" in /xlxd/xlxd.interlink if Echo Test is not installed
+if [ "$INSTALL_ECHO" == "N" ]; then
+    sed -i 's|^ECHO 127.0.0.1 E|#ECHO 127.0.0.1 E|' /xlxd/xlxd.interlink
+fi
 print_green "Operation completed successfully!"
 echo ""
-print_blueb "INSTALLING ECHO TEST SERVER..."
-print_blue "=============================="
-echo ""
-cd "$XLXINSTDIR"
-git clone "$XLXECHO"
-cd XLXEcho/
-gcc -o xlxecho xlxecho.c
-cp xlxecho /xlxd/
-cp "$XLXINSTDIR/xlxd/scripts/xlxecho.service" /etc/systemd/system/
-echo ""
-print_green "Echo test server successfully installed"
-echo ""
+# Echo Test installation conditional on answering question 08
+if [ "$INSTALL_ECHO" == "Y" ]; then
+    print_blueb "INSTALLING ECHO TEST SERVER..."
+    print_blue "=============================="
+    echo ""
+    cd "$XLXINSTDIR"
+    git clone "$XLXECHO"
+    cd XLXEcho/
+    gcc -o xlxecho xlxecho.c
+    cp xlxecho /xlxd/
+    cp "$XLXINSTDIR/xlxd/scripts/xlxecho.service" /etc/systemd/system/
+    echo ""
+    print_green "Echo test server successfully installed"
+    echo ""
+fi
 print_blueb "INSTALLING DASHBOARD..."
 print_blue "======================="
 echo ""
@@ -488,8 +514,11 @@ print_blue "============================"
 echo ""
 systemctl enable xlxd
 systemctl start xlxd | print_yellow "Finishing, please wait..."
-systemctl enable xlxecho.service
-systemctl start xlxecho.service
+# Enable and start xlxecho.service only if Echo Test is installed
+if [ "$INSTALL_ECHO" == "Y" ]; then
+    systemctl enable xlxecho.service
+    systemctl start xlxecho.service
+fi
 echo ""
 line_type1
 echo ""
@@ -497,7 +526,7 @@ print_greenb "Your Reflector $XRFNUM is now installed and running!"
 print_greenb "If you want to install the ssl certificate for your website, then you have the opportunity to do it now, but if you want to perform this process later, just decline and the process will be complete."
 echo ""
 while true; do
-    print_yellow "Would you like to install Certbot for HTTPS? (y/n)"
+    print_yellow "Would you like to install Certbot for HTTPS? (Y/N)"
     read -r HTTPS_CONFIRM
     HTTPS_CONFIRM=$(echo "$HTTPS_CONFIRM" | tr '[:lower:]' '[:upper:]')
     if [[ "$HTTPS_CONFIRM" == "Y" || "$HTTPS_CONFIRM" == "N" ]]; then
