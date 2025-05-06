@@ -485,7 +485,7 @@ systemctl enable xlxd
 systemctl start xlxd | print_yellow "Finishing, please wait..."
 systemctl enable xlxecho.service
 systemctl start xlxecho.service
-echo "ECHO 127.0.0.1 E" | sudo tee -a /xlxd/xlxd.interlink
+#echo "ECHO 127.0.0.1 E" | sudo tee -a /xlxd/xlxd.interlink
 echo ""
 line_type1
 echo ""
