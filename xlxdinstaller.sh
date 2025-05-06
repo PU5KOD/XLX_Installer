@@ -341,7 +341,7 @@ print_wrapped "Callsign: $CALLSIGN"
 print_wrapped "Country: $COUNTRY"
 print_wrapped "Comment: $COMMENT"
 print_wrapped "Dashboard header text: $HEADER"
-print_wrapped "Echo Test: $INSTALL_ECHO" (Yes / No)
+print_wrapped "Echo Test: $INSTALL_ECHO (Yes / No)"
 print_wrapped "Modules: $MODQTD"
 print_wrapped "YSF name: $YSFNAME"
 print_wrapped "YSF description: $YSFDESC"
