@@ -433,7 +433,7 @@ sed -i "s|#modules|modules $MODLIST|g" "$TERMXLX"
 cp "$XLXINSTDIR/xlxd/scripts/xlxd" /etc/init.d/xlxd
 sed -i "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM $LOCAL_IP 127.0.0.1|g" /etc/init.d/xlxd
 /usr/sbin/update-rc.d xlxd defaults
-print_green "Success"
+print_green "Operation completed successfully!"
 echo ""
 print_blueb "INSTALLING ECHO TEST SERVER..."
 print_blue "=============================="
