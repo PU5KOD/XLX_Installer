@@ -41,6 +41,7 @@ print_wrapped() {
 DIRDIR=$(pwd)
 LOCAL_IP=$(hostname -I | awk '{print $1}')
 PUBLIC_IP=$(curl v4.ident.me)
+NETACT=$(ip -o addr show up | grep -v lo | awk '{print $2}' | head -n1)
 INFREF="https://xlxbbs.epf.lu/"
 XLXDREPO="https://github.com/PU5KOD/xlxd.git"
 XLXECHO="https://github.com/narspt/XLXEcho.git"
@@ -485,8 +486,7 @@ sed -i "s|custom_header|$HEADER|g" "$XLXCONFIG"
 sed -i "s#http://your_dashboard#http://$XLXDOMAIN#g" "$XLXCONFIG"
 sed -i "s|your_country|$COUNTRY|g" "$XLXCONFIG"
 sed -i "s|your_comment|$COMMENT|g" "$XLXCONFIG"
-sed -i "s#/tmp/callinghome.php#/xlxd/callinghome.php#g" "$XLXCONFIG"
-sed -i "s#/tmp/lastcallhome.php#/xlxd/lastcallhome.php#g" "$XLXCONFIG"
+sed -i "s|netact|$NETACT|g" "$XLXCONFIG"
 cp "$DIRDIR/templates/apache.tbd.conf" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 sed -i "s|apache.tbd|$XLXDOMAIN|g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 sed -i "s#ysf-xlxd#html/xlxd#g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
