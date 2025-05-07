@@ -22,7 +22,7 @@ Find a current active reflector dashboard [here](https://xlxbra.net/index.php?sh
 cd
 sudo git clone https://github.com/PU5KOD/xlxd_installer.git
 cd xlxd_installer
-sudo chmod +x xlxdinstaller.sh uninstall_xlxd.sh
+sudo chmod +x xlxdinstaller.sh uninstaller.sh
 sudo ./xlxdinstaller.sh
 ```
 When running the above last command the process will start and some questions will be asked, just answer as asked, in some cases just press "ENTER" to accept the suggested answer, the questions are in the following sequence:
