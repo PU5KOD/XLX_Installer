@@ -79,14 +79,6 @@ center_wrap_color() {
 }
 # Start of data collection.
 clear
-#center_wrap_color $RED "Vermelho NORMAL"
-#center_wrap_color $RED_BRIGHT "Vermelho BRILHANTE"
-#center_wrap_color $GREEN "Verde NORMAL"
-#center_wrap_color $GRENN_BRIGHT "Verde BRILHANTE"
-#center_wrap_color $BLUE "Azul NORNAL"
-#center_wrap_color $BLUE_BRIGHT "Azul BRULHANTE"
-#center_wrap_color $YELLOW "Amarelo NORMAL"
-#center_wrap_color $NC "Sem COR"
 line_type1
 echo ""
 center_wrap_color $GREEN_BRIGHT "Installer of the XLX Multiprotocol Ham Radio Reflector and its dashboard"
