@@ -18,15 +18,11 @@ if [ ! -e "/etc/debian_version" ]; then
     exit 1
 fi
 # Set the fixed character limit
-MAX_WIDTH=90
-# Get the number of columns from the terminal
-cols=$(tput cols 2>/dev/null || echo 90)
-# Decide the length to use: the smaller of MAX_WIDTH and cols
-if [ "$cols" -lt "$MAX_WIDTH" ]; then
-    width=$cols
-else
-    width=$MAX_WIDTH
-fi
+MAX_WIDTH=100
+# Get the number of columns from the terminal or use MAX_WIDTH as a fallback
+cols=$(tput cols 2>/dev/null || echo "$MAX_WIDTH")
+# Use the smallest value between cols and MAX_WIDTH
+width=$(( cols < MAX_WIDTH ? cols : MAX_WIDTH ))
 # Function to create different types of lines adjusted to length
 line_type1() {
     printf "%${width}s\n" | tr ' ' '_'
