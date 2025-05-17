@@ -476,7 +476,7 @@ sed -i "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM $LOCAL_IP 127.0.0.1|g" /etc/in
 if [ "$INSTALL_ECHO" == "N" ]; then
     sed -i 's|^ECHO 127.0.0.1 E|#ECHO 127.0.0.1 E|' /xlxd/xlxd.interlink
 fi
-print_green "Operation completed successfully!"
+print_green "✔ Operation completed successfully!"
 echo ""
 # Echo Test installation conditional on answering question 08
 if [ "$INSTALL_ECHO" == "Y" ]; then
@@ -490,7 +490,7 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
     cp xlxecho /xlxd/
     cp "$XLXINSTDIR/xlxd/scripts/xlxecho.service" /etc/systemd/system/
     echo ""
-    print_green "Echo test server successfully installed"
+    print_green "✔ Echo test server successfully installed"
     echo ""
 fi
 print_blueb "INSTALLING DASHBOARD..."
@@ -539,8 +539,7 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
     systemctl enable xlxecho.service
     systemctl start xlxecho.service
 fi
-echo ""
-echo -e "\n${GREEN}Initialization completed.${NC}"
+echo -e "\n${GREEN}✔ Initialization completed.${NC}"
 echo ""
 echo ""
 center_wrap_color $GREEN "========================================="
@@ -572,10 +571,10 @@ line_type2
 echo ""
 center_wrap_color $GREEN_BRIGHT "For Public Reflectors:"
 echo ""
-center_wrap_color $GREEN_BRIGHT "* If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour. If you don't want the reflector to be published just set callinghome to [false] in the main file in $XLXCONFIG."
-center_wrap_color $GREEN_BRIGHT "* Many other settings can be changed in this file."
-center_wrap_color $GREEN_BRIGHT "* More Information about XLX Reflectors check $INFREF"
-center_wrap_color $GREEN_BRIGHT "* Your $XRFNUM dashboard should now be accessible at http://$XLXDOMAIN"
-center_wrap_color $GREEN_BRIGHT "* For more details about ssl certification visit certbot.eff.org"
+center_wrap_color $GREEN_BRIGHT "• If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour. If you don't want the reflector to be published just set callinghome to [false] in the main file in $XLXCONFIG."
+center_wrap_color $GREEN_BRIGHT "• Many other settings can be changed in this file."
+center_wrap_color $GREEN_BRIGHT "• More Information about XLX Reflectors check $INFREF"
+center_wrap_color $GREEN_BRIGHT "• Your $XRFNUM dashboard should now be accessible at http://$XLXDOMAIN"
+center_wrap_color $GREEN_BRIGHT "• For more details about ssl certification visit certbot.eff.org"
 echo ""
 line_type2
