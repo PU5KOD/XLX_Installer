@@ -367,7 +367,7 @@ while true; do
     if [[ "$CONFIRM" == "Y" || "$CONFIRM" == "N" ]]; then
         break
     else
-        print_yellow "Please enter 'Y' or 'N'."
+        print_redb "Please enter 'Y' or 'N'."
     fi
 done
 if [ "$CONFIRM" == "N" ]; then
@@ -549,12 +549,13 @@ center_wrap_color $GREEN_BRIGHT "If you want to install the ssl certificate for 
 echo ""
 while true; do
     center_wrap_color $YELLOW "Would you like to install Certbot for HTTPS? (Y/N)"
+    printf "> "
     read -r HTTPS_CONFIRM
     HTTPS_CONFIRM=$(echo "$HTTPS_CONFIRM" | tr '[:lower:]' '[:upper:]')
     if [[ "$HTTPS_CONFIRM" == "Y" || "$HTTPS_CONFIRM" == "N" ]]; then
         break
     else
-        center_wrap_color $RED "Please enter 'Y' or 'N'."
+        center_wrap_color $RED_BRIGHT "Please enter 'Y' or 'N'."
     fi
 done
 if [ "$HTTPS_CONFIRM" == "Y" ]; then
