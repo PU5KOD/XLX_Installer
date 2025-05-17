@@ -490,7 +490,7 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
     cp xlxecho /xlxd/
     cp "$XLXINSTDIR/xlxd/scripts/xlxecho.service" /etc/systemd/system/
     echo ""
-    print_green "✔ Echo test server successfully installed"
+    print_green "✔ Echo test server successfully installed!"
     echo ""
 fi
 print_blueb "INSTALLING DASHBOARD..."
@@ -539,7 +539,7 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
     systemctl enable xlxecho.service
     systemctl start xlxecho.service
 fi
-echo -e "\n${GREEN}✔ Initialization completed.${NC}"
+echo -e "\n${GREEN}✔ Initialization completed!${NC}"
 echo ""
 echo ""
 center_wrap_color $GREEN "========================================="
