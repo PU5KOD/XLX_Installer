@@ -66,13 +66,32 @@ print_greenb() { echo -e "${GREEN_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}
 print_blue() { echo -e "${BLUE}$(echo "$1" | fold -s -w "$width")${NC}"; }
 print_blueb() { echo -e "${BLUE_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"; }
 print_yellow() { echo -e "${YELLOW}$(echo "$1" | fold -s -w "$width")${NC}"; }
+center_wrap_color() {
+    local color="$1"
+    local text="$2"
+    local wrapped_lines
+    IFS=$'\n' read -rd '' -a wrapped_lines <<<"$(echo "$text" | fold -s -w "$width")"
+    for line in "${wrapped_lines[@]}"; do
+        local line_length=${#line}
+        local padding=$(( (width - line_length) / 2 ))
+        printf "%b%*s%s%b\n" "$color" "$padding" "" "$line" "$NC"
+    done
+}
 # Start of data collection.
 clear
+#center_wrap_color $RED "Vermelho NORMAL"
+#center_wrap_color $RED_BRIGHT "Vermelho BRILHANTE"
+#center_wrap_color $GREEN "Verde NORMAL"
+#center_wrap_color $GRENN_BRIGHT "Verde BRILHANTE"
+#center_wrap_color $BLUE "Azul NORNAL"
+#center_wrap_color $BLUE_BRIGHT "Azul BRULHANTE"
+#center_wrap_color $YELLOW "Amarelo NORMAL"
+#center_wrap_color $NC "Sem COR"
 line_type1
 echo ""
-print_greenb "Installer of the XLX Multiprotocol Ham Radio Reflector and its dashboard"
+center_wrap_color $GREEN_BRIGHT "Installer of the XLX Multiprotocol Ham Radio Reflector and its dashboard"
 echo ""
-print_greenb "Below you will be asked for some information, answer the requested values or, if applicable, to accept the suggested value press [ENTER]"
+center_wrap_color $GREEN_BRIGHT "Below you will be asked for some information, answer the requested values or, if applicable, to accept the suggested value press [ENTER]"
 echo ""
 line_type1
 echo ""
@@ -375,7 +394,7 @@ print_blue "=============="
 echo ""
 apt update && apt full-upgrade -y
 if [ $? -ne 0 ]; then
-    print_red "Error: Failed to update package lists. Check your internet connection or package manager configuration."
+    center_wrap_color $RED "Error: Failed to update package lists. Check your internet connection or package manager configuration."
     exit 1
 fi
 echo ""
@@ -385,11 +404,19 @@ echo ""
 mkdir -p "$XLXINSTDIR"
 apt -y install $APPS
 if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
+    echo ""
     line_type2
-    print_red "XLXD ALREADY COMPILED!!! Delete the following directories"
-    print_red "'/usr/src/xlxd', '/xlxd', '/var/www/html/xlxd', '/usr/src/XLXEcho' and the following files"
-    print_red "'/etc/init.d/xlxd.*', 'var/log/xlxd.*', '/etc/systemd/system/xlxecho.service' and '/etc/apache2/sites-available/xlx*'"
+    echo ""
+    center_wrap_color $RED_BRIGHT "XLXD ALREADY COMPILED!!! Delete the following directories:"
+    echo ""
+    center_wrap_color $NC "'/usr/src/xlxd', '/xlxd', '/var/www/html/xlxd', '/usr/src/XLXEcho'"
+    echo ""
+    center_wrap_color $RED_BRIGHT "Also delete the following files:"
+    echo ""
+    center_wrap_color $NC "'/etc/init.d/xlxd.*', 'var/log/xlxd.*', '/etc/systemd/system/xlxecho.service' and '/etc/apache2/sites-available/xlx*'"
+    echo ""
     line_type2
+    echo ""
     exit 1
 else
     echo ""
@@ -423,15 +450,15 @@ fi
 
 if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
     echo ""
-    print_green "==============================="
-    print_green "|  COMPILATION SUCCESSFUL!!!  |"
-    print_green "==============================="
+    center_wrap_color $GREEN "==============================="
+    center_wrap_color $GREEN "|  COMPILATION SUCCESSFUL!!!  |"
+    center_wrap_color $GREEN "==============================="
     echo ""
 else
     echo ""
-    print_red "======================================================"
-    print_red "|  Compilation FAILED. Check the output for errors.  |"
-    print_red "======================================================"
+    center_wrap_color $RED "======================================================"
+    center_wrap_color $RED "|  Compilation FAILED. Check the output for errors.  |"
+    center_wrap_color $RED "======================================================"
     echo ""
     exit 1
 fi
@@ -504,16 +531,24 @@ systemctl start apache2
 systemctl daemon-reload
 
 echo ""
-print_green "========================================="
-print_green "|  REFLECTOR INSTALLED SUCCESSFULLY!!!  |"
-print_green "========================================="
+center_wrap_color $GREEN "========================================="
+center_wrap_color $GREEN "|  REFLECTOR INSTALLED SUCCESSFULLY!!!  |"
+center_wrap_color $GREEN "========================================="
 
 echo ""
 print_blueb "STARTING $XRFNUM REFLECTOR..."
 print_blue "============================"
 echo ""
+
 systemctl enable xlxd
-systemctl start xlxd | print_yellow "Finishing, please wait..."
+systemctl start xlxd &
+pid=$!
+for ((i=15; i>0; i--)); do
+    printf "\r${YELLOW}Waiting for initialization: %2d seconds...${NC}" "$i"
+    sleep 1
+done
+wait $pid
+echo -e "\n${YELLOW}Initialization completed.${NC}"
 # Enable and start xlxecho.service only if Echo Test is installed
 if [ "$INSTALL_ECHO" == "Y" ]; then
     systemctl enable xlxecho.service
@@ -522,17 +557,17 @@ fi
 echo ""
 line_type1
 echo ""
-print_greenb "Your Reflector $XRFNUM is now installed and running!"
-print_greenb "If you want to install the ssl certificate for your website, then you have the opportunity to do it now, but if you want to perform this process later, just decline and the process will be complete."
+center_wrap_color $GREEN_BRIGHT "Your Reflector $XRFNUM is now installed and running!"
+center_wrap_color $GREEN_BRIGHT "If you want to install the ssl certificate for your website, then you have the opportunity to do it now, but if you want to perform this process later, just decline and the process will be complete."
 echo ""
 while true; do
-    print_yellow "Would you like to install Certbot for HTTPS? (Y/N)"
+    center_wrap_color $YELLOW "Would you like to install Certbot for HTTPS? (Y/N)"
     read -r HTTPS_CONFIRM
     HTTPS_CONFIRM=$(echo "$HTTPS_CONFIRM" | tr '[:lower:]' '[:upper:]')
     if [[ "$HTTPS_CONFIRM" == "Y" || "$HTTPS_CONFIRM" == "N" ]]; then
         break
     else
-        print_red "Please enter 'Y' or 'N'."
+        center_wrap_color $RED "Please enter 'Y' or 'N'."
     fi
 done
 if [ "$HTTPS_CONFIRM" == "Y" ]; then
@@ -542,11 +577,11 @@ fi
 echo ""
 line_type2
 echo ""
-print_greenb "For Public Reflectors:"
-print_greenb "If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour. If you don't want the reflector to be published just set callinghome to [false] in the main file in $XLXCONFIG."
-print_greenb "Many other settings can be changed in this file."
-print_greenb "More Information about XLX Reflectors check $INFREF"
-print_greenb "Your $XRFNUM dashboard should now be accessible at http://$XLXDOMAIN"
-print_greenb "For more details about ssl certification visit certbot.eff.org"
+center_wrap_color $GREEN_BRIGHT "For Public Reflectors:"
+center_wrap_color $GREEN_BRIGHT "If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour. If you don't want the reflector to be published just set callinghome to [false] in the main file in $XLXCONFIG."
+center_wrap_color $GREEN_BRIGHT "Many other settings can be changed in this file."
+center_wrap_color $GREEN_BRIGHT "More Information about XLX Reflectors check $INFREF"
+center_wrap_color $GREEN_BRIGHT "Your $XRFNUM dashboard should now be accessible at http://$XLXDOMAIN"
+center_wrap_color $GREEN_BRIGHT "For more details about ssl certification visit certbot.eff.org"
 echo ""
 line_type2
