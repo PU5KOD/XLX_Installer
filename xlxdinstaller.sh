@@ -14,8 +14,9 @@ if [ "$(whoami)" != "root" ]; then
 fi
 # Distro check
 if [ ! -e "/etc/debian_version" ]; then
-    echo "This script is only tested on Debian-based distributions."
-    exit 1
+    echo "This script has only been tested on Debian-based distributions."
+    read -p "Do you want to continue anyway? (Y/N) " answer
+    [[ "$answer" =~ ^[yY](es)?$ ]] || { echo "Execution cancelled."; exit 1; }
 fi
 # Set the fixed character limit
 MAX_WIDTH=100
