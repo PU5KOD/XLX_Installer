@@ -523,11 +523,6 @@ systemctl start apache2
 systemctl daemon-reload
 
 echo ""
-center_wrap_color $GREEN "========================================="
-center_wrap_color $GREEN "|  REFLECTOR INSTALLED SUCCESSFULLY!!!  |"
-center_wrap_color $GREEN "========================================="
-
-echo ""
 print_blueb "STARTING $XRFNUM REFLECTOR..."
 print_blue "============================"
 echo ""
@@ -535,17 +530,24 @@ echo ""
 systemctl enable xlxd
 systemctl start xlxd &
 pid=$!
-for ((i=15; i>0; i--)); do
-    printf "\r${YELLOW}Waiting for initialization: %2d seconds...${NC}" "$i"
+for ((i=17; i>0; i--)); do
+    printf "\r${YELLOW}Initializing %2d seconds${NC}" "$i"
     sleep 1
 done
 wait $pid
-echo -e "\n${YELLOW}Initialization completed.${NC}"
+echo ""
+print_green -e "\n${YELLOW}Initialization completed.${NC}"
+echo ""
 # Enable and start xlxecho.service only if Echo Test is installed
 if [ "$INSTALL_ECHO" == "Y" ]; then
     systemctl enable xlxecho.service
     systemctl start xlxecho.service
 fi
+echo ""
+center_wrap_color $GREEN "========================================="
+center_wrap_color $GREEN "|  REFLECTOR INSTALLED SUCCESSFULLY!!!  |"
+center_wrap_color $GREEN "========================================="
+echo ""
 echo ""
 line_type1
 echo ""
