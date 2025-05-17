@@ -431,7 +431,6 @@ else
     CYSF_FILE="$XLXINSTDIR/xlxd/src/cysfprotocol.cpp"
     sed -i "s|uint8 callsign\[16\];|uint8 callsign[16] = { $YSFNAME_ARRAY };|g" "$CYSF_FILE"
     sed -i "s|uint8 description\[\] = { 'X','L','X',' ','r','e','f','l','e','c','t','o','r',' ' };|uint8 description[] = { $YSFDESC_ARRAY };|g" "$CYSF_FILE"
-
     echo ""
     print_blueb "COMPILING..."
     print_blue "============"
@@ -439,14 +438,15 @@ else
     make
     make install
 fi
-
 if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
+    echo ""
     echo ""
     center_wrap_color $GREEN "==============================="
     center_wrap_color $GREEN "|  COMPILATION SUCCESSFUL!!!  |"
     center_wrap_color $GREEN "==============================="
     echo ""
 else
+    echo ""
     echo ""
     center_wrap_color $RED "======================================================"
     center_wrap_color $RED "|  Compilation FAILED. Check the output for errors.  |"
@@ -521,12 +521,10 @@ chown -R "$APACHE_USER:$APACHE_USER" /xlxd/
 systemctl stop apache2
 systemctl start apache2
 systemctl daemon-reload
-
 echo ""
 print_blueb "STARTING $XRFNUM REFLECTOR..."
 print_blue "============================"
 echo ""
-
 systemctl enable xlxd
 systemctl start xlxd &
 pid=$!
@@ -536,12 +534,14 @@ for ((i=17; i>0; i--)); do
 done
 wait $pid
 # Enable and start xlxecho.service only if Echo Test is installed
+echo ""
 if [ "$INSTALL_ECHO" == "Y" ]; then
     systemctl enable xlxecho.service
     systemctl start xlxecho.service
 fi
 echo ""
 echo -e "\n${GREEN}Initialization completed.${NC}"
+echo ""
 echo ""
 center_wrap_color $GREEN "========================================="
 center_wrap_color $GREEN "|  REFLECTOR INSTALLED SUCCESSFULLY!!!  |"
@@ -571,10 +571,11 @@ echo ""
 line_type2
 echo ""
 center_wrap_color $GREEN_BRIGHT "For Public Reflectors:"
-center_wrap_color $GREEN_BRIGHT "If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour. If you don't want the reflector to be published just set callinghome to [false] in the main file in $XLXCONFIG."
-center_wrap_color $GREEN_BRIGHT "Many other settings can be changed in this file."
-center_wrap_color $GREEN_BRIGHT "More Information about XLX Reflectors check $INFREF"
-center_wrap_color $GREEN_BRIGHT "Your $XRFNUM dashboard should now be accessible at http://$XLXDOMAIN"
-center_wrap_color $GREEN_BRIGHT "For more details about ssl certification visit certbot.eff.org"
+echo ""
+center_wrap_color $GREEN_BRIGHT "* If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour. If you don't want the reflector to be published just set callinghome to [false] in the main file in $XLXCONFIG."
+center_wrap_color $GREEN_BRIGHT "* Many other settings can be changed in this file."
+center_wrap_color $GREEN_BRIGHT "* More Information about XLX Reflectors check $INFREF"
+center_wrap_color $GREEN_BRIGHT "* Your $XRFNUM dashboard should now be accessible at http://$XLXDOMAIN"
+center_wrap_color $GREEN_BRIGHT "* For more details about ssl certification visit certbot.eff.org"
 echo ""
 line_type2
