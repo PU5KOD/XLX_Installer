@@ -535,14 +535,13 @@ for ((i=17; i>0; i--)); do
     sleep 1
 done
 wait $pid
-echo ""
-print_green -e "\n${YELLOW}Initialization completed.${NC}"
-echo ""
 # Enable and start xlxecho.service only if Echo Test is installed
 if [ "$INSTALL_ECHO" == "Y" ]; then
     systemctl enable xlxecho.service
     systemctl start xlxecho.service
 fi
+echo ""
+echo -e "\n${GREEN}Initialization completed.${NC}"
 echo ""
 center_wrap_color $GREEN "========================================="
 center_wrap_color $GREEN "|  REFLECTOR INSTALLED SUCCESSFULLY!!!  |"
