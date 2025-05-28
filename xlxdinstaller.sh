@@ -40,6 +40,7 @@ NETACT=$(ip -o addr show up | grep -v lo | awk '{print $2}' | head -n1)
 INFREF="https://xlxbbs.epf.lu/"
 XLXDREPO="https://github.com/PU5KOD/xlxd.git"
 XLXECHO="https://github.com/narspt/XLXEcho.git"
+XLXDASH="https://github.com/PU5KOD/XLX_Dark_Dashboard.git"
 DMRIDURL="http://xlxapi.rlx.lu/api/exportdmr.php"
 WEBDIR="/var/www/html/xlxd"
 XLXINSTDIR="/usr/src"
@@ -491,7 +492,9 @@ fi
 print_blueb "INSTALLING DASHBOARD..."
 print_blue "======================="
 echo ""
-cp -R "$XLXINSTDIR/xlxd/dashboard/"* "$WEBDIR/"
+cd "$XLXINSTDIR"
+git clone "$XLXDASH"
+cp -R "$XLXINSTDIR/XLX_Dark_Dashboard/"* "$WEBDIR/"
 XLXCONFIG="$WEBDIR/pgs/config.inc.php"
 sed -i "s|your_email|$EMAIL|g" "$XLXCONFIG"
 sed -i "s|LX1IQ|$CALLSIGN|g" "$XLXCONFIG"
@@ -508,14 +511,19 @@ APACHE_USER=$(ps aux | grep -E '[a]pache|[h]ttpd' | grep -v root | head -1 | awk
 if [ -z "$APACHE_USER" ]; then
     APACHE_USER="www-data"
 fi
+mv "$WEBDIR/users_db/" /xlxd/
+chmod -R 775 /xlxd/users_db/
+chmod -R 775 "$WEBDIR"
 chown -R "$APACHE_USER:$APACHE_USER" /var/log/xlxd.xml
 chown -R "$APACHE_USER:$APACHE_USER" "$WEBDIR/"
 chown -R "$APACHE_USER:$APACHE_USER" /xlxd/
+/bin/bash /xlxd/users_db/update_db.sh
 /usr/sbin/a2ensite "$XLXDOMAIN".conf
 /usr/sbin/a2dissite 000-default
 systemctl stop apache2
 systemctl start apache2
 systemctl daemon-reload
+echo -e "\n${GREEN}✔ Dashboard successfully installed!${NC}"
 echo ""
 print_blueb "STARTING $XRFNUM REFLECTOR..."
 print_blue "============================"
