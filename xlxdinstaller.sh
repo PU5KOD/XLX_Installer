@@ -12,6 +12,11 @@ if [ "$(whoami)" != "root" ]; then
     echo "You must be root to run this script!"
     exit 1
 fi
+# Internet check
+if ! ping -c 1 google.com &>/dev/null; then
+    echo "No internet connection. Please check your network."
+    exit 1
+fi
 # Distro check
 if [ ! -e "/etc/debian_version" ]; then
     echo "This script has only been tested on Debian-based distributions."
