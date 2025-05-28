@@ -487,7 +487,7 @@ else
     cp "$DIRDIR/templates/update_XLX_db.service" /etc/systemd/system/
     cp "$DIRDIR/templates/update_XLX_db.timer" /etc/systemd/system/
     systemctl daemon-reload
-    systemctl enable update_XLX_db.timer
+    systemctl enable --now update_XLX_db.timer
 fi
 echo ""
 print_green "✔ Operation completed successfully!"
