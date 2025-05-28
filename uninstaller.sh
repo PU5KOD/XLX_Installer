@@ -189,8 +189,7 @@ if command -v certbot &>/dev/null; then
     done
     if [ "$CERTBOT_CONFIRM" == "Y" ]; then
         certbot delete --cert-name "$XLXDOMAIN" >/dev/null 2>&1
-        apt remove -y --purge certbot python3-certbot-apache
-        print_green "✔ Removed Certbot and SSL certificate for $XLXDOMAIN."
+        print_green "✔ Removed SSL certificate for $XLXDOMAIN."
     fi
 fi
 
