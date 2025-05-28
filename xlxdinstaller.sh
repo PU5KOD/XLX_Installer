@@ -5,7 +5,7 @@
 # Lets begin!!!
 
 # Redirect all output to the log and keep it in the terminal
-LOGFILE="$PWD/xlx_install_$(date +%F_%H-%M-%S).log"
+LOGFILE="$PWD/log_xlx_install_$(date +%F_%H-%M-%S).log"
 exec > >(tee -a "$LOGFILE") 2>&1
 # root user check
 if [ "$(whoami)" != "root" ]; then
@@ -472,6 +472,20 @@ sed -i "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM $LOCAL_IP 127.0.0.1|g" /etc/in
 if [ "$INSTALL_ECHO" == "N" ]; then
     sed -i 's|^ECHO 127.0.0.1 E|#ECHO 127.0.0.1 E|' /xlxd/xlxd.interlink
 fi
+# Creates daily update of users.db, checks if crontab is installed otherwise use systemd
+if command -v crontab &>/dev/null; then
+    echo "crontab found, adding entry..."
+    (crontab -l 2>/dev/null; echo "0 3 * * * wget -O /xlxd/users_db/user.csv https://radioid.net/static/user.csv && php /xlxd/users_db/create_user_db.php") | crontab -
+    echo "Entry added successfully!"
+else
+    echo "crontab is not installed, using systemd..."
+    cp "$DIRDIR/templates/update_XLX_db.service" /etc/systemd/system/
+    cp "$DIRDIR/templates/update_XLX_db.timer" /etc/systemd/system/
+    systemctl daemon-reload
+    systemctl enable update_XLX_db.service
+    systemctl enable update_XLX_db.timer
+fi
+echo ""
 print_green "✔ Operation completed successfully!"
 echo ""
 # Echo Test installation conditional on answering question 08
