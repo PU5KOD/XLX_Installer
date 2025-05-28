@@ -3,6 +3,6 @@ Description=Update XLX user database
 
 [Service]
 Type=oneshot
-ExecStart=/bin/bash -c '/var/www/html/xlxd/update_db.sh  >> /var/log/update_XLX_db.log 2>&1'
+ExecStart=/bin/bash -c '/xlxd/users_db/update_db.sh  >> /var/log/update_XLX_db.log 2>&1'
 StandardOutput=journal
 StandardError=journal
