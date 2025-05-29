@@ -530,13 +530,18 @@ if [ -z "$APACHE_USER" ]; then
     APACHE_USER="www-data"
 fi
 mv "$WEBDIR/users_db/" /xlxd/
-chmod -R 775 /xlxd/users_db/
-chown -R www-data:www-data "$WEBDIR"
-find "$WEBDIR" -type d -exec chmod 755 {} \;
-find "$WEBDIR" -type f -exec chmod 644 {} \;
 chown -R "$APACHE_USER:$APACHE_USER" /var/log/xlxd.xml
 chown -R "$APACHE_USER:$APACHE_USER" "$WEBDIR/"
 chown -R "$APACHE_USER:$APACHE_USER" /xlxd/
+find /xlxd -type d -exec chmod 755 {} \;
+find "$WEBDIR" -type d -exec chmod 755 {} \;
+find "$WEBDIR" -type f -exec chmod 644 {} \;
+chmod 755 /xlxd/users_db/create_user_db.php
+chmod 755 /xlxd/users_db/update_db.sh
+chmod 644 /xlxd/users_db/user*
+chmod 644 /xlxd/xlxd.*
+chmod 755 /xlxd/xlxd
+chmod 755 /xlxd/xlxecho
 /bin/bash /xlxd/users_db/update_db.sh
 /usr/sbin/a2ensite "$XLXDOMAIN".conf
 /usr/sbin/a2dissite 000-default
