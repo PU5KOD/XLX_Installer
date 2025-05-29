@@ -531,7 +531,9 @@ if [ -z "$APACHE_USER" ]; then
 fi
 mv "$WEBDIR/users_db/" /xlxd/
 chmod -R 775 /xlxd/users_db/
-chmod -R 775 "$WEBDIR"
+chown -R www-data:www-data "$WEBDIR"
+find "$WEBDIR" -type d -exec chmod 755 {} \;
+find "$WEBDIR" -type f -exec chmod 644 {} \;
 chown -R "$APACHE_USER:$APACHE_USER" /var/log/xlxd.xml
 chown -R "$APACHE_USER:$APACHE_USER" "$WEBDIR/"
 chown -R "$APACHE_USER:$APACHE_USER" /xlxd/
