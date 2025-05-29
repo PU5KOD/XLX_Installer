@@ -4,7 +4,7 @@
 # Criado para reverter a instalação do XLX Multiprotocol Ham Radio Reflector
 
 # Redirect all output to the log and keep it in the terminal
-LOGFILE="$PWD/xlx_uninstall_$(date +%F_%H-%M-%S).log"
+LOGFILE="$PWD/log_xlx_uninstall_$(date +%F_%H-%M-%S).log"
 exec > >(tee -a "$LOGFILE") 2>&1
 
 # Root user check
@@ -93,10 +93,10 @@ if [ "$CONFIRM" == "N" ]; then
     exit 1
 fi
 
-# Stop and disable services
+# Stop and disable services, including scheduling
 echo ""
-print_blueb "STOPPING AND DISABLING SERVICES..."
-print_blue "=================================="
+print_blueb "STOPPING AND DISABLING SERVICES AND SCHEDULING..."
+print_blue "==============================================="
 echo ""
 if systemctl is-active --quiet xlxd; then
     systemctl stop xlxd
@@ -114,22 +114,24 @@ if systemctl is-enabled --quiet xlxecho.service; then
     systemctl disable xlxecho.service
     print_green "✔ Disabled xlxecho service."
 fi
-if systemctl is-active --quiet update_XLX_db.timer; then
-    systemctl stop update_XLX_db.timer
-    systemctl stop update_XLX_db.service
-    print_green "✔ Stopped update_XLX_db timer and service."
-fi
-if systemctl is-enabled --quiet update_XLX_db.timer; then
-    systemctl disable update_XLX_db.timer
-    systemctl disable update_XLX_db.service
-    print_green "✔ Disabled update_XLX_db timer and service."
-fi
-
-# Remove cron job if it exists
+# Remove scheduling (crontab or systemd)
 if command -v crontab &>/dev/null; then
-    if crontab -l 2>/dev/null | grep -q "/xlxd/users_db/create_user_db.php"; then
-        crontab -l 2>/dev/null | grep -v "/xlxd/users_db/create_user_db.php" | crontab -
+    if crontab -l 2>/dev/null | grep -q "wget -O /xlxd/users_db/user.csv"; then
+        crontab -l 2>/dev/null | grep -v "wget -O /xlxd/users_db/user.csv" | crontab -
         print_green "✔ Removed cron job for user database update."
+    else
+        print_yellow "No cron job found for user database update."
+    fi
+else
+    print_yellow "crontab not installed, checking for systemd timer..."
+    if systemctl is-active --quiet update_XLX_db.timer || systemctl is-enabled --quiet update_XLX_db.timer; then
+        systemctl stop update_XLX_db.timer 2>/dev/null
+        systemctl stop update_XLX_db.service 2>/dev/null
+        systemctl disable update_XLX_db.timer 2>/dev/null
+        systemctl disable update_XLX_db.service 2>/dev/null
+        print_green "✔ Stopped and disabled update_XLX_db timer and service."
+    else
+        print_yellow "No systemd timer or service found for user database update."
     fi
 fi
 
