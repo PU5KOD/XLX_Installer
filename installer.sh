@@ -403,11 +403,11 @@ if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
     echo ""
     center_wrap_color $RED_BRIGHT "XLXD ALREADY COMPILED!!! Delete the following directories:"
     echo ""
-    center_wrap_color $NC "'/usr/src/xlxd', '/xlxd', '/var/www/html/xlxd', '/usr/src/XLXEcho'"
+    center_wrap_color $NC "'/xlxd', '/var/www/html/xlxd', '/usr/src/xlxd', '/usr/src/XLXEcho', '/usr/src/XLX_Dark_Dashboard'"
     echo ""
     center_wrap_color $RED_BRIGHT "Also delete the following files:"
     echo ""
-    center_wrap_color $NC "'/etc/init.d/xlxd.*', 'var/log/xlxd.*', '/etc/systemd/system/xlxecho.service' and '/etc/apache2/sites-available/xlx*'"
+    center_wrap_color $NC "'/etc/init.d/xlxd.*', 'var/log/xlxd.*', '/etc/systemd/system/xlxecho.service' and related address at '/etc/apache2/sites-available/*'"
     echo ""
     line_type2
     echo ""
