@@ -191,6 +191,7 @@ if command -v certbot &>/dev/null; then
     done
     if [ "$CERTBOT_CONFIRM" == "Y" ]; then
         certbot delete --cert-name "$XLXDOMAIN" >/dev/null 2>&1
+        rm /etc/apache2/sites-available/"$XLXDOMAIN"*
         print_green "✔ Removed SSL certificate for $XLXDOMAIN."
     fi
 fi
