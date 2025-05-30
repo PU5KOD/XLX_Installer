@@ -22,7 +22,7 @@ echo "Using web directory: $WEBDIR"
 
 # Setting ownership for web directory
 echo "Configuring ownership for $WEBDIR..."
-sudo chown -R "$APACHE_USER:$APACHE_USER" "$WEBDIR/"
+chown -R "$APACHE_USER:$APACHE_USER" "$WEBDIR/"
 if [ $? -ne 0 ]; then
     echo "Error: Failed to set ownership for $WEBDIR."
     exit 1
@@ -33,7 +33,7 @@ echo "--------------------------------------"
 
 # Setting ownership for XLX directory
 echo "Configuring ownership for /xlxd..."
-sudo chown -R "$APACHE_USER:$APACHE_USER" /xlxd/
+chown -R "$APACHE_USER:$APACHE_USER" /xlxd/
 if [ $? -ne 0 ]; then
     echo "Error: Failed to set ownership for /xlxd."
     exit 1
@@ -44,7 +44,7 @@ echo "--------------------------------------"
 
 # Setting directory permissions for XLX
 echo "Configuring directory permissions for /xlxd..."
-sudo find /xlxd -type d -exec chmod 755 {} \;
+find /xlxd -type d -exec chmod 755 {} \;
 if [ $? -ne 0 ]; then
     echo "Error: Failed to set directory permissions for /xlxd."
     exit 1
@@ -55,7 +55,7 @@ echo "--------------------------------------"
 
 # Setting directory permissions for web directory
 echo "Configuring directory permissions for $WEBDIR..."
-sudo find "$WEBDIR" -type d -exec chmod 755 {} \;
+find "$WEBDIR" -type d -exec chmod 755 {} \;
 if [ $? -ne 0 ]; then
     echo "Error: Failed to set directory permissions for $WEBDIR."
     exit 1
@@ -66,7 +66,7 @@ echo "--------------------------------------"
 
 # Setting file permissions for web directory
 echo "Configuring file permissions for $WEBDIR..."
-sudo find "$WEBDIR" -type f -exec chmod 644 {} \;
+find "$WEBDIR" -type f -exec chmod 644 {} \;
 if [ $? -ne 0 ]; then
     echo "Error: Failed to set file permissions for $WEBDIR."
     exit 1
@@ -77,7 +77,7 @@ echo "--------------------------------------"
 
 # Setting permissions for create_user_db.php
 echo "Configuring permissions for /xlxd/users_db/create_user_db.php..."
-sudo chmod 755 /xlxd/users_db/create_user_db.php
+chmod 755 /xlxd/users_db/create_user_db.php
 if [ $? -ne 0 ]; then
     echo "Error: Failed to set permissions for /xlxd/users_db/create_user_db.php."
     exit 1
@@ -88,7 +88,7 @@ echo "--------------------------------------"
 
 # Setting permissions for update_db.sh
 echo "Configuring permissions for /xlxd/users_db/update_db.sh..."
-sudo chmod 755 /xlxd/users_db/update_db.sh
+chmod 755 /xlxd/users_db/update_db.sh
 if [ $? -ne 0 ]; then
     echo "Error: Failed to set permissions for /xlxd/users_db/update_db.sh."
     exit 1
@@ -99,7 +99,7 @@ echo "--------------------------------------"
 
 # Setting permissions for user database files
 echo "Configuring permissions for /xlxd/users_db/user* files..."
-sudo chmod 644 /xlxd/users_db/user*
+chmod 644 /xlxd/users_db/user*
 if [ $? -ne 0 ]; then
     echo "Error: Failed to set permissions for /xlxd/users_db/user* files."
     exit 1
@@ -110,7 +110,7 @@ echo "--------------------------------------"
 
 # Setting permissions for xlxd configuration files
 echo "Configuring permissions for /xlxd/xlxd.* files..."
-sudo chmod 644 /xlxd/xlxd.*
+chmod 644 /xlxd/xlxd.*
 if [ $? -ne 0 ]; then
     echo "Error: Failed to set permissions for /xlxd/xlxd.* files."
     exit 1
@@ -121,7 +121,7 @@ echo "--------------------------------------"
 
 # Setting permissions for xlxd executable
 echo "Configuring permissions for /xlxd/xlxd..."
-sudo chmod 755 /xlxd/xlxd
+chmod 755 /xlxd/xlxd
 if [ $? -ne 0 ]; then
     echo "Error: Failed to set permissions for /xlxd/xlxd."
     exit 1
@@ -132,7 +132,7 @@ echo "--------------------------------------"
 
 # Setting permissions for xlxecho executable
 echo "Configuring permissions for /xlxd/xlxecho..."
-sudo chmod 755 /xlxd/xlxecho
+chmod 755 /xlxd/xlxecho
 if [ $? -ne 0 ]; then
     echo "Error: Failed to set permissions for /xlxd/xlxecho."
     exit 1
