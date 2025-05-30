@@ -50,7 +50,7 @@ DMRIDURL="http://xlxapi.rlx.lu/api/exportdmr.php"
 WEBDIR="/var/www/html/xlxd"
 XLXINSTDIR="/usr/src"
 ACCEPT="| [ENTER] to accept..."
-APPS="git git-core make gcc g++ sqlite3 apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl php-sqlite3 build-essential vnstat"
+APPS="git git-core make gcc g++ sqlite3 apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl php-sqlite3 build-essential vnstat certbot python3-certbot-apache"
 RED='\033[0;31m'
 RED_BRIGHT='\033[1;31m'
 GREEN='\033[0;32m'
@@ -385,7 +385,8 @@ echo ""
 print_blueb "UPDATING OS..."
 print_blue "=============="
 echo ""
-apt update && apt full-upgrade -y
+apt update
+apt upgrade -y
 if [ $? -ne 0 ]; then
     center_wrap_color $RED "Error: Failed to update package lists. Check your internet connection or package manager configuration."
     exit 1
@@ -413,13 +414,15 @@ if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
     exit 1
 else
     echo ""
-    print_blueb "DOWNLOADING APPLICATION..."
+    print_blueb "DOWNLOADING THE XLX APP..."
     print_blue "=========================="
     echo ""
     cd "$XLXINSTDIR"
+    echo "Cloning repository..."
     git clone "$XLXDREPO"
     cd "$XLXINSTDIR/xlxd/src"
     make clean
+    echo "Seeding customizations..."
     MAINCONFIG="$XLXINSTDIR/xlxd/src/main.h"
     sed -i "s|\(NB_OF_MODULES\s*\)\([0-9]*\)|\1$MODQTD|g" "$MAINCONFIG"
     sed -i "s|\(YSF_PORT\s*\)\([0-9]*\)|\1$YSFPORT|g" "$MAINCONFIG"
@@ -456,17 +459,18 @@ else
     exit 1
 fi
 echo ""
-print_blueb "COPYING FILES AND FOLDERS..."
-print_blue "============================"
+print_blueb "COPYING COMPONENTS..."
+print_blue "====================="
 echo ""
 mkdir -p /xlxd
 mkdir -p "$WEBDIR"
 touch /var/log/xlxd.xml
+echo "Downloading DMR ID list..."
 wget -O /xlxd/dmrid.dat "$DMRIDURL" 2>/dev/null
 if [ $? -ne 0 ] || [ ! -s /xlxd/dmrid.dat ]; then
     print_red "Error: Failed to download or empty DMR ID file."
-    exit 1
 fi
+echo "Seeding customizations..."
 TERMXLX="/xlxd/xlxd.terminal"
 sed -i "s|#address|address $PUBLIC_IP|g" "$TERMXLX"
 sed -i "s|#modules|modules $MODLIST|g" "$TERMXLX"
@@ -498,6 +502,7 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
     print_blue "=============================="
     echo ""
     cd "$XLXINSTDIR"
+    echo "Cloning repository..."
     git clone "$XLXECHO"
     cd XLXEcho/
     gcc -o xlxecho xlxecho.c
@@ -511,8 +516,10 @@ print_blueb "INSTALLING DASHBOARD..."
 print_blue "======================="
 echo ""
 cd "$XLXINSTDIR"
+echo "Cloning repository..."
 git clone "$XLXDASH"
 cp -R "$XLXINSTDIR/XLX_Dark_Dashboard/"* "$WEBDIR/"
+echo "Seeding customizations..."
 XLXCONFIG="$WEBDIR/pgs/config.inc.php"
 sed -i "s|your_email|$EMAIL|g" "$XLXCONFIG"
 sed -i "s|LX1IQ|$CALLSIGN|g" "$XLXCONFIG"
@@ -530,6 +537,7 @@ if [ -z "$APACHE_USER" ]; then
     APACHE_USER="www-data"
 fi
 mv "$WEBDIR/users_db/" /xlxd/
+echo "Updating permissions..."
 chown -R "$APACHE_USER:$APACHE_USER" /var/log/xlxd.xml
 chown -R "$APACHE_USER:$APACHE_USER" "$WEBDIR/"
 chown -R "$APACHE_USER:$APACHE_USER" /xlxd/
@@ -591,7 +599,6 @@ while true; do
     fi
 done
 if [ "$HTTPS_CONFIRM" == "Y" ]; then
-    apt install -y certbot python3-certbot-apache
     certbot --apache -d "$XLXDOMAIN"
 fi
 echo ""
