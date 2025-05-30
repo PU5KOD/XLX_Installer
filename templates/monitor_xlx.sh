@@ -25,9 +25,9 @@ center_wrapped_colored() {
 echo ""
 line_type2
 echo ""
-center_wrapped_colored "$GREEN" "Abrindo consulta ao log do XLX300"
+center_wrapped_colored "$GREEN" "Opening a query to the XLX Reflector log"
 echo ""
-center_wrapped_colored "$YELLOW" "*** (!) PARA ENCERRAR TECLE CTRL+C ***"
+center_wrapped_colored "$YELLOW" "*** (!) TO FINISH PRESS CTRL+C ***"
 echo ""
 line_type2
 echo ""
