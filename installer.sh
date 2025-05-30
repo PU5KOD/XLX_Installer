@@ -465,9 +465,16 @@ echo ""
 mkdir -p /xlxd
 mkdir -p "$WEBDIR"
 touch /var/log/xlxd.xml
-echo "Downloading DMR ID list..."
-wget -O /xlxd/dmrid.dat "$DMRIDURL" 2>/dev/null
-if [ $? -ne 0 ] || [ ! -s /xlxd/dmrid.dat ]; then
+echo "Downloading DMR ID file..."
+FILE_SIZE=$(wget --spider --server-response "$DMRIDURL" 2>&1 | grep -i Content-Length | awk '{print $2}')
+if [ -z "$FILE_SIZE" ]; then
+    echo "Downloading..."
+    wget -q -O - "$DMRIDURL" | pv --force -p -t -r -b > /xlxd/dmrid2.dat
+else
+    echo "File size: $FILE_SIZE bytes"
+    wget -q -O - "$DMRIDURL" | pv --force -p -t -r -b -s "$FILE_SIZE" > /xlxd/dmrid2.dat
+fi
+if [ $? -ne 0 ] || [ ! -s /xlxd/dmrid2.dat ]; then
     print_red "Error: Failed to download or empty DMR ID file."
 fi
 echo "Seeding customizations..."
