@@ -23,7 +23,7 @@ cd
 sudo git clone https://github.com/PU5KOD/xlxd_installer.git
 cd xlxd_installer
 sudo chmod +x installer.sh uninstaller.sh
-sudo ./xlxdinstaller.sh
+sudo ./installer.sh
 ```
 When running the above last command the process will start and some questions will be asked, just answer as asked, in some cases just press "ENTER" to accept the suggested answer, the questions are in the following sequence:
 01. What are the 3 digits of the XLX reflector that will be used? (e.g., 300, US1, BRA)
