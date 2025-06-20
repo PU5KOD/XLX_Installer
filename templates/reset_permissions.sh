@@ -171,6 +171,16 @@ else
 fi
 echo ""
 
+print_blue "Setting permissions for /var/log/user.log file (644)..."
+chmod 644 /var/log/user.log
+if [ $? -ne 0 ]; then
+    print_redb "Error: Failed to set permissions for /var/log/user.log file."
+    exit 1
+else
+    print_green "✔ Permissions for /var/log/user.log file successfully set"
+fi
+echo ""
+
 print_blue "Setting permissions for /xlxd/xlxd (755)..."
 chmod 755 /xlxd/xlxd
 if [ $? -ne 0 ]; then
