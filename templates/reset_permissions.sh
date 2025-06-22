@@ -54,7 +54,6 @@ clear
 line_type1
 echo ""
 center_wrap_color $GREEN_BRIGHT "Resetting Permissions for XLX Reflector"
-echo ""
 line_type1
 echo ""
 
