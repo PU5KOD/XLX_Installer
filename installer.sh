@@ -469,12 +469,12 @@ echo "Downloading DMR ID file..."
 FILE_SIZE=$(wget --spider --server-response "$DMRIDURL" 2>&1 | grep -i Content-Length | awk '{print $2}')
 if [ -z "$FILE_SIZE" ]; then
     echo "Downloading..."
-    wget -q -O - "$DMRIDURL" | pv --force -p -t -r -b > /xlxd/dmrid2.dat
+    wget -q -O - "$DMRIDURL" | pv --force -p -t -r -b > /xlxd/dmrid.dat
 else
     echo "File size: $FILE_SIZE bytes"
-    wget -q -O - "$DMRIDURL" | pv --force -p -t -r -b -s "$FILE_SIZE" > /xlxd/dmrid2.dat
+    wget -q -O - "$DMRIDURL" | pv --force -p -t -r -b -s "$FILE_SIZE" > /xlxd/dmrid.dat
 fi
-if [ $? -ne 0 ] || [ ! -s /xlxd/dmrid2.dat ]; then
+if [ $? -ne 0 ] || [ ! -s /xlxd/dmrid.dat ]; then
     print_red "Error: Failed to download or empty DMR ID file."
 fi
 echo "Seeding customizations..."
