@@ -20,8 +20,8 @@ Find a current active reflector dashboard [here](https://xlxbra.net/index.php?sh
 * First, open/redirect the ports listed at the end of this document so that no errors occur during the proper installation, then access the server terminal and run the sequence of commands below, one by one:
 ```sh
 cd
-sudo git clone https://github.com/PU5KOD/xlxd_installer.git
-cd xlxd_installer
+sudo git clone https://github.com/PU5KOD/XLX_Installer.git
+cd XLX_Installer
 sudo chmod +x installer.sh uninstaller.sh
 sudo ./installer.sh
 ```
