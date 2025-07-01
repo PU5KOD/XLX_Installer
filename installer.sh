@@ -559,6 +559,7 @@ chmod 755 /xlxd/users_db/update_db.sh
 chmod 644 /xlxd/xlxd.*
 chmod 755 /xlxd/xlxd
 chmod 755 /xlxd/xlxecho
+chmod 755 /usr/local/bin/xlx_log.sh
 /bin/bash /xlxd/users_db/update_db.sh
 /usr/sbin/a2ensite "$XLXDOMAIN".conf
 /usr/sbin/a2dissite 000-default
@@ -570,7 +571,8 @@ echo ""
 print_blueb "STARTING $XRFNUM REFLECTOR..."
 print_blue "============================"
 echo ""
-systemctl enable --now xlxd &
+systemctl enable xlxd
+systemctl starrt xlxd &
 pid=$!
 for ((i=17; i>0; i--)); do
     printf "\r${YELLOW}Initializing %2d seconds${NC}" "$i"
@@ -582,13 +584,14 @@ systemctl enable --now xlx_log.service
 # Enable and start xlxecho.service only if Echo Test is installed
 echo ""
 if [ "$INSTALL_ECHO" == "Y" ]; then
-    systemctl enable --now xlxecho.service &
+    systemctl enable xlxecho.service
+    systemctl start xlxecho.service &
     pid=$!
-for ((i=17; i>0; i--)); do
-    printf "\r${YELLOW}Initializing %2d seconds${NC}" "$i"
-    sleep 1
+    for ((i=17; i>0; i--)); do
+        printf "\r${YELLOW}Initializing %2d seconds${NC}" "$i"
+        sleep 1
     done
-    wait $pid
+     wait $pid
 fi
 echo -e "\n${GREEN}✔ Initialization completed!${NC}"
 echo ""
