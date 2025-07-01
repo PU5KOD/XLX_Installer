@@ -480,6 +480,7 @@ fi
 echo "Creating custom XLX log..."
     cp "$DIRDIR/templates/xlx_log.service" /etc/systemd/system/
     cp "$DIRDIR/templates/xlx_log.sh" /usr/local/bin/
+    cp "$DIRDIR/templates/xlx_logrotate.conf" /etc/logrotate.d/
 echo "Seeding customizations..."
 TERMXLX="/xlxd/xlxd.terminal"
 sed -i "s|#address|address $PUBLIC_IP|g" "$TERMXLX"
