@@ -114,6 +114,14 @@ if systemctl is-enabled --quiet xlxecho.service; then
     systemctl disable xlxecho.service
     print_green "✔ Disabled xlxecho service."
 fi
+if systemctl is-active --quiet xlx_log.service; then
+    systemctl stop xlx_log.service
+    print_green "✔ Stopped xlxd log service."
+fi
+if systemctl is-enabled --quiet xlx_log.service; then
+    systemctl disable xlx_log.service
+    print_green "✔ Disabled xlxd log.service."
+fi
 # Remove scheduling (crontab or systemd)
 if command -v crontab &>/dev/null; then
     if crontab -l 2>/dev/null | grep -q "wget -O /xlxd/users_db/user.csv"; then
@@ -146,8 +154,8 @@ for dir in "/usr/src/xlxd" "/xlxd" "/var/www/html/xlxd" "/usr/src/XLXEcho" "/usr
         print_green "✔ Removed directory: $dir"
     fi
 done
-for file in "/etc/init.d/xlxd" "/var/log/xlxd.xml" "/etc/systemd/system/xlxecho.service" \
-            "/etc/systemd/system/update_XLX_db.service" "/etc/systemd/system/update_XLX_db.timer"; do
+for file in "/etc/init.d/xlxd" "/var/log/xlx*" "/etc/systemd/system/xlxecho.service" \
+            "/etc/systemd/system/update_XLX_db.service" "/etc/systemd/system/update_XLX_db.timer" "/etc/systemd/system/xlx_log.service"; do
     if [ -f "$file" ]; then
         rm -f "$file"
         print_green "✔ Removed file: $file"
