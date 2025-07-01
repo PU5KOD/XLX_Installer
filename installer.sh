@@ -485,6 +485,7 @@ TERMXLX="/xlxd/xlxd.terminal"
 sed -i "s|#address|address $PUBLIC_IP|g" "$TERMXLX"
 sed -i "s|#modules|modules $MODLIST|g" "$TERMXLX"
 cp "$XLXINSTDIR/xlxd/scripts/xlxd" /etc/init.d/xlxd
+chmod 755 /etc/init.d/xlxd
 sed -i "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM $LOCAL_IP 127.0.0.1|g" /etc/init.d/xlxd
 /usr/sbin/update-rc.d xlxd defaults
 # Comment out the line "ECHO 127.0.0.1 E" in /xlxd/xlxd.interlink if Echo Test is not installed
@@ -500,6 +501,7 @@ else
     echo "crontab is not installed, using systemd..."
     cp "$DIRDIR/templates/update_XLX_db.service" /etc/systemd/system/
     cp "$DIRDIR/templates/update_XLX_db.timer" /etc/systemd/system/
+    chmod 755 /etc/systemd/system/update_XLX_db.*
     systemctl daemon-reload
     systemctl enable --now update_XLX_db.timer
 fi
@@ -518,6 +520,7 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
     gcc -o xlxecho xlxecho.c
     cp xlxecho /xlxd/
     cp "$XLXINSTDIR/xlxd/scripts/xlxecho.service" /etc/systemd/system/
+    chmod 755 /etc/systemd/system/xlxecho.service
     echo ""
     print_green "✔ Echo Test server successfully installed!"
     echo ""
@@ -560,6 +563,7 @@ chmod 644 /xlxd/xlxd.*
 chmod 755 /xlxd/xlxd
 chmod 755 /xlxd/xlxecho
 chmod 755 /usr/local/bin/xlx_log.sh
+chmod 755 /etc/systemd/system/xlx_log.service
 /bin/bash /xlxd/users_db/update_db.sh
 /usr/sbin/a2ensite "$XLXDOMAIN".conf
 /usr/sbin/a2dissite 000-default
