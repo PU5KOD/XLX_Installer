@@ -130,6 +130,36 @@ else
 fi
 echo ""
 
+print_blue "Setting permissions for xlx_log.service (755)..."
+chmod 755 /etc/systemctl/system/xlx_log.service
+if [ $? -ne 0 ]; then
+    print_redb "Error: Failed to set permissions for xlx_log.service."
+    exit 1
+else
+    print_green "✔ Permissions for xlx_log.service successfully set"
+fi
+echo ""
+
+print_blue "Setting permissions for xlxecho.service (755)..."
+chmod 755 /etc/systemctl/system/xlxecho.service
+if [ $? -ne 0 ]; then
+    print_redb "Error: Failed to set permissions for xlxecho.service."
+    exit 1
+else
+    print_green "✔ Permissions for xlxecho.service successfully set"
+fi
+echo ""
+
+print_blue "Setting permissions for users DB, update_XLX_db (755)..."
+chmod 755 /etc/systemctl/system/update_XLX_db.service*
+if [ $? -ne 0 ]; then
+    print_redb "Error: Failed to set permissions for users DB, update_XLX_db."
+    exit 0
+else
+    print_green "✔ Permissions for users DB, update_XLX_db successfully set"
+fi
+echo ""
+
 print_blue "Setting permissions for /xlxd/users_db/create_user_db.php (755)..."
 chmod 755 /xlxd/users_db/create_user_db.php
 if [ $? -ne 0 ]; then
