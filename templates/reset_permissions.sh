@@ -131,7 +131,7 @@ fi
 echo ""
 
 print_blue "Setting permissions for xlx_log.service (755)..."
-chmod 755 /etc/systemctl/system/xlx_log.service
+chmod 755 /etc/systemd/system/xlx_log.service
 if [ $? -ne 0 ]; then
     print_redb "Error: Failed to set permissions for xlx_log.service."
     exit 1
@@ -141,20 +141,19 @@ fi
 echo ""
 
 print_blue "Setting permissions for xlxecho.service (755)..."
-chmod 755 /etc/systemctl/system/xlxecho.service
+chmod 755 /etc/systemd/system/xlxecho.service
 if [ $? -ne 0 ]; then
     print_redb "Error: Failed to set permissions for xlxecho.service."
-    exit 1
 else
     print_green "✔ Permissions for xlxecho.service successfully set"
 fi
 echo ""
 
 print_blue "Setting permissions for users DB, update_XLX_db (755)..."
-chmod 755 /etc/systemctl/system/update_XLX_db.service*
+chmod 755 /etc/systemd/system/update_XLX_db.service*
 if [ $? -ne 0 ]; then
     print_redb "Error: Failed to set permissions for users DB, update_XLX_db."
-    exit 0
+    exit 1
 else
     print_green "✔ Permissions for users DB, update_XLX_db successfully set"
 fi
@@ -200,13 +199,13 @@ else
 fi
 echo ""
 
-print_blue "Setting permissions for /var/log/user.log file (644)..."
-chmod 644 /var/log/user.log
+print_blue "Setting permissions for /var/log/xlx.log file (644)..."
+chmod 644 /var/log/xlx.log
 if [ $? -ne 0 ]; then
-    print_redb "Error: Failed to set permissions for /var/log/user.log file."
+    print_redb "Error: Failed to set permissions for /var/log/xlx.log file."
     exit 1
 else
-    print_green "✔ Permissions for /var/log/user.log file successfully set"
+    print_green "✔ Permissions for /var/log/xlx.log file successfully set"
 fi
 echo ""
 
