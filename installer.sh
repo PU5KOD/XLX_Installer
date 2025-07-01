@@ -401,13 +401,13 @@ if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
     echo ""
     line_type2
     echo ""
-    center_wrap_color $RED_BRIGHT "XLXD ALREADY COMPILED!!! Delete the following directories:"
+    center_wrap_color $RED_BRIGHT "XLXD ALREADY COMPILED!!! Run the 'uninstaller.sh' or manually delete the following directories:"
     echo ""
     center_wrap_color $NC "'/xlxd', '/var/www/html/xlxd', '/usr/src/xlxd', '/usr/src/XLXEcho', '/usr/src/XLX_Dark_Dashboard'"
     echo ""
     center_wrap_color $RED_BRIGHT "Also delete the following files:"
     echo ""
-    center_wrap_color $NC "'/etc/init.d/xlxd.*', 'var/log/xlxd.*', '/etc/systemd/system/xlxecho.service' and related address at '/etc/apache2/sites-available/*'"
+    center_wrap_color $NC "'/etc/init.d/xlxd.*', 'var/log/xlx*', '/etc/systemd/system/xlxecho.service' '/etc/systemd/system/xlx_log.service' and related address at '/etc/apache2/sites-available/*'"
     echo ""
     line_type2
     echo ""
@@ -477,10 +477,10 @@ fi
 if [ $? -ne 0 ] || [ ! -s /xlxd/dmrid.dat ]; then
     print_red "Error: Failed to download or empty DMR ID file."
 fi
-echo "Creating Custom XLX Log File..."
+echo "Creating custom XLX log..."
     cp "$DIRDIR/templates/xlx_log.service" /etc/systemd/system/
     cp "$DIRDIR/templates/xlx_log.sh" /usr/local/bin/
-echo "Seeding Customizations..."
+echo "Seeding customizations..."
 TERMXLX="/xlxd/xlxd.terminal"
 sed -i "s|#address|address $PUBLIC_IP|g" "$TERMXLX"
 sed -i "s|#modules|modules $MODLIST|g" "$TERMXLX"
@@ -519,7 +519,7 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
     cp xlxecho /xlxd/
     cp "$XLXINSTDIR/xlxd/scripts/xlxecho.service" /etc/systemd/system/
     echo ""
-    print_green "✔ Echo test server successfully installed!"
+    print_green "✔ Echo Test server successfully installed!"
     echo ""
 fi
 print_blueb "INSTALLING DASHBOARD..."
