@@ -1,0 +1,13 @@
+[Unit]
+Description=Capture logs from xlxd.service to xlx.log
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/xlx_log.sh
+Restart=always
+User=root
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
