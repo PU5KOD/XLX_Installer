@@ -591,7 +591,7 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
         printf "\r${YELLOW}Initializing %2d seconds${NC}" "$i"
         sleep 1
     done
-     wait $pid
+    wait $pid
 fi
 echo -e "\n${GREEN}✔ Initialization completed!${NC}"
 echo ""
