@@ -577,11 +577,18 @@ for ((i=17; i>0; i--)); do
     sleep 1
 done
 wait $pid
+echo ""
 systemctl enable --now xlx_log.service
 # Enable and start xlxecho.service only if Echo Test is installed
 echo ""
 if [ "$INSTALL_ECHO" == "Y" ]; then
-    systemctl enable --now xlxecho.service
+    systemctl enable --now xlxecho.service &
+    pid=$!
+for ((i=17; i>0; i--)); do
+    printf "\r${YELLOW}Initializing %2d seconds${NC}" "$i"
+    sleep 1
+    done
+    wait $pid
 fi
 echo -e "\n${GREEN}✔ Initialization completed!${NC}"
 echo ""
