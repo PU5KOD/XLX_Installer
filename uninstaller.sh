@@ -154,7 +154,7 @@ for dir in "/usr/src/xlxd" "/xlxd" "/var/www/html/xlxd" "/usr/src/XLXEcho" "/usr
         print_green "✔ Removed directory: $dir"
     fi
 done
-for file in "/etc/init.d/xlxd" "/var/log/xlx*" "/etc/systemd/system/xlxecho.service" \
+for file in "/etc/init.d/xlxd" "/var/log/xlxd.xml" "/var/log/xlxd.pid" "/var/log/xlx.log" "/etc/systemd/system/xlxecho.service" \
             "/etc/systemd/system/update_XLX_db.service" "/etc/systemd/system/update_XLX_db.timer" "/etc/systemd/system/xlx_log.service"; do
     if [ -f "$file" ]; then
         rm -f "$file"
