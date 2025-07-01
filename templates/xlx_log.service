@@ -1,7 +1,6 @@
 [Unit]
 Description=Capture logs from xlxd.service to xlx.log
-After=network.target
-Requires=xlxd.service
+After=network.target xlxd.service
 
 [Service]
 ExecStart=/usr/local/bin/xlx_log.sh
