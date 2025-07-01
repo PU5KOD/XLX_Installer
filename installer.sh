@@ -570,7 +570,6 @@ echo ""
 print_blueb "STARTING $XRFNUM REFLECTOR..."
 print_blue "============================"
 echo ""
-systemctl enable --now xlx_log.service
 systemctl enable --now xlxd &
 pid=$!
 for ((i=17; i>0; i--)); do
@@ -578,6 +577,7 @@ for ((i=17; i>0; i--)); do
     sleep 1
 done
 wait $pid
+systemctl enable --now xlx_log.service
 # Enable and start xlxecho.service only if Echo Test is installed
 echo ""
 if [ "$INSTALL_ECHO" == "Y" ]; then
