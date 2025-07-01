@@ -479,7 +479,7 @@ if [ $? -ne 0 ] || [ ! -s /xlxd/dmrid.dat ]; then
 fi
 echo "Creating Custom XLX Log File..."
     cp "$DIRDIR/templates/xlx_log.service" /etc/systemd/system/
-    cp "$DIRDIR/templates/xlx_log.sh" /var/log/
+    cp "$DIRDIR/templates/xlx_log.sh" /usr/local/bin/
 echo "Seeding Customizations..."
 TERMXLX="/xlxd/xlxd.terminal"
 sed -i "s|#address|address $PUBLIC_IP|g" "$TERMXLX"
