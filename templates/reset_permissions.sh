@@ -146,6 +146,7 @@ if [ $? -ne 0 ]; then
     print_redb "Error: Failed to set permissions for xlxecho.service."
 else
     print_green "✔ Permissions for xlxecho.service successfully set"
+    exit 1
 fi
 echo ""
 
@@ -153,7 +154,6 @@ print_blue "Setting permissions for users DB, update_XLX_db (755)..."
 chmod 755 /etc/systemd/system/update_XLX_db.service*
 if [ $? -ne 0 ]; then
     print_redb "Error: Failed to set permissions for users DB, update_XLX_db."
-    exit 1
 else
     print_green "✔ Permissions for users DB, update_XLX_db successfully set"
 fi
