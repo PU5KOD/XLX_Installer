@@ -600,6 +600,7 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
     done
     wait $pid
 fi
+echo ""
 echo -e "\n${GREEN}✔ Initialization completed!${NC}"
 echo ""
 echo ""
