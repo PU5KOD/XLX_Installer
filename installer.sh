@@ -477,7 +477,10 @@ fi
 if [ $? -ne 0 ] || [ ! -s /xlxd/dmrid.dat ]; then
     print_red "Error: Failed to download or empty DMR ID file."
 fi
-echo "Seeding customizations..."
+echo "Creating Custom XLX Log File..."
+    cp "$DIRDIR/templates/xlx_log.service" /etc/systemd/system/
+    cp "$DIRDIR/templates/xlx_log.sh" /var/log/
+echo "Seeding Customizations..."
 TERMXLX="/xlxd/xlxd.terminal"
 sed -i "s|#address|address $PUBLIC_IP|g" "$TERMXLX"
 sed -i "s|#modules|modules $MODLIST|g" "$TERMXLX"
@@ -567,8 +570,8 @@ echo ""
 print_blueb "STARTING $XRFNUM REFLECTOR..."
 print_blue "============================"
 echo ""
-systemctl enable xlxd
-systemctl start xlxd &
+systemctl enable --now xlx_log.service
+systemctl enable --now xlxd &
 pid=$!
 for ((i=17; i>0; i--)); do
     printf "\r${YELLOW}Initializing %2d seconds${NC}" "$i"
@@ -578,8 +581,7 @@ wait $pid
 # Enable and start xlxecho.service only if Echo Test is installed
 echo ""
 if [ "$INSTALL_ECHO" == "Y" ]; then
-    systemctl enable xlxecho.service
-    systemctl start xlxecho.service
+    systemctl enable --now xlxecho.service
 fi
 echo -e "\n${GREEN}✔ Initialization completed!${NC}"
 echo ""
