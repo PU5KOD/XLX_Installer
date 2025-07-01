@@ -9,7 +9,7 @@ TEMP_FILE="/tmp/xlx_log_last.txt"
 echo "DEBUG: Creating/Verifying $LOG_FILE" >&2
 touch $LOG_FILE || { echo "ERROR: Failed to create $LOG_FILE" >&2; exit 1; }
 chown root:www-data $LOG_FILE || { echo "ERROR: Failed to adjust permissions of $LOG_FILE" >&2; exit 1; }
-chmod 640 $LOG_FILE || { echo "ERROR: Failed to set permissions for $LOG_FILE" >&2; exit 1; }
+chmod 644 $LOG_FILE || { echo "ERROR: Failed to set permissions for $LOG_FILE" >&2; exit 1; }
 
 # Creates temporary file to track latest messages
 touch $TEMP_FILE || { echo "ERROR: Failed to create $TEMP_FILE" >&2; exit 1; }
