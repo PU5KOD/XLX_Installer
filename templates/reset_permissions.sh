@@ -144,9 +144,9 @@ print_blue "Setting permissions for xlxecho.service (755)..."
 chmod 755 /etc/systemd/system/xlxecho.service
 if [ $? -ne 0 ]; then
     print_redb "Error: Failed to set permissions for xlxecho.service."
+    exit 1
 else
     print_green "✔ Permissions for xlxecho.service successfully set"
-    exit 1
 fi
 echo ""
 
