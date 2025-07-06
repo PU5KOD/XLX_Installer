@@ -407,7 +407,7 @@ if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
     echo ""
     center_wrap_color $RED_BRIGHT "Also delete the following files:"
     echo ""
-    center_wrap_color $NC "'/etc/init.d/xlxd.*', 'var/log/xlx*', '/etc/systemd/system/xlxecho.service' '/etc/systemd/system/xlx_log.service' and related address at '/etc/apache2/sites-available/*'"
+    center_wrap_color $NC "'/etc/systemd/system/xlxd.service*', 'var/log/xlx*', '/etc/systemd/system/xlxecho.service' '/etc/systemd/system/xlx_log.service' and related address at '/etc/apache2/sites-available/*'"
     echo ""
     line_type2
     echo ""
@@ -485,10 +485,9 @@ echo "Seeding customizations..."
 TERMXLX="/xlxd/xlxd.terminal"
 sed -i "s|#address|address $PUBLIC_IP|g" "$TERMXLX"
 sed -i "s|#modules|modules $MODLIST|g" "$TERMXLX"
-cp "$XLXINSTDIR/xlxd/scripts/xlxd" /etc/init.d/xlxd
-chmod 755 /etc/init.d/xlxd
-sed -i "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM $LOCAL_IP 127.0.0.1|g" /etc/init.d/xlxd
-/usr/sbin/update-rc.d xlxd defaults
+cp "$XLXINSTDIR/xlxd/scripts/xlxd.service" /etc/systemd/system/
+chmod 755 /etc/systemd/system/xlxd.service
+sed -i "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM $LOCAL_IP 127.0.0.1|g" /etc/systemd/system/xlxd.service
 # Comment out the line "ECHO 127.0.0.1 E" in /xlxd/xlxd.interlink if Echo Test is not installed
 if [ "$INSTALL_ECHO" == "N" ]; then
     sed -i 's|^ECHO 127.0.0.1 E|#ECHO 127.0.0.1 E|' /xlxd/xlxd.interlink
@@ -576,8 +575,8 @@ echo ""
 print_blueb "STARTING $XRFNUM REFLECTOR..."
 print_blue "============================"
 echo ""
-systemctl enable xlxd
-systemctl start xlxd &
+systemctl enable xlxd.service
+systemctl start xlxd.service &
 pid=$!
 for ((i=17; i>0; i--)); do
     printf "\r${YELLOW}Initializing %2d seconds${NC}" "$i"
