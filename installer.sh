@@ -578,7 +578,7 @@ echo ""
 systemctl enable xlxd.service
 systemctl start xlxd.service &
 pid=$!
-for ((i=17; i>0; i--)); do
+for ((i=10; i>0; i--)); do
     printf "\r${YELLOW}Initializing %2d seconds${NC}" "$i"
     sleep 1
 done
@@ -587,7 +587,7 @@ echo ""
 systemctl enable xlx_log.service
 systemctl start xlx_log.service &
 pid=$!
-for ((i=10; i>0; i--)); do
+for ((i=5; i>0; i--)); do
     printf "\r${YELLOW}Initializing %2d seconds${NC}" "$i"
     sleep 1
 done
@@ -598,7 +598,7 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
     systemctl enable xlxecho.service
     systemctl start xlxecho.service &
     pid=$!
-    for ((i=17; i>0; i--)); do
+    for ((i=5; i>0; i--)); do
         printf "\r${YELLOW}Initializing %2d seconds${NC}" "$i"
         sleep 1
     done
