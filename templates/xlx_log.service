@@ -1,7 +1,7 @@
 [Unit]
 Description=Capture logs from xlxd.service to xlx.log
 After=xlxd.service
-Requires=xlxd.service
+BindsTo=xlxd.service
 
 [Service]
 ExecStart=/usr/local/bin/xlx_log.sh
@@ -11,4 +11,4 @@ StandardOutput=journal
 StandardError=journal
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target xlxd.service
