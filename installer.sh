@@ -366,17 +366,17 @@ if [ "$AUTOLINK" -eq 1 ]; then
 fi
 echo ""
 while true; do
-    print_yellow "Are these settings correct? (Y/N)"
+    print_yellow "Are these settings correct? (YES/NO)"
     printf "> "
     read -r CONFIRM
     CONFIRM=$(echo "$CONFIRM" | tr '[:lower:]' '[:upper:]')
-    if [[ "$CONFIRM" == "Y" || "$CONFIRM" == "N" ]]; then
+    if [[ "$CONFIRM" == "YES" || "$CONFIRM" == "NO" ]]; then
         break
     else
-        print_redb "Please enter 'Y' or 'N'."
+        print_redb "Please enter 'YES' or 'NO'."
     fi
 done
-if [ "$CONFIRM" == "N" ]; then
+if [ "$CONFIRM" == "NO" ]; then
     print_red "Installation aborted by user."
     exit 1
 fi
@@ -575,31 +575,28 @@ echo ""
 print_blueb "STARTING $XRFNUM REFLECTOR..."
 print_blue "============================"
 echo ""
-systemctl enable xlxd.service
-systemctl start xlxd.service &
+systemctl enable --now xlxd.service >/dev/null 2>&1 &
 pid=$!
 for ((i=10; i>0; i--)); do
-    printf "\r${YELLOW}Initializing %2d seconds${NC}" "$i"
+    printf "\r${YELLOW}Initializing $XRFNUM %2d seconds${NC}" "$i"
     sleep 1
 done
 wait $pid
 echo ""
-systemctl enable xlx_log.service
-systemctl start xlx_log.service &
+systemctl enable --now xlx_log.service >/dev/null 2>&1 &
 pid=$!
 for ((i=5; i>0; i--)); do
-    printf "\r${YELLOW}Initializing %2d seconds${NC}" "$i"
+    printf "\r${YELLOW}Initializing log %2d seconds${NC}" "$i"
     sleep 1
 done
 wait $pid
 # Enable and start xlxecho.service only if Echo Test is installed
 echo ""
 if [ "$INSTALL_ECHO" == "Y" ]; then
-    systemctl enable xlxecho.service
-    systemctl start xlxecho.service &
+    systemctl enable --now xlxecho.service >/dev/null 2>&1 &
     pid=$!
     for ((i=5; i>0; i--)); do
-        printf "\r${YELLOW}Initializing %2d seconds${NC}" "$i"
+        printf "\r${YELLOW}Initializing Echo Test %2d seconds${NC}" "$i"
         sleep 1
     done
     wait $pid
@@ -619,17 +616,17 @@ center_wrap_color $GREEN_BRIGHT "Your Reflector $XRFNUM is now installed and run
 center_wrap_color $GREEN_BRIGHT "If you want to install the ssl certificate for your website, then you have the opportunity to do it now, but if you want to perform this process later, just decline and the process will be complete."
 echo ""
 while true; do
-    center_wrap_color $YELLOW "Would you like to install Certbot for HTTPS? (Y/N)"
+    center_wrap_color $YELLOW "Would you like to install Certbot for HTTPS? (YES/NO)"
     printf "> "
     read -r HTTPS_CONFIRM
     HTTPS_CONFIRM=$(echo "$HTTPS_CONFIRM" | tr '[:lower:]' '[:upper:]')
-    if [[ "$HTTPS_CONFIRM" == "Y" || "$HTTPS_CONFIRM" == "N" ]]; then
+    if [[ "$HTTPS_CONFIRM" == "YES" || "$HTTPS_CONFIRM" == "NO" ]]; then
         break
     else
-        center_wrap_color $RED_BRIGHT "Please enter 'Y' or 'N'."
+        center_wrap_color $RED_BRIGHT "Please enter 'YES' or 'NO'."
     fi
 done
-if [ "$HTTPS_CONFIRM" == "Y" ]; then
+if [ "$HTTPS_CONFIRM" == "YES" ]; then
     certbot --apache -d "$XLXDOMAIN"
 fi
 echo ""
