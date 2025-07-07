@@ -565,10 +565,10 @@ chmod 755 /xlxd/xlxecho
 chmod 755 /usr/local/bin/xlx_log.sh
 chmod 755 /etc/systemd/system/xlx_log.service
 /bin/bash /xlxd/users_db/update_db.sh
-/usr/sbin/a2ensite "$XLXDOMAIN".conf
-/usr/sbin/a2dissite 000-default
-systemctl stop apache2
-systemctl start apache2
+/usr/sbin/a2ensite "$XLXDOMAIN".conf 2>/dev/null | head -n1
+/usr/sbin/a2dissite 000-default 2>/dev/null | head -n1
+systemctl stop apache2 >/dev/null 2>&1
+systemctl start apache2 >/dev/null 2>&1
 systemctl daemon-reload
 echo -e "\n${GREEN}✔ Dashboard successfully installed!${NC}"
 echo ""
