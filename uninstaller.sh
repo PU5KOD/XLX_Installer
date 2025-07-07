@@ -78,17 +78,17 @@ line_type1
 echo ""
 print_blueb "WARNING: This will remove all XLX Reflector files, services, and configurations."
 while true; do
-    print_yellow "Are you sure you want to proceed with uninstallation? (Y/N)"
+    print_yellow "Are you sure you want to proceed with uninstallation? (YES/NO)"
     printf "> "
     read -r CONFIRM
     CONFIRM=$(echo "$CONFIRM" | tr '[:lower:]' '[:upper:]')
-    if [[ "$CONFIRM" == "Y" || "$CONFIRM" == "N" ]]; then
+    if [[ "$CONFIRM" == "YES" || "$CONFIRM" == "NO" ]]; then
         break
     else
-        print_redb "Please enter 'Y' or 'N'."
+        print_redb "Please enter 'YES' or 'NO'."
     fi
 done
-if [ "$CONFIRM" == "N" ]; then
+if [ "$CONFIRM" == "NO" ]; then
     print_red "Uninstallation aborted by user."
     exit 1
 fi
@@ -98,12 +98,12 @@ echo ""
 print_blueb "STOPPING AND DISABLING SERVICES AND SCHEDULING..."
 print_blue "==============================================="
 echo ""
-if systemctl is-active --quiet xlxd; then
-    systemctl stop xlxd
+if systemctl is-active --quiet xlxd.service; then
+    systemctl stop xlxd.service
     print_green "✔ Stopped xlxd service."
 fi
-if systemctl is-enabled --quiet xlxd; then
-    systemctl disable xlxd
+if systemctl is-enabled --quiet xlxd.service; then
+    systemctl disable xlxd.service
     print_green "✔ Disabled xlxd service."
 fi
 if systemctl is-active --quiet xlxecho.service; then
@@ -154,8 +154,7 @@ for dir in "/usr/src/xlxd" "/xlxd" "/var/www/html/xlxd" "/usr/src/XLXEcho" "/usr
         print_green "✔ Removed directory: $dir"
     fi
 done
-for file in "/etc/init.d/xlxd" "/var/log/xlxd.xml" "/var/log/xlxd.pid" "/var/log/xlx.log" "/etc/logrotate.d/xlx_logrotate.conf" "/etc/systemd/system/xlxecho.service" \
-            "/etc/systemd/system/update_XLX_db.service" "/etc/systemd/system/update_XLX_db.timer" "/etc/systemd/system/xlx_log.service"; do
+for file in "/etc/systemd/system/xlxd.service" "/etc/systemd/system/xlxecho.service" "/etc/systemd/system/update_XLX_db.service" "/etc/systemd/system/update_XLX_db.timer" "/etc/systemd/system/xlx_log.service" "/var/log/xlxd.xml" "/var/log/xlxd.pid" "/var/log/xlx.log" "/etc/logrotate.d/xlx_logrotate.conf"; do
     if [ -f "$file" ]; then
         rm -f "$file"
         print_green "✔ Removed file: $file"
@@ -187,17 +186,17 @@ print_blue "==========================================="
 echo ""
 if command -v certbot &>/dev/null; then
     while true; do
-        print_yellow "Certbot is installed. Would you like to remove the SSL certificate for $XLXDOMAIN and Certbot? (Y/N)"
+        print_yellow "Certbot is installed. Would you like to remove the SSL certificate for $XLXDOMAIN and Certbot? (YES/NO)"
         printf "> "
         read -r CERTBOT_CONFIRM
         CERTBOT_CONFIRM=$(echo "$CERTBOT_CONFIRM" | tr '[:lower:]' '[:upper:]')
-        if [[ "$CERTBOT_CONFIRM" == "Y" || "$CERTBOT_CONFIRM" == "N" ]]; then
+        if [[ "$CERTBOT_CONFIRM" == "YES" || "$CERTBOT_CONFIRM" == "NO" ]]; then
             break
         else
-            print_redb "Please enter 'Y' or 'N'."
+            print_redb "Please enter 'YES' or 'NO'."
         fi
     done
-    if [ "$CERTBOT_CONFIRM" == "Y" ]; then
+    if [ "$CERTBOT_CONFIRM" == "YES" ]; then
         certbot delete --cert-name "$XLXDOMAIN" >/dev/null 2>&1
         rm /etc/apache2/sites-available/"$XLXDOMAIN"*
         print_green "✔ Removed SSL certificate for $XLXDOMAIN."
