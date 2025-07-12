@@ -82,9 +82,9 @@ center_wrap_color() {
 clear
 line_type1
 echo ""
-center_wrap_color $GREEN_BRIGHT "Installer of the XLX Multiprotocol Ham Radio Reflector and its dashboard"
+center_wrap_color $GREEN_BRIGHT "XLX MULTIPROTOCOL AMATEUR RADIO REFLECTOR INSTALLER PROGRAM"
 echo ""
-center_wrap_color $GREEN_BRIGHT "Below you will be asked for some information, answer the requested values or, if applicable, to accept the suggested value press [ENTER]"
+center_wrap_color $GREEN_BRIGHT "Next, you will be asked some questions. Answer with the requested information or, if applicable, to accept the suggested value, press [ENTER]"
 echo ""
 line_type1
 echo ""
