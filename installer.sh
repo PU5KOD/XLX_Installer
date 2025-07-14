@@ -41,7 +41,7 @@ print_wrapped() {
 DIRDIR=$(pwd)
 LOCAL_IP=$(hostname -I | awk '{print $1}')
 PUBLIC_IP=$(curl v4.ident.me)
-NETACT=$(ip -o addr show up | grep -v lo | awk '{print $2}' | head -n1)
+NETACT=$(ip -o addr show up | awk '{print $2}' | grep -v lo | head -n1)
 INFREF="https://xlxbbs.epf.lu/"
 XLXDREPO="https://github.com/PU5KOD/xlxd.git"
 XLXECHO="https://github.com/PU5KOD/XLXEcho.git"
