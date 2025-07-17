@@ -179,25 +179,25 @@ else
 fi
 echo ""
 
-# print_blue "Setting permissions for /xlxd/users_db/create_user_db.php (755)..."
-#chmod 755 /xlxd/users_db/create_user_db.php
-#if [ $? -ne 0 ]; then
-#    print_redb "Error: Failed to set permissions for /xlxd/users_db/create_user_db.php."
-#    exit 1
-#else
-#    print_green "✔ Permissions for /xlxd/users_db/create_user_db.php successfully set"
-#fi
-#echo ""
+print_blue "Setting permissions for /xlxd/callinghome.php (777)..."
+chmod 777 /xlxd/callinghome.php
+if [ $? -ne 0 ]; then
+    print_redb "Error: Failed to set permissions for /xlxd/callinghome.php."
+    exit 1
+else
+    print_green "✔ Permissions for /xlxd/callinghome.php successfully set"
+fi
+echo ""
 
-# print_blue "Setting permissions for /xlxd/users_db/update_db.sh (755)..."
-#chmod 755 /xlxd/users_db/update_db.sh
-#if [ $? -ne 0 ]; then
-#    print_redb "Error: Failed to set permissions for /xlxd/users_db/update_db.sh."
-#    exit 1
-#else
-#    print_green "✔ Permissions for /xlxd/users_db/update_db.sh successfully set"
-#fi
-#echo ""
+print_blue "Setting permissions for /xlxd/lastcallhome.php (777)..."
+chmod 777 /xlxd/lastcallhome.php
+if [ $? -ne 0 ]; then
+    print_redb "Error: Failed to set permissions for /xlxd/lastcallhome.php."
+    exit 1
+else
+    print_green "✔ Permissions for /xlxd/lastcallhome.php successfully set"
+fi
+echo ""
 
 # print_blue "Setting permissions for /xlxd/users_db/user* files (644)..."
 #chmod 644 /xlxd/users_db/user*
