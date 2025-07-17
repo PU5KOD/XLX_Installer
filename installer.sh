@@ -555,13 +555,14 @@ chown -R "$APACHE_USER:$APACHE_USER" /var/log/xlxd.xml
 chown -R "$APACHE_USER:$APACHE_USER" "$WEBDIR/"
 chown -R "$APACHE_USER:$APACHE_USER" /xlxd/
 find /xlxd -type d -exec chmod 755 {} \;
+find /xlxd -type f -exec chmod 755 {} \;
 find "$WEBDIR" -type d -exec chmod 755 {} \;
-find "$WEBDIR" -type f -exec chmod 644 {} \;
-chmod 755 /xlxd/users_db/create_user_db.php
-chmod 755 /xlxd/users_db/update_db.sh
-chmod 644 /xlxd/xlxd.*
-chmod 755 /xlxd/xlxd
-chmod 755 /xlxd/xlxecho
+find "$WEBDIR" -type f -exec chmod 755 {} \;
+#chmod 755 /xlxd/users_db/create_user_db.php
+#chmod 755 /xlxd/users_db/update_db.sh
+#chmod 755 /xlxd/xlxd.*
+#chmod 755 /xlxd/xlxd
+#chmod 755 /xlxd/xlxecho
 chmod 755 /usr/local/bin/xlx_log.sh
 chmod 755 /etc/systemd/system/xlx_log.service
 /bin/bash /xlxd/users_db/update_db.sh
