@@ -110,6 +110,16 @@ else
 fi
 echo ""
 
+print_blue "Setting file permissions for /xlxd (755)..."
+find /xlxd -type f -exec chmod 755 {} \;
+if [ $? -ne 0 ]; then
+    print_redb "Error: Failed to set directory permissions for /xlxd."
+    exit 1
+else
+    print_green "✔ Root directory permissions successfully set"
+fi
+echo ""
+
 print_blue "Setting directory permissions for $WEBDIR (755)..."
 find "$WEBDIR" -type d -exec chmod 755 {} \;
 if [ $? -ne 0 ]; then
@@ -120,13 +130,23 @@ else
 fi
 echo ""
 
-print_blue "Setting file permissions for web directory (644)..."
-find "$WEBDIR" -type f -exec chmod 644 {} \;
+print_blue "Setting file permissions for web directory (755)..."
+find "$WEBDIR" -type f -exec chmod 755 {} \;
 if [ $? -ne 0 ]; then
     print_redb "Error: Failed to set file permissions for $WEBDIR."
     exit 1
 else
     print_green "✔ Web file permissions successfully set"
+fi
+echo ""
+
+print_blue "Setting permissions for xlxd.service (755)..."
+chmod 755 /etc/systemd/system/xlxd.service
+if [ $? -ne 0 ]; then
+    print_redb "Error: Failed to set permissions for xlxd.service."
+    exit 1
+else
+    print_green "✔ Permissions for xlxd.service successfully set"
 fi
 echo ""
 
@@ -159,45 +179,45 @@ else
 fi
 echo ""
 
-print_blue "Setting permissions for /xlxd/users_db/create_user_db.php (755)..."
-chmod 755 /xlxd/users_db/create_user_db.php
-if [ $? -ne 0 ]; then
-    print_redb "Error: Failed to set permissions for /xlxd/users_db/create_user_db.php."
-    exit 1
-else
-    print_green "✔ Permissions for /xlxd/users_db/create_user_db.php successfully set"
-fi
-echo ""
+# print_blue "Setting permissions for /xlxd/users_db/create_user_db.php (755)..."
+#chmod 755 /xlxd/users_db/create_user_db.php
+#if [ $? -ne 0 ]; then
+#    print_redb "Error: Failed to set permissions for /xlxd/users_db/create_user_db.php."
+#    exit 1
+#else
+#    print_green "✔ Permissions for /xlxd/users_db/create_user_db.php successfully set"
+#fi
+#echo ""
 
-print_blue "Setting permissions for /xlxd/users_db/update_db.sh (755)..."
-chmod 755 /xlxd/users_db/update_db.sh
-if [ $? -ne 0 ]; then
-    print_redb "Error: Failed to set permissions for /xlxd/users_db/update_db.sh."
-    exit 1
-else
-    print_green "✔ Permissions for /xlxd/users_db/update_db.sh successfully set"
-fi
-echo ""
+# print_blue "Setting permissions for /xlxd/users_db/update_db.sh (755)..."
+#chmod 755 /xlxd/users_db/update_db.sh
+#if [ $? -ne 0 ]; then
+#    print_redb "Error: Failed to set permissions for /xlxd/users_db/update_db.sh."
+#    exit 1
+#else
+#    print_green "✔ Permissions for /xlxd/users_db/update_db.sh successfully set"
+#fi
+#echo ""
 
-print_blue "Setting permissions for /xlxd/users_db/user* files (644)..."
-chmod 644 /xlxd/users_db/user*
-if [ $? -ne 0 ]; then
-    print_redb "Error: Failed to set permissions for /xlxd/users_db/user* files."
-    exit 1
-else
-    print_green "✔ Permissions for /xlxd/users_db/user* files successfully set"
-fi
-echo ""
+# print_blue "Setting permissions for /xlxd/users_db/user* files (644)..."
+#chmod 644 /xlxd/users_db/user*
+#if [ $? -ne 0 ]; then
+#    print_redb "Error: Failed to set permissions for /xlxd/users_db/user* files."
+#    exit 1
+#else
+#    print_green "✔ Permissions for /xlxd/users_db/user* files successfully set"
+#fi
+#echo ""
 
-print_blue "Setting permissions for /xlxd/xlxd.* files (644)..."
-chmod 644 /xlxd/xlxd.*
-if [ $? -ne 0 ]; then
-    print_redb "Error: Failed to set permissions for /xlxd/xlxd.* files."
-    exit 1
-else
-    print_green "✔ Permissions for /xlxd/xlxd.* files successfully set"
-fi
-echo ""
+# print_blue "Setting permissions for /xlxd/xlxd.* files (644)..."
+#chmod 644 /xlxd/xlxd.*
+#if [ $? -ne 0 ]; then
+#    print_redb "Error: Failed to set permissions for /xlxd/xlxd.* files."
+#    exit 1
+#else
+#    print_green "✔ Permissions for /xlxd/xlxd.* files successfully set"
+#fi
+#echo ""
 
 print_blue "Setting permissions for /var/log/xlx.log file (644)..."
 chmod 644 /var/log/xlx.log
@@ -209,25 +229,25 @@ else
 fi
 echo ""
 
-print_blue "Setting permissions for /xlxd/xlxd (755)..."
-chmod 755 /xlxd/xlxd
-if [ $? -ne 0 ]; then
-    print_redb "Error: Failed to set permissions for /xlxd/xlxd."
-    exit 1
-else
-    print_green "✔ Permissions for /xlxd/xlxd successfully set"
-fi
-echo ""
+# print_blue "Setting permissions for /xlxd/xlxd (755)..."
+#chmod 755 /xlxd/xlxd
+#if [ $? -ne 0 ]; then
+#    print_redb "Error: Failed to set permissions for /xlxd/xlxd."
+#    exit 1
+#else
+#    print_green "✔ Permissions for /xlxd/xlxd successfully set"
+#fi
+#echo ""
 
-print_blue "Setting permissions for /xlxd/xlxecho (755)..."
-chmod 755 /xlxd/xlxecho
-if [ $? -ne 0 ]; then
-    print_redb "Error: Failed to set permissions for /xlxd/xlxecho."
-    exit 1
-else
-    print_green "✔ Permissions for /xlxd/xlxecho successfully set"
-fi
-echo ""
+# print_blue "Setting permissions for /xlxd/xlxecho (755)..."
+#chmod 755 /xlxd/xlxecho
+#if [ $? -ne 0 ]; then
+#    print_redb "Error: Failed to set permissions for /xlxd/xlxecho."
+#    exit 1
+#else
+#    print_green "✔ Permissions for /xlxd/xlxecho successfully set"
+#fi
+#echo ""
 
 line_type2
 echo ""
