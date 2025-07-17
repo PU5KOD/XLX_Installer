@@ -481,6 +481,9 @@ echo "Creating custom XLX log..."
     cp "$DIRDIR/templates/xlx_log.service" /etc/systemd/system/
     cp "$DIRDIR/templates/xlx_log.sh" /usr/local/bin/
     cp "$DIRDIR/templates/xlx_logrotate.conf" /etc/logrotate.d/
+    chmod 755 /etc/systemd/system/xlx_log.service
+    chmod 755 /usr/local/bin/xlx_log.sh
+    chmod 644 /etc/logrotate.d/xlx_logrotate.conf
 echo "Seeding customizations..."
 TERMXLX="/xlxd/xlxd.terminal"
 sed -i "s|#address|address $PUBLIC_IP|g" "$TERMXLX"
@@ -558,13 +561,6 @@ find /xlxd -type d -exec chmod 755 {} \;
 find /xlxd -type f -exec chmod 755 {} \;
 find "$WEBDIR" -type d -exec chmod 755 {} \;
 find "$WEBDIR" -type f -exec chmod 755 {} \;
-#chmod 755 /xlxd/users_db/create_user_db.php
-#chmod 755 /xlxd/users_db/update_db.sh
-#chmod 755 /xlxd/xlxd.*
-#chmod 755 /xlxd/xlxd
-#chmod 755 /xlxd/xlxecho
-chmod 755 /usr/local/bin/xlx_log.sh
-chmod 755 /etc/systemd/system/xlx_log.service
 /bin/bash /xlxd/users_db/update_db.sh
 /usr/sbin/a2ensite "$XLXDOMAIN".conf 2>/dev/null | head -n1
 /usr/sbin/a2dissite 000-default 2>/dev/null | head -n1
