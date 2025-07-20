@@ -17,7 +17,7 @@ This script always installs the latest version of the official LX3JL project (v_
 Find a current active reflector dashboard [here](https://xlxbra.net/index.php?show=reflectors) and you will see the gaps in reflector numbers in the list, those reflector numbers not listed are available. 
 
 ## Installing the server
-* First, open/redirect the ports listed at the end of this document so that no errors occur during the proper installation, then access the server terminal and run the sequence of commands below, one by one:
+* First, open/redirect the ports listed at the end of this document so that no errors occur during the proper installation, then access the server terminal and run the sequence of commands below, one line at a time:
 ```sh
 sudo apt install git
 cd /usr/src/
