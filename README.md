@@ -45,7 +45,7 @@ When running the above last command the process will start and some questions wi
 
 * After this the process of installation will be started, at the end the server will be RUNNING and ready to accept connections, however you will still need to make the firewall adjustment to redirect the ports as described below.
 
-* If you want Reflector to be listed on YSF hosts go to [THIS]https://dvref.com) website and follow the instructions for inclusion.
+* If you want Reflector to be listed on YSF hosts go to [THIS](https://dvref.com) website and follow the instructions for inclusion.
 
 * If you choose to install the dashboard SSL certification yourself, check the [certbot](https://certbot.eff.org) website and follow the instructions, the procedure is simple and quick (requires TCP ports 80 and 443 already properly redirected).
 
