@@ -227,60 +227,7 @@ print_yellow "Using: $MODQTD"
 line_type1
 while true; do
 echo ""
-    print_wrapped "10. At https://register.ysfreflector.de the list of YSF reflectors is shown. What name will this reflector have to appear in this list? (max. 16 characters)"
-    print_wrapped "Suggested: \"$XRFNUM\" $ACCEPT"
-    printf "> "
-    read -r YSFNAME
-    YSFNAME=${YSFNAME:-$XRFNUM}
-    if [ ${#YSFNAME} -le 16 ]; then
-        break
-    else
-        print_red "Error: Name must be max 16 characters. Please try again!"
-    fi
-done
-print_yellow "Using: $YSFNAME"
-line_type1
-while true; do
-echo ""
-    print_wrapped "11. And what will be his description to appear on this list? (max. 16 characters)"
-    print_wrapped "Suggested: \"$XLXDOMAIN\" $ACCEPT"
-    printf "> "
-    read -r YSFDESC
-    YSFDESC=${YSFDESC:-$XLXDOMAIN}
-    if [ ${#YSFDESC} -le 16 ]; then
-        break
-    else
-        print_red "Error: Description must be max 16 characters. Please try again!"
-    fi
-done
-print_yellow "Using: $YSFDESC"
-# Fill with spaces on the right until reach 16 characters
-YSFNAME=$(printf "%-16s" "$YSFNAME")
-YSFDESC=$(printf "%-16s" "$YSFDESC")
-# Function to convert string into array C
-to_c_array() {
-    local input="$1"
-    local output=""
-    for ((i=0; i<16; i++)); do
-        char="${input:$i:1}"
-        if [ -z "$char" ] || [ "$char" = " " ]; then
-            output="$output' '"
-        else
-            output="$output'$char'"
-        fi
-        if [ $i -lt 15 ]; then
-            output="$output,"
-        fi
-    done
-    echo "$output"
-}
-# Generate arrays C
-YSFNAME_ARRAY=$(to_c_array "$YSFNAME")
-YSFDESC_ARRAY=$(to_c_array "$YSFDESC")
-line_type1
-while true; do
-echo ""
-    print_wrapped "12. What is the YSF UDP port number? (1-65535)"
+    print_wrapped "10. What is the YSF UDP port number? (1-65535)"
     print_wrapped "Suggested: 42000 $ACCEPT"
     printf "> "
     read -r YSFPORT
@@ -295,7 +242,7 @@ print_yellow "Using: $YSFPORT"
 line_type1
 while true; do
 echo ""
-    print_wrapped "13. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000)"
+    print_wrapped "11. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000)"
     print_wrapped "Suggested: 433125000 $ACCEPT"
     printf "> "
     read -r YSFFREQ
@@ -310,7 +257,7 @@ print_yellow "Using: $YSFFREQ"
 line_type1
 while true; do
 echo ""
-    print_wrapped "14. Is YSF auto-link enable? (1 = Yes / 0 = No)"
+    print_wrapped "12. Is YSF auto-link enable? (1 = Yes / 0 = No)"
     print_wrapped "Suggested: 1 $ACCEPT"
     printf "> "
     read -r AUTOLINK
@@ -328,7 +275,7 @@ MODLIST=$(echo {A..Z} | tr -d ' ' | head -c "$MODQTD")
 if [ "$AUTOLINK" -eq 1 ]; then
 while true; do
     echo ""
-        print_wrapped "15. What module to be auto-link? (one of ${VALID_MODULES[*]})"
+        print_wrapped "13. What module to be auto-link? (one of ${VALID_MODULES[*]})"
         print_wrapped "Suggested: C $ACCEPT"
         printf "> "
         read -r MODAUTO
@@ -356,8 +303,6 @@ print_wrapped "Comment: $COMMENT"
 print_wrapped "Dashboard header text: $HEADER"
 print_wrapped "Echo Test: $INSTALL_ECHO (Yes / No)"
 print_wrapped "Modules: $MODQTD"
-print_wrapped "YSF name: $YSFNAME"
-print_wrapped "YSF description: $YSFDESC"
 print_wrapped "YSF UDP Port: $YSFPORT"
 print_wrapped "YSF frequency: $YSFFREQ"
 print_wrapped "YSF autolink: $AUTOLINK (1 = Yes / 0 = No)"
@@ -432,9 +377,6 @@ else
     if [ "$AUTOLINK" -eq 1 ]; then
         sed -i "s|\(YSF_AUTOLINK_MODULE\s*\)'\([A-Z]*\)'|\1'$MODAUTO'|g" "$MAINCONFIG"
     fi
-    CYSF_FILE="$XLXINSTDIR/xlxd/src/cysfprotocol.cpp"
-    sed -i "s|uint8 callsign\[16\];|uint8 callsign[16] = { $YSFNAME_ARRAY };|g" "$CYSF_FILE"
-    sed -i "s|uint8 description\[\] = { 'X','L','X',' ','r','e','f','l','e','c','t','o','r',' ' };|uint8 description[] = { $YSFDESC_ARRAY };|g" "$CYSF_FILE"
     echo ""
     print_blueb "COMPILING..."
     print_blue "============"
