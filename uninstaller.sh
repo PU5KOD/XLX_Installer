@@ -143,18 +143,18 @@ else
     fi
 fi
 
-# Remove files and directories
+# Remove files and folders
 echo ""
 print_blueb "REMOVING FILES AND DIRECTORIES..."
 print_blue "================================="
 echo ""
-for dir in "/usr/src/xlxd" "/xlxd" "/var/www/html/xlxd" "/usr/src/XLXEcho" "/usr/src/XLX_Dark_Dashboard"; do
+for dir in "/xlxd" "/var/www/html/xlxd" "/usr/src/xlxd" "/usr/src/XLXEcho" "/usr/src/XLX_Dark_Dashboard"; do
     if [ -d "$dir" ]; then
         rm -rf "$dir"
         print_green "✔ Removed directory: $dir"
     fi
 done
-for file in "/etc/systemd/system/xlxd.service" "/etc/systemd/system/xlxecho.service" "/etc/systemd/system/update_XLX_db.service" "/etc/systemd/system/update_XLX_db.timer" "/etc/systemd/system/xlx_log.service" "/usr/local/bin/xlx_log.sh" "/var/log/xlxd.xml" "/var/log/xlxd.pid" "/var/log/xlx.log" "/var/log/xlxecho.log" "/etc/logrotate.d/xlx_logrotate.conf"; do
+for file in "/etc/systemd/system/xlxd.service" "/etc/systemd/system/xlxecho.service" "/etc/systemd/system/xlx_log.service" "/etc/systemd/system/update_XLX_db.service" "/etc/systemd/system/update_XLX_db.timer" "/usr/local/bin/xlx_log.sh" "/var/log/xlxd.xml" "/var/log/xlxd.pid" "/var/log/xlx.log" "/var/log/xlxecho.log" "/etc/logrotate.d/xlx_logrotate.conf"; do
     if [ -f "$file" ]; then
         rm -f "$file"
         print_green "✔ Removed file: $file"
