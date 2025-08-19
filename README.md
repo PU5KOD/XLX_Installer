@@ -75,9 +75,10 @@ XLX Server requires the following ports to be open and forwarded properly for in
  - Installs to /xlxd/;
  - Installation base folders: /usr/src/xlxd/, /usr/src/XLXEcho/, /usr/src/XLX_Dark_Dashboard/ and /usr/src/XLX_Installer/;
  - Logs files: /var/log/xlxd*, /var/log/xlx.log and /var/log/xlxecho.log;
+ - Auxiliary files: /usr/local/bin/xlx_log.sh and /etc/logrotate.d/xlx_logrotate.conf;
  - Service files: /etc/systemd/system/xlxd.service, /etc/systemd/system/xlxecho.service and /etc/systemd/system/xlx_log.service;
  - Dashboard folder: /var/www/html/xlxd/;
- - Apache site configuration in /etc/apache2/sites-available/;
+ - Apache website data in /etc/apache2/sites-available/;
  - And there are some possible customizations in the following file /var/www/html/xlxd/pgs/config.inc.php.
 
 ## To interact with XLX after installation
