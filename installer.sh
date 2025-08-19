@@ -352,7 +352,11 @@ if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
     echo ""
     center_wrap_color $RED_BRIGHT "Also delete the following files:"
     echo ""
-    center_wrap_color $NC "'/etc/systemd/system/xlxd.service*', 'var/log/xlx*', '/etc/systemd/system/xlxecho.service' '/etc/systemd/system/xlx_log.service' and related address at '/etc/apache2/sites-available/*'"
+    center_wrap_color $NC "'/etc/systemd/system/xlxd.service*', '/etc/systemd/system/xlxecho.service' '/etc/systemd/system/xlx_log.service', '/etc/systemd/system/update_XLX_db.service', '/etc/systemd/system/update_XLX_db.timer', '/usr/local/bin/xlx_log.sh', '/var/log/xlxd.xml', '/var/log/xlxd.pid', '/var/log/xlx.log', '/var/log/xlxecho.log', '/etc/logrotate.d/xlx_logrotate.conf' and related web address at '/etc/apache2/sites-available/*'"
+    echo ""
+    center_wrap_color $RED_BRIGHT "And finally remove any task scheduling related to XLX"
+    echo ""
+    center_wrap_color $NC "Type 'sudo crontab -e' and check the active schedules"
     echo ""
     line_type2
     echo ""
