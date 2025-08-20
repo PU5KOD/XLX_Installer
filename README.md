@@ -1,23 +1,27 @@
 # XLX Debian Installer
-This project was writed by Daniel K. [PU5KOD](https://www.qrz.com/db/PU5KOD) and is inspired in the one initially created by [N5AMD](https://github.com/n5amd/xlxd-debian-installer) that facilitates the installation process of the XLX reflector developed by [LX3JL](https://github.com/LX3JL/xlxd) and many implementations have been made since then. The idea here is to offer a system that asks the user for the main information for creating the reflector as well as the respective dashboard, so when running it several variables are requested so that in the end you have an XLX reflector working without the need for intervention. Therefore what this script does is automate as many processes as possible so that the installation of the reflector and dashboard is carried out with just a few commands and with minimal user intervention. As previously mentioned, in addition to the reflector, it also installs a dashboard so you can monitor the activity in the reflector in real time, along with this, an Echo Test service (Parrot) will also be offered, it will be linked by default to Module E but can be changed later without any major problems, the service is very useful for users to be able to perform audio tests.
 
-At the start of 2020 a new version of XLX was released that allows for native C4FM connections, this means it's even simpler to run a multi-mode reflector. The XLX now natively supports D-Star, C4FM and DMR modes, between C4FM and DMR do not require any transcoding hardware (AMBE) to work together, so if you plan to use D-Star with any of the other modes you will need hardware AMBE chips, however if your plan is just a DStar only reflector OR a YSF/DMR reflector this is not necessary.
-This script always installs the latest version of the official LX3JL project (v_2.5.3 of the XLX reflector and v_2.4.2 of the dashboard at the time I write this), it has been tested and works perfectly on Debian 10, 11 and 12 (preferably on the 12) and their derivatives such as RaspiOS and Armbian for Raspberry Pi, and does not require many hardware resources which can be easily run on a Raspberry Pi Zero or similar.
+This project, developed by Daniel K. ([PU5KOD](https://www.qrz.com/db/PU5KOD)), builds upon the original work by [N5AMD](https://github.com/n5amd/xlxd-debian-installer) to simplify the installation of the XLX reflector, created by [LX3JL](https://github.com/LX3JL/xlxd). The script automates the setup of an XLX reflector and its accompanying dashboard, requiring minimal user intervention. It prompts for essential configuration details and handles the installation process, resulting in a fully operational multi-mode reflector supporting D-Star, C4FM, and DMR protocols. Additionally, it offers an optional Echo Test (Parrot) service, linked by default to Module E, for audio testing.
 
-<b>After installing this you will have a public D-Star/YSF/DMR XLX Reflector.</b>
+Since early 2020, XLX supports native C4FM connections, eliminating the need for AMBE transcoding hardware for C4FM and DMR interoperability. However, D-Star integration with other modes requires AMBE chips. For D-Star-only or YSF/DMR reflectors, no additional hardware is needed. The script installs the latest versions of the official XLX reflector (v2.5.3) and dashboard (v2.4.2) as of this writing, and is compatible with Debian 10, 11, and 12 (recommended), as well as derivatives like RaspiOS and Armbian. It is lightweight, suitable for low-resource devices like the Raspberry Pi Zero.
 
-## Installation requirements
-01.  A Debian based computer or VPS server like Google VM and Amazon EC2 ready and up to date;
-02.  A STABLE INTERNET connection with a FIXED PUBLIC IP;
-03.  Ability to manage the Firewall;
-04.  Have a FQDN to dashboard, like xlxbra.net;
-05.  A free 3 digit XLX sufix, both numbers and letters can be used (look at the section below).
+**Upon completion, you will have a fully functional public D-Star/YSF/DMR XLX reflector with a monitoring dashboard.**
 
-### How to find what reflectors are available:
-Find a current active reflector dashboard [here](https://xlxbra.net/index.php?show=reflectors) and you will see the gaps in reflector numbers in the list, those reflector numbers not listed are available. 
+## Installation Requirements
 
-## Installing the server
-* First, open and redirect the ports listed at the end of this document so that no errors occur during the proper installation, then access the server terminal and run the sequence of commands below, one line at a time:
+1. A Debian-based system or VPS (e.g., Google VM, Amazon EC2) with the latest updates installed.
+2. A stable internet connection with a fixed public IP.
+3. Firewall management capabilities to open and forward required ports.
+4. A fully qualified domain name (FQDN) for the dashboard (e.g., xlxbra.net).
+5. A unique 3-digit XLX suffix (numbers or letters) not currently in use.
+
+### Finding Available Reflector Suffixes
+To identify available XLX suffixes, visit the active reflector dashboard [here](https://xlxbra.net/index.php?show=reflectors). Unlisted suffixes are available for use.
+
+## Installation Instructions
+
+1. **Port Configuration**: Ensure the firewall ports listed in the "Firewall Settings" section are open and forwarded before proceeding.
+2. Access the server terminal and execute the following commands sequentially:
+
 ```sh
 sudo apt install git
 cd /usr/src/
@@ -26,79 +30,68 @@ cd XLX_Installer/
 sudo chmod +x *
 sudo ./installer.sh
 ```
-When running the above last command the process will start and some questions will be asked, just answer as asked, in some cases just press "ENTER" to accept the suggested answer, the questions are in the following sequence:
-01. What are the 3 digits of the XLX reflector that will be used? (e.g., 300, US1, BRA)
-02. What is the web address (FQDN) of the reflector dashboard? e.g., xlx.domain.com
-03. What is the sysop e-mail address?
-04. What is the sysop callsign?
-05. What is the country of the reflector?
-06. What is the comment to be shown in the XLX Reflectors list?
-07. Custom text on header of the dashboard webpage.
-08. Do you want to install Echo Test Server? (Y/N)
-09. How many active modules does the reflector have? (1-26)
-10. What is the YSF UDP port number? (1-65535)
-11. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000)
-12. Is YSF auto-link enable? (1 = Yes / 0 = No)
-13. What module to be auto-link? (*)
 
-(*) The last question will only be asked if the answer to the previous one is positive.
+3. **Configuration Prompts**: The installer will request the following information. Respond as prompted, pressing "ENTER" to accept defaults where applicable:
+   - 3-digit XLX reflector suffix (e.g., 300, US1, BRA).
+   - Dashboard FQDN (e.g., xlx.domain.com).
+   - Sysop email address.
+   - Sysop callsign.
+   - Reflector country.
+   - Comment for the XLX Reflectors list.
+   - Custom header text for the dashboard webpage.
+   - Install Echo Test Server? (Y/N).
+   - Number of active modules (1–26).
+   - YSF UDP port number (1–65535).
+   - YSF Wires-X frequency (in Hertz, e.g., 433125000).
+   - Enable YSF auto-link? (1 = Yes / 0 = No).
+   - Auto-link module (if auto-link is enabled).
 
-* After this the process of installation will be started, at the end the server will be RUNNING and ready to accept connections, however you will still need to make the firewall adjustment to redirect the ports as described below.
+4. **Completion**: The installation will proceed automatically, and upon completion, the reflector will be operational and ready to accept connections. Adjust the firewall as described below to ensure proper functionality.
 
-* If you want Reflector to be listed on YSF hosts go to [THIS](https://dvref.com) website and follow the instructions for inclusion.
+5. **Optional Steps**:
+   - To list your reflector on YSF hosts, visit [dvref.com](https://dvref.com) and follow the registration instructions.
+   - The installation script includes an option to automatically set up SSL certification for the dashboard using Certbot. If you prefer to manually install SSL, visit the [Certbot website](https://certbot.eff.org) for simple and quick instructions. Ensure TCP ports 80 and 443 are properly opened and forwarded in your firewall before proceeding.
 
-* If you choose to install the dashboard SSL certification yourself, check the [certbot](https://certbot.eff.org) website and follow the instructions, the procedure is simple and quick (requires TCP ports 80 and 443 already properly redirected).
+## Firewall Settings
 
-### Firewall Settings:
+The XLX reflector requires the following ports to be open and forwarded for incoming and outgoing traffic:
 
-XLX Server requires the following ports to be open and forwarded properly for in and outgoing network traffic:
+- **TCP**: 22 (SSH), 80 (HTTP), 443 (HTTPS), 8080 (RepNet, optional).
+- **UDP**: 8880 (DMR+ DMO mode), 10001 (JSON interface XLX Core), 10002 (XLX interlink), 10100 (AMBE controller), 10101–10199 (AMBE transcoding), 12345–12346 (ICom Terminal presence/request), 20001 (DPlus protocol), 21110 (Yaesu IMRS protocol), 30001 (DExtra protocol), 30051 (DCS protocol), 40000 (Terminal DV), 42000 (YSF protocol), 62030 (MMDVM protocol).
 
-* TCP port 22 (ssh)
-* TCP port 80 (http)
-* TCP port 443 (https)
-* TCP port 8080 (RepNet) optional
-* UDP port 8880 (DMR+ DMO mode)
-* UDP port 10001 (json interface XLX Core)
-* UDP port 10002 (XLX interlink)
-* UDP port 10100 (AMBE controller port)
-* UDP port 10101 - 10199 (AMBE transcoding port)
-* UDP port 12345 - 12346 (ICom Terminal presence and request port)
-* UPD port 20001 (DPlus protocol)
-* UDP port 21110 (Yaesu IMRS protocol)
-* UDP port 30001 (DExtra protocol)
-* UDP port 30051 (DCS protocol)
-* UDP port 40000 (Terminal DV port)
-* UDP port 42000 (YSF protocol)
-* UDP port 62030 (MMDVM protocol)
+## File and Folder Locations
 
-### Location of folders and files:
- - Installs to /xlxd/;
- - Installation base folders: /usr/src/xlxd/, /usr/src/XLXEcho/, /usr/src/XLX_Dark_Dashboard/ and /usr/src/XLX_Installer/;
- - Logs files: /var/log/xlxd*, /var/log/xlx.log and /var/log/xlxecho.log;
- - Auxiliary files: /usr/local/bin/xlx_log.sh and /etc/logrotate.d/xlx_logrotate.conf;
- - Service files: /etc/systemd/system/xlxd.service, /etc/systemd/system/xlxecho.service and /etc/systemd/system/xlx_log.service;
- - Dashboard folder: /var/www/html/xlxd/;
- - Apache website data in /etc/apache2/sites-available/;
- - And there are some possible customizations in the following file /var/www/html/xlxd/pgs/config.inc.php.
+- **Installation Directory**: `/xlxd/`
+- **Source Folders**: `/usr/src/xlxd/`, `/usr/src/XLXEcho/`, `/usr/src/XLX_Dark_Dashboard/`, `/usr/src/XLX_Installer/`
+- **Log Files**: `/var/log/xlxd*`, `/var/log/xlx.log`, `/var/log/xlxecho.log`
+- **Auxiliary Files**: `/usr/local/bin/xlx_log.sh`, `/etc/logrotate.d/xlx_logrotate.conf`
+- **Service Files**: `/etc/systemd/system/xlxd.service`, `/etc/systemd/system/xlxecho.service`, `/etc/systemd/system/xlx_log.service`
+- **Dashboard Files**: `/var/www/html/xlxd/`
+- **Apache Configuration**: `/etc/apache2/sites-available/`
+- **Custom Configuration**: `/var/www/html/xlxd/pgs/config.inc.php`
 
-## To interact with XLX after installation
-To <b>start</b>, <b>stop</b>, <b>restart</b>, or verify the <b>status</b> of the application use one of the corresponding commands:
+## Managing the XLX Reflector
+
+To control the reflector, use the following commands:
+
 ```sh
 sudo systemctl start xlxd.service
 sudo systemctl stop xlxd.service
 sudo systemctl restart xlxd.service
 sudo systemctl status xlxd.service
 ```
-And to check the process by running live use the command below:
+
+To monitor the reflector in real time:
+
 ```sh
 sudo tail -f /var/log/xlx.log
 ```
 
-## Related authors
-The base projects and related authors can be found at the following links:
-- Official LX3JL XLXd refletor project and install instructions, [HERE](https://github.com/LX3JL/xlxd)
-- N5AMD installation script project basis, [HERE](https://github.com/n5amd/xlxd-debian-installer)
-- DG9VH  Kim Huebel YSF Reflector project, [HERE](https://register.ysfreflector.de/)
-- The owner of the repository that provides us with the Echo Test, [HERE](https://github.com/narspt/XLXEcho)
-- Project that offers free https certification, [HERE](https://certbot.eff.org/)
-- This one who speaks to you, [HERE](https://www.qrz.com/db/PU5KOD)
+## Related Projects and Authors
+
+- Official XLX Reflector: [LX3JL](https://github.com/LX3JL/xlxd)
+- Original Installation Script: [N5AMD](https://github.com/n5amd/xlxd-debian-installer)
+- YSF Reflector Registration: [DG9VH](https://register.ysfreflector.de/)
+- Echo Test Service: [Narspt](https://github.com/narspt/XLXEcho)
+- SSL Certification: [Certbot](https://certbot.eff.org/)
+- Project Maintainer: [PU5KOD](https://www.qrz.com/db/PU5KOD)
