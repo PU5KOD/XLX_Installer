@@ -140,7 +140,7 @@ else
 fi
 echo ""
 
-print_blue "Setting permissions for xlxd.service (755)..."
+print_blue "Setting permissions for /etc/systemd/system/xlxd.service (755)..."
 chmod 755 /etc/systemd/system/xlxd.service
 if [ $? -ne 0 ]; then
     print_redb "Error: Failed to set permissions for xlxd.service."
@@ -150,7 +150,7 @@ else
 fi
 echo ""
 
-print_blue "Setting permissions for xlx_log.service (755)..."
+print_blue "Setting permissions for /etc/systemd/system/xlx_log.service (755)..."
 chmod 755 /etc/systemd/system/xlx_log.service
 if [ $? -ne 0 ]; then
     print_redb "Error: Failed to set permissions for xlx_log.service."
@@ -160,7 +160,7 @@ else
 fi
 echo ""
 
-print_blue "Setting permissions for xlxecho.service (755)..."
+print_blue "Setting permissions for /etc/systemd/system/xlxecho.service (755)..."
 chmod 755 /etc/systemd/system/xlxecho.service
 if [ $? -ne 0 ]; then
     print_redb "Error: Failed to set permissions for xlxecho.service."
@@ -171,7 +171,7 @@ fi
 echo ""
 
 print_blue "Setting permissions for users DB, update_XLX_db (755)..."
-chmod 755 /etc/systemd/system/update_XLX_db.service*
+chmod 755 /etc/systemd/system/update_XLX_db*
 if [ $? -ne 0 ]; then
     print_redb "Error: Failed to set permissions for users DB, update_XLX_db."
 else
@@ -199,25 +199,25 @@ else
 fi
 echo ""
 
-# print_blue "Setting permissions for /xlxd/users_db/user* files (644)..."
-#chmod 644 /xlxd/users_db/user*
-#if [ $? -ne 0 ]; then
-#    print_redb "Error: Failed to set permissions for /xlxd/users_db/user* files."
-#    exit 1
-#else
-#    print_green "✔ Permissions for /xlxd/users_db/user* files successfully set"
-#fi
-#echo ""
+print_blue "Setting permissions for /usr/local/bin/xlx_log.sh (755)..."
+chmod 755 /usr/local/bin/xlx_log.sh
+if [ $? -ne 0 ]; then
+    print_redb "Error: Failed to set permissions for xlx_log.sh."
+    exit 1
+else
+    print_green "✔ Permissions for xlx_log.sh successfully set"
+fi
+echo ""
 
-# print_blue "Setting permissions for /xlxd/xlxd.* files (644)..."
-#chmod 644 /xlxd/xlxd.*
-#if [ $? -ne 0 ]; then
-#    print_redb "Error: Failed to set permissions for /xlxd/xlxd.* files."
-#    exit 1
-#else
-#    print_green "✔ Permissions for /xlxd/xlxd.* files successfully set"
-#fi
-#echo ""
+print_blue "Setting permissions for /etc/logrotate.d/xlx_logrotate.conf (644)..."
+chmod 644 /etc/logrotate.d/xlx_logrotate.conf
+if [ $? -ne 0 ]; then
+    print_redb "Error: Failed to set permissions for xlx_logrotate.conf."
+    exit 1
+else
+    print_green "✔ Permissions for xlx_logrotate.conf files successfully set"
+fi
+echo ""
 
 print_blue "Setting permissions for /var/log/xlx.log file (644)..."
 chmod 644 /var/log/xlx.log
