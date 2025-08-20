@@ -1,0 +1,13 @@
+[Unit]
+Description=Monitoramento do xlxd e envio de notificações para o Telegram
+After=xlxd.service
+BindsTo=xlxd.service
+
+[Service]
+#ExecStartPre=/bin/sleep 25
+ExecStart=/usr/local/bin/monitor_XLX.sh
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target xlxd.service
