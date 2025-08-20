@@ -1,0 +1,93 @@
+#!/bin/bash
+MAX_WIDTH=150
+cols=$(tput cols 2>/dev/null || echo "$MAX_WIDTH")
+width=$(( cols < MAX_WIDTH ? cols : MAX_WIDTH ))
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+line_type1() {
+    printf "%${width}s\n" | tr ' ' '_'
+}
+
+line_type2() {
+    printf "%${width}s\n" | tr ' ' '='
+}
+
+center_wrapped_colored() {
+    local color="$1"
+    local text="$2"
+    local wrapped_lines
+    IFS=$'\n' read -rd '' -a wrapped_lines <<<"$(echo "$text" | fold -s -w "$width")"
+    for line in "${wrapped_lines[@]}"; do
+        local line_length=${#line}
+        local padding=$(( (width - line_length) / 2 ))
+        printf "%b%*s%s%b\n" "$color" "$padding" "" "$line" "$NC"
+    done
+}
+
+clear
+echo ""
+line_type2
+echo ""
+center_wrapped_colored "$GREEN" "OPENING A QUERY TO THE XLX REFLECTOR LOG"
+echo ""
+center_wrapped_colored "$YELLOW" "*** (!) TO FINISH PRESS CTRL+C ***"
+echo ""
+line_type2
+echo ""
+
+journalctl -u xlxd.service -f | awk -v width="$width" -v green="$GREEN" -v yellow="$YELLOW" -v nc="$NC" '
+{
+    # Imprime a data e hora em amarelo
+    printf "%s%s %s %s: %s", yellow, $1, $2, $3, nc
+
+    # Concatena todos os campos a partir do sexto
+    msg = ""
+    if (NF >= 6) {
+        for (i=6; i<=NF; i++) {
+            msg = msg $i " "
+        }
+    } else {
+        msg = ""  # Para linhas com menos de 6 campos, deixa a mensagem vazia
+    }
+
+    # Remove espaços extras no final
+    sub(/[ \t]+$/, "", msg)
+
+    # Se a mensagem for curta o suficiente, imprime diretamente
+    if (length(msg) <= width - length($1 $2 $3 ": ")) {
+        printf "%s\n", msg
+    } else {
+        # Quebra a mensagem em linhas que respeitam a largura máxima
+        while (length(msg) > 0) {
+            if (length(msg) <= width - length($1 $2 $3 ": ")) {
+                printf "%s\n", msg
+                break
+            } else {
+                # Encontra o ponto de quebra
+                line = ""
+                len = length($1 $2 $3 ": ")
+                split(msg, words, " ")
+                for (i=1; i<=length(words); i++) {
+                    if (len + length(words[i]) + 1 <= width) {
+                        line = line words[i] " "
+                        len += length(words[i]) + 1
+                    } else {
+                        printf "%s\n", line
+                        msg = ""
+                        for (j=i; j<=length(words); j++) {
+                            msg = msg words[j] " "
+                        }
+                        sub(/[ \t]+$/, "", msg)
+                        break
+                    }
+                }
+                # Se a linha foi preenchida, mas ainda há mensagem, imprime a linha
+                if (line != "") {
+                    printf "%s\n", line
+                }
+            }
+        }
+    }
+}' OFS=""
