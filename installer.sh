@@ -5,7 +5,7 @@
 # Lets begin!!!
 
 # Redirect all output to the log and keep it in the terminal
-LOGFILE="$PWD/log_xlx_install_$(date +%F_%H-%M-%S).log"
+LOGFILE="$PWD/log/log_xlx_install_$(date +%F_%H-%M-%S).log"
 exec > >(tee -a "$LOGFILE") 2>&1
 # root user check
 if [ "$(whoami)" != "root" ]; then
