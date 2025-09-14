@@ -1,0 +1,1 @@
+Here in this directory are the installer logs
