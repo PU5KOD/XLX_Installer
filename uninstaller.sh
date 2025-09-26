@@ -145,7 +145,7 @@ fi
 
 # Remove files and folders
 echo ""
-print_blueb "REMOVING FILES AND DIRECTORIES..."
+print_blueb "REMOVING FILES AND FOLDERS..."
 print_blue "================================="
 echo ""
 for dir in "/xlxd" "/var/www/html/xlxd" "/usr/src/xlxd" "/usr/src/XLXEcho" "/usr/src/XLX_Dark_Dashboard"; do
