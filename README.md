@@ -22,8 +22,7 @@ To identify available XLX suffixes, visit the active reflector dashboard [here](
 1. **Port Configuration**: Ensure the firewall ports listed in the "Firewall Settings" section are open and forwarded before proceeding.
 2. Access the server terminal and execute the following commands sequentially, in the first two commands, it will update the system, then install a prerequisite, and finally begin the installation procedures:
 
-```
-sh
+```sh
 sudo apt update
 sudo apt full-upgrade
 sudo apt install git
