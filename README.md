@@ -58,8 +58,8 @@ sudo ./installer.sh
 
 The XLX reflector requires the following ports to be open and forwarded for incoming and outgoing traffic:
 
-- **TCP**: 22 (SSH), 80 (HTTP), 443 (HTTPS), 8080 (RepNet, optional).
-- **UDP**: 8880 (DMR+ DMO mode), 10001 (JSON interface XLX Core), 10002 (XLX interlink), 10100 (AMBE controller), 10101–10199 (AMBE transcoding), 12345–12346 (ICom Terminal presence/request), 20001 (DPlus protocol), 21110 (Yaesu IMRS protocol), 30001 (DExtra protocol), 30051 (DCS protocol), 40000 (Terminal DV), 42000 (YSF protocol), 62030 (MMDVM protocol).
+- **TCP**: 22 (SSH), 80 (HTTP), 443 (HTTPS), 8080 (RepNet, optional), 20001-20005 (DPlus protocol), 40001 (ICom G3).
+- **UDP**: 8880 (DMR+ DMO mode), 10001 (JSON interface XLX Core), 10002 (XLX interlink), 10100 (AMBE controller), 10101–10199 (AMBE transcoding), 12345–12346 (ICom Terminal presence/request), 20001-20005 (DPlus protocol), 21110 (Yaesu IMRS protocol), 30001 (DExtra protocol), 30051 (DCS protocol), 40000 (Terminal DV), 42000 (YSF protocol), 62030 (MMDVM protocol).
 
 ## File and Folder Locations
 
