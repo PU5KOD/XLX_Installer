@@ -50,14 +50,13 @@ sudo ./installer.sh
 
 4. **Completion**: The installation will proceed automatically, and upon completion, the reflector will be operational and ready to accept connections. Adjust the firewall as described below to ensure proper functionality.
 
-5. **Temporary Adjustment**: Until I implement the following integration with the installer, a small adjustment is still needed for the animation indicating activity in the reflector to be displayed correctly, the procedure is as follows.
-   Adjust the commands below to the correct time zone, e.g., GMT-1, GMT0, GMT+5, etc, just remember that for Linux systems the GMT SIGNAL IS INVERTED, e.g., for UTC -5hs (US EST - New York, Miami, etc.), set GMT+5.
+5. **Dashboard Adjustment**: Until I implement the following integration with the installer, a small adjustment is still needed for the animation indicating activity in the reflector to be displayed correctly, the procedure is as follows. Adjust the commands below to the correct time zone, e.g., GMT-1, GMT0, GMT+5, etc, just remember that for Linux systems the **GMT SIGNAL IS INVERTED**, e.g., for UTC -5hs (US EST - New York, Miami, etc.), set GMT+5.
    
-```sh
+   ```sh
    sudo timedatectl set-timezone Etc/GMT+5
    sudo sed -i 's/^;\?date\.timezone\s*=.*/date.timezone = "Etc\/GMT+5"/' /etc/php/8.4/apache2/php.ini
    sudo systemctl reload apache2.service
-```
+   ```
 
 6. **Optional Steps**:
    - To list your reflector on YSF hosts, visit [dvref.com](https://dvref.com) and follow the registration instructions.
