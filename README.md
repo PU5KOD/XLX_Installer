@@ -22,16 +22,16 @@ To identify available XLX suffixes, visit the active reflector dashboard [here](
 1. **Port Configuration**: Ensure the firewall ports listed in the "Firewall Settings" section are open and forwarded before proceeding.
 2. Access the server terminal and execute the following commands sequentially, in the first two commands, it will update the system, then install a prerequisite, and finally begin the installation procedures:
 
-```sh
-sudo apt update
-sudo apt full-upgrade
-sudo apt install git
-cd /usr/src/
-sudo git clone https://github.com/PU5KOD/XLX_Installer.git
-cd XLX_Installer/
-sudo chmod +x *
-sudo ./installer.sh
-```
+   ```sh
+   sudo apt update
+   sudo apt full-upgrade
+   sudo apt install git
+   cd /usr/src/
+   sudo git clone https://github.com/PU5KOD/XLX_Installer.git
+   cd XLX_Installer/
+   sudo chmod +x *
+   sudo ./installer.sh
+   ```
 
 3. **Configuration Prompts**: The installer will request the following information. Respond as prompted, pressing "ENTER" to accept defaults where applicable:
    - 3-digit XLX reflector suffix (e.g., 300, US1, BRA).
