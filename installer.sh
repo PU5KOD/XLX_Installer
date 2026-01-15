@@ -184,16 +184,34 @@ done
 print_yellow "Using: $COMMENT"
 line_type1
 echo ""
-    print_wrapped "07. Custom text on header of the dashboard webpage."
+    print_wrapped "07. Custom page guide name of the dashboard webpage."
     print_wrapped "Suggested: \"$XRFNUM\" $ACCEPT"
     printf "> "
     read -r HEADER
     HEADER=${HEADER:-$XRFNUM}
 print_yellow "Using: $HEADER"
 line_type1
+
 while true; do
 echo ""
-    print_wrapped "08. Do you want to install Echo Test Server? (Y/N)"
+    FOOTER_DEFAULT="Provided by $CALLSIGN, info: $EMAIL"
+    print_wrapped "08. Custom text on footer of the dashboard webpage."
+    print_wrapped "Suggested: \"$FOOTER_DEFAULT\" $ACCEPT"
+    printf "> "
+    read -r FOOTER
+    FOOTER=${FOOTER:-"$FOOTER_DEFAULT"}
+    if [ ${#FOOTER} -le 100 ]; then
+        break
+    else
+        print_red "Error: Comment must be max 100 characters. Please try again!"
+    fi
+done
+print_yellow "Using: $FOOTER"
+line_type1
+
+while true; do
+echo ""
+    print_wrapped "09. Do you want to install Echo Test Server? (Y/N)"
     print_wrapped "Suggested: Y $ACCEPT"
     printf "> "
     read -r INSTALL_ECHO
@@ -212,7 +230,7 @@ echo ""
     if [ "$INSTALL_ECHO" == "Y" ]; then
         MIN_MODULES=5
     fi
-    print_wrapped "09. How many active modules does the reflector have? ($MIN_MODULES-26)"
+    print_wrapped "10. How many active modules does the reflector have? ($MIN_MODULES-26)"
     print_wrapped "Suggested: 5 $ACCEPT"
     printf "> "
     read -r MODQTD
@@ -227,7 +245,7 @@ print_yellow "Using: $MODQTD"
 line_type1
 while true; do
 echo ""
-    print_wrapped "10. What is the YSF UDP port number? (1-65535)"
+    print_wrapped "11. What is the YSF UDP port number? (1-65535)"
     print_wrapped "Suggested: 42000 $ACCEPT"
     printf "> "
     read -r YSFPORT
@@ -242,7 +260,7 @@ print_yellow "Using: $YSFPORT"
 line_type1
 while true; do
 echo ""
-    print_wrapped "11. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000)"
+    print_wrapped "12. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000)"
     print_wrapped "Suggested: 433125000 $ACCEPT"
     printf "> "
     read -r YSFFREQ
@@ -257,7 +275,7 @@ print_yellow "Using: $YSFFREQ"
 line_type1
 while true; do
 echo ""
-    print_wrapped "12. Is YSF auto-link enable? (1 = Yes / 0 = No)"
+    print_wrapped "13. Is YSF auto-link enable? (1 = Yes / 0 = No)"
     print_wrapped "Suggested: 1 $ACCEPT"
     printf "> "
     read -r AUTOLINK
@@ -275,7 +293,7 @@ MODLIST=$(echo {A..Z} | tr -d ' ' | head -c "$MODQTD")
 if [ "$AUTOLINK" -eq 1 ]; then
 while true; do
     echo ""
-        print_wrapped "13. What module to be auto-link? (one of ${VALID_MODULES[*]})"
+        print_wrapped "14. What module to be auto-link? (one of ${VALID_MODULES[*]})"
         print_wrapped "Suggested: C $ACCEPT"
         printf "> "
         read -r MODAUTO
@@ -300,7 +318,8 @@ print_wrapped "E-mail: $EMAIL"
 print_wrapped "Callsign: $CALLSIGN"
 print_wrapped "Country: $COUNTRY"
 print_wrapped "Comment: $COMMENT"
-print_wrapped "Dashboard header text: $HEADER"
+print_wrapped "Page guide custom text: $HEADER"
+print_wrapped "Dashboard footnote: $FOOTER"
 print_wrapped "Echo Test: $INSTALL_ECHO (Yes / No)"
 print_wrapped "Modules: $MODQTD"
 print_wrapped "YSF UDP Port: $YSFPORT"
@@ -487,6 +506,7 @@ sed -i "s|your_email|$EMAIL|g" "$XLXCONFIG"
 sed -i "s|LX1IQ|$CALLSIGN|g" "$XLXCONFIG"
 sed -i "s|MODQTD|$MODQTD|g" "$XLXCONFIG"
 sed -i "s|custom_header|$HEADER|g" "$XLXCONFIG"
+sed -i "s|custom_footnote|$FOOTER|g" "$XLXCONFIG"
 sed -i "s#http://your_dashboard#http://$XLXDOMAIN#g" "$XLXCONFIG"
 sed -i "s|your_country|$COUNTRY|g" "$XLXCONFIG"
 sed -i "s|your_comment|$COMMENT|g" "$XLXCONFIG"
