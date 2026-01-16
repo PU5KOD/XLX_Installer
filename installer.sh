@@ -184,11 +184,12 @@ done
 print_yellow "Using: $COMMENT"
 line_type1
 echo ""
+    HEADER_DEFAULT="$XRFNUM $COUNTRY Multiprotocol Reflector, Provided by $CALLSIGN"
     print_wrapped "07. Custom page guide name of the dashboard webpage."
-    print_wrapped "Suggested: \"$XRFNUM\" $ACCEPT"
+    print_wrapped "Suggested: \"$HEADER_DEFAULT\" $ACCEPT"
     printf "> "
     read -r HEADER
-    HEADER=${HEADER:-$XRFNUM}
+    HEADER=${HEADER:-"$HEADER_DEFAULT"}
 print_yellow "Using: $HEADER"
 line_type1
 
