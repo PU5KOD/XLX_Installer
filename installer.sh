@@ -414,11 +414,12 @@ print_blueb "UPDATING OS..."
 print_blue "=============="
 echo ""
 apt update
-apt upgrade -y
+apt full-upgrade -y
 if [ $? -ne 0 ]; then
     center_wrap_color $RED "Error: Failed to update package lists. Check your internet connection or package manager configuration."
     exit 1
 fi
+timedatectl set-timezone Etc/"$TIMEZONE"
 echo ""
 print_blueb "INSTALLING DEPENDENCIES..."
 print_blue "=========================="
