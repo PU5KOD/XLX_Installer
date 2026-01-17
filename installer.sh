@@ -43,6 +43,7 @@ LOCAL_IP=$(hostname -I | awk '{print $1}')
 PUBLIC_IP=$(curl v4.ident.me)
 NETACT=$(ip -o addr show up | awk '{print $2}' | grep -v lo | head -n1)
 INFREF="https://xlxbbs.epf.lu/"
+PHPVER=$(php -v | head -n1 | awk '{print $2}' | cut -d. -f1,2)
 XLXDREPO="https://github.com/PU5KOD/xlxd.git"
 XLXECHO="https://github.com/PU5KOD/XLXEcho.git"
 XLXDASH="https://github.com/PU5KOD/XLX_Dark_Dashboard.git"
@@ -91,6 +92,17 @@ echo ""
 print_blueb "REFLECTOR DATA INPUT"
 print_blue "===================="
 echo ""
+
+# Teste de impresao de cores, descomente e execute para verificar
+#print_red "Vermelho ============"
+#print_redb "Vermelho Brilhante ="
+#print_green "Verde ============="
+#print_greenb "Verde Brilhante =="
+#print_blue "Azul ==============="
+#print_blueb "Azul Brilhante ===="
+#print_yellow "Amarelo =========="
+#echo ""
+
 while true; do
     print_redb "Mandatory"
     print_wrapped "01. What are the 3 digits of the XLX reflector that will be used? (e.g., 300, US1, BRA)"
@@ -110,6 +122,7 @@ done
 XRFNUM=XLX$XRFDIGIT
 print_yellow "Using: $XRFNUM"
 line_type1
+
 while true; do
 echo ""
     print_redb "Mandatory"
@@ -124,6 +137,7 @@ echo ""
 done
 print_yellow "Using: $XLXDOMAIN"
 line_type1
+
 while true; do
 echo ""
     print_redb "Mandatory"
@@ -138,6 +152,7 @@ echo ""
 done
 print_yellow "Using: $EMAIL"
 line_type1
+
 while true; do
 echo ""
     print_redb "Mandatory"
@@ -153,6 +168,7 @@ echo ""
 done
 print_yellow "Using: $CALLSIGN"
 line_type1
+
 while true; do
 echo ""
     print_redb "Mandatory"
@@ -167,10 +183,49 @@ echo ""
 done
 print_yellow "Using: $COUNTRY"
 line_type1
+
+# Lista de time zones válidos
+VALID_TIMEZONES=("GMT" "GMT-0" "GMT+0" "GMT+1" "GMT+2" "GMT+3" "GMT+4" "GMT+5" "GMT+6" "GMT+7" "GMT+8" "GMT+9" "GMT+10" "GMT+11" "GMT+12" "GMT-1" "GMT-2" "GMT-3" "GMT-4" "GMT-5" "GMT-6" "GMT-7" "GMT-8" "GMT-9" "GMT-10" "GMT-11" "GMT-12" "GMT-13" "GMT-14")
+
+while true; do
+    echo ""
+    print_redb "Mandatory"
+    print_wrapped "06. What is the local time zone? Select from: GMT, GMT-0 to GMT-14, GMT+0 to GMT+12."
+    print_green "N.B.: Remember that for Linux systems the GMT SIGNAL IS INVERTED, e.g., for UTC -5hs (US EST - New York, Miami, etc.), set GMT+5.)"
+    printf "> "
+    read -r TIMEZONE
+
+    # Converte o input para maiúsculas para tolerar digitação em minúsculas
+    TIMEZONE=$(echo "$TIMEZONE" | tr '[:lower:]' '[:upper:]')
+
+    # Verifica se está vazio
+    if [ -z "$TIMEZONE" ]; then
+        print_red "Error: This field is mandatory and cannot be empty. Try again!"
+        continue
+    fi
+
+    # Verifica se está na lista de time zones válidos
+    valid_timezone=false
+    for valid_tz in "${VALID_TIMEZONES[@]}"; do
+        if [ "$TIMEZONE" = "$valid_tz" ]; then
+            valid_timezone=true
+            break
+        fi
+    done
+
+    if [ "$valid_timezone" = false ]; then
+        print_red "Error: Invalid time zone. Please select from: GMT, GMT-0 to GMT-14, GMT+0 to GMT+12. Try again!"
+    else
+        break
+    fi
+done
+print_yellow "Using: $TIMEZONE"
+line_type1
+
 while true; do
 echo ""
     COMMENT_DEFAULT="$XRFNUM Multiprotocol Reflector by $CALLSIGN, info: $EMAIL"
-    print_wrapped "06. What is the comment to be shown in the XLX Reflectors list?"
+    print_wrapped "07. What is the comment to be shown in the XLX Reflectors list?"
     print_wrapped "Suggested: \"$COMMENT_DEFAULT\" $ACCEPT"
     printf "> "
     read -r COMMENT
@@ -183,9 +238,10 @@ echo ""
 done
 print_yellow "Using: $COMMENT"
 line_type1
+
 echo ""
     HEADER_DEFAULT="$XRFNUM $COUNTRY Multiprotocol Reflector, Provided by $CALLSIGN"
-    print_wrapped "07. Custom page guide name of the dashboard webpage."
+    print_wrapped "08. Custom page guide name of the dashboard webpage."
     print_wrapped "Suggested: \"$HEADER_DEFAULT\" $ACCEPT"
     printf "> "
     read -r HEADER
@@ -196,7 +252,7 @@ line_type1
 while true; do
 echo ""
     FOOTER_DEFAULT="Provided by $CALLSIGN, info: $EMAIL"
-    print_wrapped "08. Custom text on footer of the dashboard webpage."
+    print_wrapped "09. Custom text on footer of the dashboard webpage."
     print_wrapped "Suggested: \"$FOOTER_DEFAULT\" $ACCEPT"
     printf "> "
     read -r FOOTER
@@ -212,7 +268,7 @@ line_type1
 
 while true; do
 echo ""
-    print_wrapped "09. Do you want to install Echo Test Server? (Y/N)"
+    print_wrapped "10. Do you want to install Echo Test Server? (Y/N)"
     print_wrapped "Suggested: Y $ACCEPT"
     printf "> "
     read -r INSTALL_ECHO
@@ -225,13 +281,14 @@ echo ""
 done
 print_yellow "Using: $INSTALL_ECHO"
 line_type1
+
 while true; do
 echo ""
     MIN_MODULES=1
     if [ "$INSTALL_ECHO" == "Y" ]; then
         MIN_MODULES=5
     fi
-    print_wrapped "10. How many active modules does the reflector have? ($MIN_MODULES-26)"
+    print_wrapped "11. How many active modules does the reflector have? ($MIN_MODULES-26)"
     print_wrapped "Suggested: 5 $ACCEPT"
     printf "> "
     read -r MODQTD
@@ -244,9 +301,10 @@ echo ""
 done
 print_yellow "Using: $MODQTD"
 line_type1
+
 while true; do
 echo ""
-    print_wrapped "11. What is the YSF UDP port number? (1-65535)"
+    print_wrapped "12. What is the YSF UDP port number? (1-65535)"
     print_wrapped "Suggested: 42000 $ACCEPT"
     printf "> "
     read -r YSFPORT
@@ -259,9 +317,10 @@ echo ""
 done
 print_yellow "Using: $YSFPORT"
 line_type1
+
 while true; do
 echo ""
-    print_wrapped "12. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000)"
+    print_wrapped "13. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000)"
     print_wrapped "Suggested: 433125000 $ACCEPT"
     printf "> "
     read -r YSFFREQ
@@ -274,9 +333,10 @@ echo ""
 done
 print_yellow "Using: $YSFFREQ"
 line_type1
+
 while true; do
 echo ""
-    print_wrapped "13. Is YSF auto-link enable? (1 = Yes / 0 = No)"
+    print_wrapped "14. Is YSF auto-link enable? (1 = Yes / 0 = No)"
     print_wrapped "Suggested: 1 $ACCEPT"
     printf "> "
     read -r AUTOLINK
@@ -289,12 +349,13 @@ echo ""
 done
 print_yellow "Using: $AUTOLINK"
 line_type1
+
 VALID_MODULES=($(echo {A..Z} | cut -d' ' -f1-"$MODQTD"))
 MODLIST=$(echo {A..Z} | tr -d ' ' | head -c "$MODQTD")
 if [ "$AUTOLINK" -eq 1 ]; then
 while true; do
     echo ""
-        print_wrapped "14. What module to be auto-link? (one of ${VALID_MODULES[*]})"
+        print_wrapped "15. What module to be auto-link? (one of ${VALID_MODULES[*]})"
         print_wrapped "Suggested: C $ACCEPT"
         printf "> "
         read -r MODAUTO
@@ -309,6 +370,7 @@ while true; do
     print_yellow "Using: $MODAUTO"
     line_type1
 fi
+
 # Data verification
 echo ""
 print_blueb "PLEASE REVIEW YOUR SETTINGS:"
@@ -318,6 +380,7 @@ print_wrapped "FQDN: $XLXDOMAIN"
 print_wrapped "E-mail: $EMAIL"
 print_wrapped "Callsign: $CALLSIGN"
 print_wrapped "Country: $COUNTRY"
+print_wrapped "Time Zome: $TIMEZONE"
 print_wrapped "Comment: $COMMENT"
 print_wrapped "Page guide custom text: $HEADER"
 print_wrapped "Dashboard footnote: $FOOTER"
@@ -515,6 +578,7 @@ sed -i "s|netact|$NETACT|g" "$XLXCONFIG"
 cp "$DIRDIR/templates/apache.tbd.conf" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 sed -i "s|apache.tbd|$XLXDOMAIN|g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 sed -i "s#ysf-xlxd#html/xlxd#g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
+sed -i "s|^;\?date\.timezone\s*=.*|date.timezone = \"Etc/$TIMEZONE\"|" /etc/php/"$PHPVER"/apache2/php.ini
 APACHE_USER=$(ps aux | grep -E '[a]pache|[h]ttpd' | grep -v root | head -1 | awk '{print $1}')
 if [ -z "$APACHE_USER" ]; then
     APACHE_USER="www-data"
