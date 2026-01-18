@@ -1,3 +1,5 @@
+[![CI](https://github.com/DON-KD2QQV/XLX_Installer/actions/workflows/xlx.yml/badge.svg)](https://github.com/DON-KD2QQV/XLX_Installer/actions/workflows/xlx.yml)
+
 # XLX Debian Installer
 
 This project, developed by Daniel K. ([PU5KOD](https://www.qrz.com/db/PU5KOD)), builds upon the original work by [N5AMD](https://github.com/n5amd/xlxd-debian-installer) to simplify the installation of the XLX reflector, created by [LX3JL](https://github.com/LX3JL/xlxd). The script automates the setup of an XLX reflector and its accompanying dashboard, requiring minimal user intervention. It prompts for essential configuration details and handles the installation process, resulting in a fully operational multi-mode reflector supporting D-Star, C4FM, and DMR protocols. Additionally, it offers an optional Echo Test (Parrot) service, linked by default to Module E, for audio testing.
