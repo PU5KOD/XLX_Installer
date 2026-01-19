@@ -4,7 +4,7 @@
 # Criado para reverter a instalação do XLX Multiprotocol Ham Radio Reflector
 
 # Redirect all output to the log and keep it in the terminal
-LOGFILE="$PWD/log_xlx_uninstall_$(date +%F_%H-%M-%S).log"
+LOGFILE="$PWD/log/log_xlx_uninstall_$(date +%F_%H-%M-%S).log"
 exec > >(tee -a "$LOGFILE") 2>&1
 
 # Root user check
