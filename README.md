@@ -24,12 +24,11 @@ To identify available XLX suffixes, visit the active reflector dashboard [here](
 
    ```sh
    sudo apt update
-   sudo apt full-upgrade
+   sudo apt full-upgrade -y
    sudo apt install git
    cd /usr/src/
    sudo git clone https://github.com/PU5KOD/XLX_Installer.git
-   cd XLX_Installer/
-   sudo chmod +x *
+   cd XLX_Installer/ && sudo chmod +x *
    sudo ./installer.sh
    ```
 
