@@ -33,23 +33,24 @@ To identify available XLX suffixes, visit the active reflector dashboard [here](
    sudo ./installer.sh
    ```
 
-3. **Configuration Prompts**: The installer will request the following information. Respond as prompted, pressing "ENTER" to accept defaults where applicable:
-   - 3-digit XLX reflector suffix (e.g., 300, US1, BRA).
-   - Dashboard FQDN (e.g., xlx.domain.com).
-   - Sysop email address.
-   - Sysop callsign.
-   - Reflector country.
-   - Local Time Zone. (*) Check important information below!
-   - Comment for the XLX Reflectors list.
-   - Custom header text for the dashboard webpage.
-   - Install Echo Test Server? (Y/N).
-   - Number of active modules (1–26).
-   - YSF UDP port number (1–65535).
-   - YSF Wires-X frequency (in Hertz, e.g., 433125000).
-   - Enable YSF auto-link? (1 = Yes / 0 = No).
+3. **Configuration Prompts**: The installer will request the following information. Respond as prompted, or press "ENTER" to accept defaults where applicable:
+   - 3-digit XLX reflector (e.g., 300, US1, BRA);
+   - Dashboard FQDN (e.g., xlx.domain.com);
+   - Sysop email address;
+   - Sysop callsign;
+   - Reflector country;
+   - Local Time Zone; (*) Check important information below!
+   - Comment for the XLX Reflectors list;
+   - Custom page guide name of the dashboard;
+   - Custom text on footer of the dashboard;
+   - Install Echo Test Server? (Y/N);
+   - Number of active modules (1–26);
+   - YSF UDP port number (1–65535);
+   - YSF Wires-X frequency (in Hertz, e.g., 433125000);
+   - Enable YSF auto-link? (1 = Yes / 0 = No);
    - Auto-link module (if auto-link is enabled).
 
-   (*)Important information: For Linux systems the **GMT SIGNAL IS INVERTED**, e.g., for UTC -5hs (US EST: New York, Miami, etc.), set GMT+5. The logic is reversed, but there's a little trick; just do it this way: From my location, how many hours does it take to reach GMT=0? This simplifies the logic a bit.
+   (*)Important information: For Linux systems the **GMT SIGNAL IS INVERTED**, e.g., for UTC -5hs (US EST: New York, Miami, etc.), set GMT+5. The logic is reversed, but there's a little trick, just do it this way: From my location, how many hours does it take to reach GMT=0? This simplifies the logic a bit.
 
 4. **Completion**: The installation will proceed automatically, and upon completion, the reflector will be operational and ready to accept connections. Adjust the firewall as described below to ensure proper functionality.
 
