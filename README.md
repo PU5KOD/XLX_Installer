@@ -39,6 +39,7 @@ To identify available XLX suffixes, visit the active reflector dashboard [here](
    - Sysop email address.
    - Sysop callsign.
    - Reflector country.
+   - Local Time Zone. (*) Check important information below!
    - Comment for the XLX Reflectors list.
    - Custom header text for the dashboard webpage.
    - Install Echo Test Server? (Y/N).
@@ -48,17 +49,11 @@ To identify available XLX suffixes, visit the active reflector dashboard [here](
    - Enable YSF auto-link? (1 = Yes / 0 = No).
    - Auto-link module (if auto-link is enabled).
 
+   (*)Important information: For Linux systems the **GMT SIGNAL IS INVERTED**, e.g., for UTC -5hs (US EST: New York, Miami, etc.), set GMT+5. The logic is reversed, but there's a little trick; just do it this way: From my location, how many hours does it take to reach GMT=0? This simplifies the logic a bit.
+
 4. **Completion**: The installation will proceed automatically, and upon completion, the reflector will be operational and ready to accept connections. Adjust the firewall as described below to ensure proper functionality.
 
-5. **Dashboard Adjustment**: Until I implement the following integration with the installer, a small adjustment is still needed for the animation indicating activity in the reflector to be displayed correctly, the procedure is as follows. Adjust the commands below to the correct time zone, e.g., GMT-1, GMT0, GMT+5, etc, just remember that for Linux systems the **GMT SIGNAL IS INVERTED**, e.g., for UTC -5hs (US EST - New York, Miami, etc.), set GMT+5.
-   
-   ```sh
-   sudo timedatectl set-timezone Etc/GMT+5
-   sudo sed -i 's/^;\?date\.timezone\s*=.*/date.timezone = "Etc\/GMT+5"/' /etc/php/8.4/apache2/php.ini
-   sudo systemctl reload apache2.service
-   ```
-
-6. **Optional Steps**:
+5. **Optional Steps**:
    - To list your reflector on YSF hosts, visit [dvref.com](https://dvref.com) and follow the registration instructions.
    - The installation script includes an option to automatically set up SSL certification for the dashboard using Certbot. If you prefer to manually install SSL, visit the [Certbot website](https://certbot.eff.org) for simple and quick instructions. Ensure TCP ports 80 and 443 are properly opened and forwarded in your firewall before proceeding.
 
