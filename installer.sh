@@ -105,35 +105,31 @@ echo ""
 
 while true; do
     print_redb "Mandatory"
-    print_wrapped "01. What are the 3 digits of the XLX reflector that will be used? (e.g., 300, US1, BRA)"
+    print_wrapped "01. XLX Reflector ID, 3 alphanumeric characters. (e.g., 300, US1, BRA)"
     printf "> "
     read -r XRFDIGIT
-    if [ -z "$XRFDIGIT" ]; then
-        print_red "Error: This field is mandatory and cannot be empty. Try again!"
-    else
-        XRFDIGIT=$(echo "$XRFDIGIT" | tr '[:lower:]' '[:upper:]')
-        if [[ "$XRFDIGIT" =~ ^[A-Z0-9]{3}$ ]]; then
-            break
-        else
-            print_red "Error: Must be exactly 3 alphanumeric characters (e.g., 032, USA, BRA). Try again!"
-        fi
+    XRFDIGIT=$(echo "$XRFDIGIT" | tr '[:lower:]' '[:upper:]')
+    if [[ "$XRFDIGIT" =~ ^[A-Z0-9]{3}$ ]]; then
+        break
     fi
+    print_red "Invalid ID. Must be exactly 3 characters (A–Z and/or 0–9). Try again!"
 done
-XRFNUM=XLX$XRFDIGIT
-print_yellow "Using: $XRFNUM"
+
+XRFNUM="XLX$XRFDIGIT"
+print_yellow "Using reflector ID: $XRFNUM"
 line_type1
 
 while true; do
 echo ""
     print_redb "Mandatory"
-    print_wrapped "02. What is the web address (FQDN) of the reflector dashboard? e.g., xlx.domain.com"
+    print_wrapped "02. Dashboard FQDN (fully qualified domain name). (e.g., xlx.domain.com)"
     printf "> "
     read -r XLXDOMAIN
-    if [ -z "$XLXDOMAIN" ]; then
-        print_red "Error: This field is mandatory and cannot be empty. Try again!"
-    else
+    XLXDOMAIN=$(echo "$XLXDOMAIN" | tr '[:upper:]' '[:lower:]')
+    if [[ "$XLXDOMAIN" =~ ^([a-z0-9-]+\.)+[a-z]{2,}$ ]]; then
         break
     fi
+        print_red "Invalid domain. Must be a valid FQDN (e.g., xlx.example.com)."
 done
 print_yellow "Using: $XLXDOMAIN"
 line_type1
@@ -141,14 +137,14 @@ line_type1
 while true; do
 echo ""
     print_redb "Mandatory"
-    print_wrapped "03. What is the sysop e-mail address?"
+    print_wrapped "03. Sysop e-mail address"
     printf "> "
     read -r EMAIL
-    if [ -z "$EMAIL" ]; then
-        print_red "Error: This field is mandatory and cannot be empty. Try again!"
-    else
+    EMAIL=$(echo "$EMAIL" | tr '[:upper:]' '[:lower:]')
+    if [[ "$EMAIL" =~ ^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$ ]]; then
         break
     fi
+    print_red "Invalid email format. (e.g., user@doamain.com)."
 done
 print_yellow "Using: $EMAIL"
 line_type1
@@ -156,15 +152,14 @@ line_type1
 while true; do
 echo ""
     print_redb "Mandatory"
-    print_wrapped "04. What is the sysop callsign?"
+    print_wrapped "04. Sysop callsign. Only letters and numbers allowed. Max 8 characters."
     printf "> "
     read -r CALLSIGN
-    if [ -z "$CALLSIGN" ]; then
-        print_red "Error: This field is mandatory and cannot be empty. Try again!"
-    else
-        CALLSIGN=$(echo "$CALLSIGN" | tr '[:lower:]' '[:upper:]')
+    CALLSIGN=$(echo "$CALLSIGN" | tr '[:lower:]' '[:upper:]')
+    if [[ "$CALLSIGN" =~ ^[A-Z0-9]{3,8}$ ]]; then
         break
     fi
+    print_red "Invalid callsign. Use only letters and numbers (Min 3, max 8 characters)."
 done
 print_yellow "Using: $CALLSIGN"
 line_type1
@@ -184,42 +179,147 @@ done
 print_yellow "Using: $COUNTRY"
 line_type1
 
-# Lista de time zones válidos
-VALID_TIMEZONES=("GMT" "GMT-0" "GMT+0" "GMT+1" "GMT+2" "GMT+3" "GMT+4" "GMT+5" "GMT+6" "GMT+7" "GMT+8" "GMT+9" "GMT+10" "GMT+11" "GMT+12" "GMT-1" "GMT-2" "GMT-3" "GMT-4" "GMT-5" "GMT-6" "GMT-7" "GMT-8" "GMT-9" "GMT-10" "GMT-11" "GMT-12" "GMT-13" "GMT-14")
+# Resolve timezone from user input, checking only real system timezones
+resolve_timezone() {
+    local input="$1"
+    local input_upper input_lower match
 
-while true; do
+    input_upper=$(echo "$input" | tr '[:lower:]' '[:upper:]')
+    input_lower=$(echo "$input" | tr '[:upper:]' '[:lower:]')
+
+    # 1) Case-insensitive match against the official system list
+    match=$(timedatectl list-timezones | grep -iFx "$input" 2>/dev/null || true)
+    [[ -n "$match" ]] && { echo "$match"; return 0; }
+
+    match=$(timedatectl list-timezones | grep -iFx "$input_upper" 2>/dev/null || true)
+    [[ -n "$match" ]] && { echo "$match"; return 0; }
+
+    match=$(timedatectl list-timezones | grep -iFx "$input_lower" 2>/dev/null || true)
+    [[ -n "$match" ]] && { echo "$match"; return 0; }
+
+    # 2) GMT±X – validate only if it exists in tzdata
+    if [[ "$input_upper" =~ ^GMT([+-]?)([0-9]{1,2})$ ]]; then
+        local sign="${BASH_REMATCH[1]}"
+        local num="${BASH_REMATCH[2]}"
+        local candidate
+
+        # POSIX inverted GMT logic — do NOT modify
+        if [[ "$sign" == "-" ]]; then
+            candidate="Etc/GMT+${num}"
+        elif [[ "$sign" == "+" ]]; then
+            candidate="Etc/GMT-${num}"
+        else
+            candidate="Etc/GMT"
+        fi
+
+        if [[ -f "/usr/share/zoneinfo/$candidate" ]]; then
+            echo "$candidate"
+            return 0
+        fi
+    fi
+    echo ""
+    return 1
+}
+
+# Detect current server timezone
+AUTO_TZ=$(timedatectl show --property=Timezone --value 2>/dev/null)
+
+OFFSET=$(date +%z)
+SIGN=${OFFSET:0:1}
+HH=${OFFSET:1:2}
+MM=${OFFSET:3:2}
+FRIENDLY_OFFSET="UTC${SIGN}${HH}:${MM}"
     echo ""
     print_redb "Mandatory"
-    print_wrapped "06. What is the local time zone? Select from: GMT, GMT-0 to GMT-14, GMT+0 to GMT+12."
-    print_green "N.B.: Remember that for Linux systems the GMT SIGNAL IS INVERTED, e.g., for UTC -5hs (US EST - New York, Miami, etc.), set GMT+5.)"
+if [[ -n "$AUTO_TZ" ]]; then
+    print_wrapped "06. What is the local timezone? Detected: $AUTO_TZ ($FRIENDLY_OFFSET)"
+    print_wrapped "Press ENTER to keep it or type another timezone."
+else
+    print_wrapped "06. What is the server timezone? (e.g., America/Sao_Paulo, UTC, GMT-3)"
+fi
+
+# Interactive timezone selection
+while true; do
     printf "> "
-    read -r TIMEZONE
+    read -r USER_TZ
 
-    # Converte o input para maiúsculas para tolerar digitação em minúsculas
-    TIMEZONE=$(echo "$TIMEZONE" | tr '[:lower:]' '[:upper:]')
+    # CASE 1 — USER PRESSED ENTER (KEEP DETECTED TIMEZONE)
+    if [[ -z "$USER_TZ" && -n "$AUTO_TZ" ]]; then
+        TIMEZONE="$AUTO_TZ"
+        TIMEZONE_USE_SYSTEM=1
 
-    # Verifica se está vazio
-    if [ -z "$TIMEZONE" ]; then
-        print_red "Error: This field is mandatory and cannot be empty. Try again!"
+        # Resolve tzdata link
+        ZONEFILE=$(readlink -f "/usr/share/zoneinfo/$TIMEZONE")
+        REAL_OFFSET=$(TZ="$ZONEFILE" date +%z)
+
+        # Prepare display offset
+        SIGN=${REAL_OFFSET:0:1}
+        HH=${REAL_OFFSET:1:2}
+        MM=${REAL_OFFSET:3:2}
+
+        # If UTC+00:00 → hide offset
+        if [[ "$REAL_OFFSET" == "+0000" ]]; then
+            FINAL_DISPLAY="$TIMEZONE"
+        else
+            FINAL_DISPLAY="$TIMEZONE (UTC${SIGN}${HH}:${MM})"
+        fi
+
+        # No confirmation needed
+        break
+    fi
+
+    # CASE 2 — USER ENTERED A CUSTOM TIMEZONE
+    TZ_RESOLVED=$(resolve_timezone "$USER_TZ")
+
+    if [[ -z "$TZ_RESOLVED" ]]; then
+        print_redb "Invalid timezone. Please try again."
         continue
     fi
 
-    # Verifica se está na lista de time zones válidos
-    valid_timezone=false
-    for valid_tz in "${VALID_TIMEZONES[@]}"; do
-        if [ "$TIMEZONE" = "$valid_tz" ]; then
-            valid_timezone=true
-            break
-        fi
-    done
+    TIMEZONE="$TZ_RESOLVED"
+    TIMEZONE_USE_SYSTEM=0
 
-    if [ "$valid_timezone" = false ]; then
-        print_red "Error: Invalid time zone. Please select from: GMT, GMT-0 to GMT-14, GMT+0 to GMT+12. Try again!"
+    # Resolve tzdata link
+    ZONEFILE=$(readlink -f "/usr/share/zoneinfo/$TIMEZONE")
+    REAL_OFFSET=$(TZ="$ZONEFILE" date +%z)
+
+    # Prepare offset
+    SIGN=${REAL_OFFSET:0:1}
+    HH=${REAL_OFFSET:1:2}
+    MM=${REAL_OFFSET:3:2}
+    DISPLAY_OFFSET="UTC${SIGN}${HH}:${MM}"
+
+    # If UTC+00:00 → hide offset
+    if [[ "$REAL_OFFSET" == "+0000" ]]; then
+        FINAL_DISPLAY="$TIMEZONE"
     else
+        FINAL_DISPLAY="$TIMEZONE ($DISPLAY_OFFSET)"
+    fi
+
+    # Confirmation prompt (ONLY for custom TZ)
+    print_yellow "Selected timezone: $FINAL_DISPLAY"
+
+    # Inverted GMT warning
+    if [[ "$TIMEZONE" =~ ^Etc/GMT ]]; then
+        print_wrapped "IMPORTANT: Linux POSIX GMT zones use inverted sign notation."
+        print_wrapped "In your case, $TIMEZONE (inverted) corresponds to $DISPLAY_OFFSET (real)."
+    fi
+
+    print_yellow "Confirm this timezone? (Y/N, ENTER = Y)"
+    printf "> "
+    read -r CONFIRM_TZ
+    CONFIRM_TZ=$(echo "$CONFIRM_TZ" | tr '[:lower:]' '[:upper:]')
+
+    # Default = Y
+    if [[ -z "$CONFIRM_TZ" || "$CONFIRM_TZ" == "Y" ]]; then
         break
     fi
+
+    print_redb "Please inform your timezone or press ENTER to accept detected."
 done
-print_yellow "Using: $TIMEZONE"
+
+# Final output
+print_yellow "Using: $FINAL_DISPLAY"
 line_type1
 
 while true; do
@@ -240,8 +340,8 @@ print_yellow "Using: $COMMENT"
 line_type1
 
 echo ""
-    HEADER_DEFAULT="$XRFNUM $COUNTRY Multiprotocol Reflector, Provided by $CALLSIGN"
-    print_wrapped "08. Custom page guide name of the dashboard webpage."
+    HEADER_DEFAULT="$XRFNUM Multiprotocol Reflector, Provided by $CALLSIGN"
+    print_wrapped "08. Custom tab page name of the dashboard webpage."
     print_wrapped "Suggested: \"$HEADER_DEFAULT\" $ACCEPT"
     printf "> "
     read -r HEADER
@@ -268,7 +368,24 @@ line_type1
 
 while true; do
 echo ""
-    print_wrapped "10. Do you want to install Echo Test Server? (Y/N)"
+    print_wrapped "10. Do you want to make an SSL certification for the dashboard? (Y/N)"
+    print_wrapped "Suggested: Y $ACCEPT"
+    printf "> "
+    read -r INSTALL_SSL
+    INSTALL_SSL=$(echo "${INSTALL_SSL:-Y}" | tr '[:lower:]' '[:upper:]')
+    if [[ "$INSTALL_SSL" == "Y" || "$INSTALL_SSL" == "N" ]]; then
+        break
+    else
+        print_red "Please enter 'Y' or 'N'."
+    fi
+done
+
+print_yellow "Using: $INSTALL_SSL"
+line_type1
+
+while true; do
+echo ""
+    print_wrapped "11. Do you want to install Echo Test Server? (Y/N)"
     print_wrapped "Suggested: Y $ACCEPT"
     printf "> "
     read -r INSTALL_ECHO
@@ -288,7 +405,7 @@ echo ""
     if [ "$INSTALL_ECHO" == "Y" ]; then
         MIN_MODULES=5
     fi
-    print_wrapped "11. How many active modules does the reflector have? ($MIN_MODULES-26)"
+    print_wrapped "12. How many active modules does the reflector have? ($MIN_MODULES-26)"
     print_wrapped "Suggested: 5 $ACCEPT"
     printf "> "
     read -r MODQTD
@@ -304,7 +421,7 @@ line_type1
 
 while true; do
 echo ""
-    print_wrapped "12. What is the YSF UDP port number? (1-65535)"
+    print_wrapped "13. What is the YSF UDP port number? (1-65535)"
     print_wrapped "Suggested: 42000 $ACCEPT"
     printf "> "
     read -r YSFPORT
@@ -320,7 +437,7 @@ line_type1
 
 while true; do
 echo ""
-    print_wrapped "13. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000)"
+    print_wrapped "14. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000)"
     print_wrapped "Suggested: 433125000 $ACCEPT"
     printf "> "
     read -r YSFFREQ
@@ -336,37 +453,94 @@ line_type1
 
 while true; do
 echo ""
-    print_wrapped "14. Is YSF auto-link enable? (1 = Yes / 0 = No)"
-    print_wrapped "Suggested: 1 $ACCEPT"
+    print_wrapped "15. Is YSF auto-link enabled? (Y/N)"
+    print_wrapped "Suggested: Y $ACCEPT"
     printf "> "
-    read -r AUTOLINK
-    AUTOLINK=${AUTOLINK:-1}
-    if [[ "$AUTOLINK" =~ ^[0-1]$ ]]; then
+    read -r AUTOLINK_USER
+    AUTOLINK_USER=$(echo "${AUTOLINK_USER:-Y}" | tr '[:lower:]' '[:upper:]')
+
+    if [[ "$AUTOLINK_USER" == "Y" || "$AUTOLINK_USER" == "N" ]]; then
         break
     else
-        print_red "Error: Must be either 1 (Yes) or 0 (No). Try again!"
+        print_red "Please enter 'Y' or 'N'."
     fi
 done
-print_yellow "Using: $AUTOLINK"
+
+# Conversion (Y/N → 1/0)
+if [ "$AUTOLINK_USER" == "Y" ]; then
+    AUTOLINK=1
+else
+    AUTOLINK=0
+fi
+
+print_yellow "Using: $AUTOLINK_USER"
 line_type1
 
-VALID_MODULES=($(echo {A..Z} | cut -d' ' -f1-"$MODQTD"))
-MODLIST=$(echo {A..Z} | tr -d ' ' | head -c "$MODQTD")
-if [ "$AUTOLINK" -eq 1 ]; then
-while true; do
-    echo ""
-        print_wrapped "15. What module to be auto-link? (one of ${VALID_MODULES[*]})"
-        print_wrapped "Suggested: C $ACCEPT"
-        printf "> "
-        read -r MODAUTO
-        MODAUTO=${MODAUTO:-C}
-        MODAUTO=$(echo "$MODAUTO" | tr '[:lower:]' '[:upper:]')
-        if [[ " ${VALID_MODULES[@]} " =~ " $MODAUTO " ]]; then
-            break
-        else
-            print_red "Invalid input for YSF autolink module. Must be one of ${VALID_MODULES[*]}. Try again!"
-        fi
+echo ""
+if [[ "$AUTOLINK" -eq 1 ]]; then
+
+    # Determine available modules based on MODQTD
+    LAST_INDEX=$((MODQTD - 1))
+    LAST_LETTER=$(printf "\\$(printf '%03o' $((65 + LAST_INDEX)))")
+
+    # Build array of valid modules
+    VALID_MODULES=()
+    for ((i=0; i<MODQTD; i++)); do
+        VALID_MODULES+=("$(printf "\\$(printf '%03o' $((65 + i)))")")
     done
+
+    # Determine smart suggestion
+    if (( MODQTD >= 3 )); then
+        SUGGESTED="C"
+    elif (( MODQTD == 2 )); then
+        SUGGESTED="B"
+    else
+        SUGGESTED="A"
+    fi
+
+    # Smart display of available modules
+    if (( MODQTD <= 3 )); then
+        # Full listing, since it's short
+        print_wrapped "16. Default module for autolink (One of ${VALID_MODULES[*]})"
+    else
+        # Smart compact range
+        print_wrapped "16. Default module for autolink (Choose from A to $LAST_LETTER)"
+    fi
+
+    print_wrapped "Suggested: $SUGGESTED $ACCEPT"
+    printf "> "
+    read -r MODAUTO
+
+    # Apply default if empty
+    MODAUTO=${MODAUTO:-$SUGGESTED}
+    MODAUTO=$(echo "$MODAUTO" | tr '[:lower:]' '[:upper:]')
+
+    # Validation: must be inside VALID_MODULES
+    if [[ ! " ${VALID_MODULES[@]} " =~ " $MODAUTO " ]]; then
+    # Smart display of available modules
+        if (( MODQTD <= 3 )); then
+        # Full listing, since it's short
+        print_wrapped "Invalid module! Valid modules are: ${VALID_MODULES[*]}"
+        else
+        # Smart compact range
+        print_wrapped "Invalid module! Valid modules from A to $LAST_LETTER"
+        fi
+
+        # Repeat until valid
+        while true; do
+            printf "> "
+            read -r MODAUTO
+            MODAUTO=${MODAUTO:-$SUGGESTED}
+            MODAUTO=$(echo "$MODAUTO" | tr '[:lower:]' '[:upper:]')
+
+            if [[ " ${VALID_MODULES[@]} " =~ " $MODAUTO " ]]; then
+                break
+            fi
+
+            print_red "Invalid entry. Choose from: ${VALID_MODULES[*]}"
+        done
+    fi
+
     print_yellow "Using: $MODAUTO"
     line_type1
 fi
@@ -375,22 +549,23 @@ fi
 echo ""
 print_blueb "PLEASE REVIEW YOUR SETTINGS:"
 echo ""
-print_wrapped "Reflector ID: $XRFNUM"
-print_wrapped "FQDN: $XLXDOMAIN"
-print_wrapped "E-mail: $EMAIL"
-print_wrapped "Callsign: $CALLSIGN"
-print_wrapped "Country: $COUNTRY"
-print_wrapped "Time Zome: $TIMEZONE"
-print_wrapped "Comment: $COMMENT"
-print_wrapped "Page guide custom text: $HEADER"
-print_wrapped "Dashboard footnote: $FOOTER"
-print_wrapped "Echo Test: $INSTALL_ECHO (Yes / No)"
-print_wrapped "Modules: $MODQTD"
-print_wrapped "YSF UDP Port: $YSFPORT"
-print_wrapped "YSF frequency: $YSFFREQ"
-print_wrapped "YSF autolink: $AUTOLINK (1 = Yes / 0 = No)"
+print_wrapped "01. Reflector ID: $XRFNUM"
+print_wrapped "02. FQDN: $XLXDOMAIN"
+print_wrapped "03. E-mail: $EMAIL"
+print_wrapped "04. Callsign: $CALLSIGN"
+print_wrapped "05. Country: $COUNTRY"
+print_wrapped "06. Time Zome: $TIMEZONE"
+print_wrapped "07. Comment in list: $COMMENT"
+print_wrapped "08. Tab page text: $HEADER"
+print_wrapped "09. Dashboard footnote: $FOOTER"
+print_wrapped "10. SSL certification: $INSTALL_SSL (Y/N)"
+print_wrapped "11. Echo Test: $INSTALL_ECHO (Y/N)"
+print_wrapped "12. Modules: $MODQTD"
+print_wrapped "13. YSF UDP Port: $YSFPORT"
+print_wrapped "14. YSF frequency: $YSFFREQ"
+print_wrapped "15. YSF autolink: $AUTOLINK_USER (Y/N)"
 if [ "$AUTOLINK" -eq 1 ]; then
-        print_wrapped "YSF module: $MODAUTO"
+        print_wrapped "16. YSF module: $MODAUTO"
 fi
 echo ""
 while true; do
@@ -419,7 +594,13 @@ if [ $? -ne 0 ]; then
     center_wrap_color $RED "Error: Failed to update package lists. Check your internet connection or package manager configuration."
     exit 1
 fi
-timedatectl set-timezone Etc/"$TIMEZONE"
+#  Apply timezone only if it's NOT the system timezone.
+if [[ "$TIMEZONE_USE_SYSTEM" -eq 0 ]]; then
+    print_yellow "Applying new timezone: $TIMEZONE"
+    timedatectl set-timezone "$TIMEZONE"
+else
+    print_wrapped "Detected system timezone preserved: $TIMEZONE"
+fi
 echo ""
 print_blueb "INSTALLING DEPENDENCIES..."
 print_blue "=========================="
@@ -579,7 +760,7 @@ sed -i "s|netact|$NETACT|g" "$XLXCONFIG"
 cp "$DIRDIR/templates/apache.tbd.conf" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 sed -i "s|apache.tbd|$XLXDOMAIN|g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 sed -i "s#ysf-xlxd#html/xlxd#g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
-sed -i "s|^;\?date\.timezone\s*=.*|date.timezone = \"Etc/$TIMEZONE\"|" /etc/php/"$PHPVER"/apache2/php.ini
+sed -i "s|^;\?date\.timezone\s*=.*|date.timezone = \"$TIMEZONE\"|" /etc/php/"$PHPVER"/apache2/php.ini
 APACHE_USER=$(ps aux | grep -E '[a]pache|[h]ttpd' | grep -v root | head -1 | awk '{print $1}')
 if [ -z "$APACHE_USER" ]; then
     APACHE_USER="www-data"
@@ -600,9 +781,19 @@ systemctl stop apache2 >/dev/null 2>&1
 systemctl start apache2 >/dev/null 2>&1
 systemctl daemon-reload
 echo -e "\n${GREEN}✔ Dashboard successfully installed!${NC}"
+
+# SSL certification install
+if [ "$INSTALL_SSL" == "Y" ]; then
+    echo ""
+    print_blueb "CONFIGURING SSL CERTIFICATE..."
+    print_blue "=============================="
+    echo ""
+    certbot --apache -d "$XLXDOMAIN" -n --agree-tos -m "$EMAIL"
+fi
+
 echo ""
 print_blueb "STARTING $XRFNUM REFLECTOR..."
-print_blue "============================"
+print_blue "============================="
 echo ""
 systemctl enable --now xlxd.service >/dev/null 2>&1 &
 pid=$!
@@ -639,27 +830,9 @@ center_wrap_color $GREEN "|  REFLECTOR INSTALLED SUCCESSFULLY!!!  |"
 center_wrap_color $GREEN "========================================="
 echo ""
 echo ""
-line_type1
+line_type2
 echo ""
 center_wrap_color $GREEN_BRIGHT "Your Reflector $XRFNUM is now installed and running!"
-center_wrap_color $GREEN_BRIGHT "If you want to install the ssl certificate for your website, then you have the opportunity to do it now, but if you want to perform this process later, just decline and the process will be complete."
-echo ""
-while true; do
-    center_wrap_color $YELLOW "Would you like to install Certbot for HTTPS? (YES/NO)"
-    printf "> "
-    read -r HTTPS_CONFIRM
-    HTTPS_CONFIRM=$(echo "$HTTPS_CONFIRM" | tr '[:lower:]' '[:upper:]')
-    if [[ "$HTTPS_CONFIRM" == "YES" || "$HTTPS_CONFIRM" == "NO" ]]; then
-        break
-    else
-        center_wrap_color $RED_BRIGHT "Please enter 'YES' or 'NO'."
-    fi
-done
-if [ "$HTTPS_CONFIRM" == "YES" ]; then
-    certbot --apache -d "$XLXDOMAIN"
-fi
-echo ""
-line_type2
 echo ""
 center_wrap_color $GREEN_BRIGHT "For Public Reflectors:"
 echo ""
@@ -667,6 +840,5 @@ center_wrap_color $GREEN_BRIGHT "• If your XLX number is available it's expect
 center_wrap_color $GREEN_BRIGHT "• Many other settings can be changed in this file."
 center_wrap_color $GREEN_BRIGHT "• More Information about XLX Reflectors check $INFREF"
 center_wrap_color $GREEN_BRIGHT "• Your $XRFNUM dashboard should now be accessible at http://$XLXDOMAIN"
-center_wrap_color $GREEN_BRIGHT "• For more details about ssl certification visit certbot.eff.org"
 echo ""
 line_type2
