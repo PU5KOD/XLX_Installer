@@ -159,7 +159,7 @@ while true; do
 done
 
 XRFNUM="XLX$XRFDIGIT"
-print_yellow "Using reflector ID: $XRFNUM"
+print_yellow "Using: $XRFNUM"
 line_type1
 
 while true; do
