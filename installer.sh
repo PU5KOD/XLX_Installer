@@ -7,27 +7,47 @@
 # Redirect all output to the log and keep it in the terminal
 LOGFILE="$PWD/log/log_xlx_install_$(date +%F_%H-%M-%S).log"
 exec > >(tee -a "$LOGFILE") 2>&1
-# root user check
-if [ "$(whoami)" != "root" ]; then
-    echo "You must be root to run this script!"
-    exit 1
+
+#######################################################
+#  INITIAL CHECKS
+#######################################################
+
+# 1. root user check with automatic relaunch.
+if [ "$(id -u)" -ne 0 ]; then
+    echo "This script is not being run as root."
+    read -r -p "Do you want to relaunch with sudo? (y/n)" answer
+
+    case "$answer" in
+        y|Y|yes|YES)
+            echo "Relaunching with sudo..."
+            exec sudo "$0" "$@"
+            ;;
+        *)
+            echo "Operation cancelled."
+            exit 1
+            ;;
+    esac
 fi
-# Internet check
+
+# 2. Internet check.
 if ! ping -c 1 google.com &>/dev/null; then
-    echo "No internet connection. Please check your network."
+    echo "Unable to proceed, no internet connection detected. Please check your network."
     exit 1
 fi
-# Distro check
+
+# 3. Distro check.
 if [ ! -e "/etc/debian_version" ]; then
     echo "This script has only been tested on Debian-based distributions."
     read -p "Do you want to continue anyway? (Y/N) " answer
     [[ "$answer" =~ ^[yY](es)?$ ]] || { echo "Execution cancelled."; exit 1; }
 fi
-# Set the fixed character limit
+
+# 4. Set the fixed character limit
 MAX_WIDTH=100
 cols=$(tput cols 2>/dev/null || echo "$MAX_WIDTH")
 width=$(( cols < MAX_WIDTH ? cols : MAX_WIDTH ))
-# Function to create different types of lines adjusted to length
+
+# 5. Function to create different types of lines adjusted to length
 line_type1() {
     printf "%${width}s\n" | tr ' ' '_'
 }
@@ -37,10 +57,13 @@ line_type2() {
 line_type3() {
     printf "%${width}s\n" | tr ' ' ':'
 }
-# Function to display text with adjusted line breaks
+
+# 6. Function to display text with adjusted line breaks
 print_wrapped() {
     echo "$1" | fold -s -w "$width"
 }
+
+# 7. Parameter definition
 DIRDIR=$(pwd)
 LOCAL_IP=$(hostname -I | awk '{print $1}')
 PUBLIC_IP=$(curl v4.ident.me)
@@ -56,6 +79,8 @@ XLXINSTDIR="/usr/src"
 XLXDIR="/xlxd"
 ACCEPT="| [ENTER] to accept..."
 APPS="git git-core make gcc g++ pv sqlite3 apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl php-sqlite3 build-essential vnstat certbot python3-certbot-apache"
+
+# 8. Colors
 RED='\033[0;31m'
 RED_BRIGHT='\033[1;31m'
 GREEN='\033[0;32m'
@@ -64,7 +89,8 @@ BLUE='\033[0;34m'
 BLUE_BRIGHT='\033[1;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
-# Functions to display text with adjusted line breaks and colors
+
+# 9. Functions to display text with adjusted line breaks and colors
 print_red() { echo -e "${RED}$(echo "$1" | fold -s -w "$width")${NC}"; }
 print_redb() { echo -e "${RED_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"; }
 print_green() { echo -e "${GREEN}$(echo "$1" | fold -s -w "$width")${NC}"; }
@@ -84,7 +110,7 @@ center_wrap_color() {
     done
 }
 
-# Check for existing installs
+# 10. Check for existing installs
 if [ -e "$XLXDIR/xlxd" ]; then
     echo ""
     line_type2
@@ -96,7 +122,7 @@ if [ -e "$XLXDIR/xlxd" ]; then
     exit 1
 else
 
-# Start of data collection.
+# 11. Start of data collection.
 clear
 line_type3
 echo ""
@@ -566,29 +592,31 @@ fi
 echo ""
 print_blueb "PLEASE REVIEW YOUR SETTINGS:"
 echo ""
-print_wrapped "01. Reflector ID: $XRFNUM"
-print_wrapped "02. FQDN: $XLXDOMAIN"
-print_wrapped "03. E-mail: $EMAIL"
-print_wrapped "04. Callsign: $CALLSIGN"
-print_wrapped "05. Country: $COUNTRY"
-print_wrapped "06. Time Zome: $TIMEZONE"
-print_wrapped "07. XLX list comment: $COMMENT"
-print_wrapped "08. Tab page text: $HEADER"
-print_wrapped "09. Dashboard footnote: $FOOTER"
-print_wrapped "10. SSL certification: $INSTALL_SSL (Y/N)"
-print_wrapped "11. Echo Test: $INSTALL_ECHO (Y/N)"
-print_wrapped "12. Modules: $MODQTD"
-print_wrapped "13. YSF UDP Port: $YSFPORT"
-print_wrapped "14. YSF frequency: $YSFFREQ"
-print_wrapped "15. YSF Auto-link: $AUTOLINK_USER (Y/N)"
+print_wrapped "01. Reflector ID:	$XRFNUM"
+print_wrapped "02. FQDN:		$XLXDOMAIN"
+print_wrapped "03. E-mail:		$EMAIL"
+print_wrapped "04. Callsign:		$CALLSIGN"
+print_wrapped "05. Country:		$COUNTRY"
+print_wrapped "06. Time Zome:		$TIMEZONE"
+print_wrapped "07. XLX list comment:	$COMMENT"
+print_wrapped "08. Tab page text:	$HEADER"
+print_wrapped "09. Dashboard footnote:	$FOOTER"
+print_wrapped "10. SSL certification:	$INSTALL_SSL (Y/N)"
+print_wrapped "11. Echo Test:		$INSTALL_ECHO (Y/N)"
+print_wrapped "12. Modules:		$MODQTD"
+print_wrapped "13. YSF UDP Port:	$YSFPORT"
+print_wrapped "14. YSF frequency:	$YSFFREQ"
+print_wrapped "15. YSF Auto-link:	$AUTOLINK_USER (Y/N)"
 if [ "$AUTOLINK" -eq 1 ]; then
-        print_wrapped "16. YSF module: $MODAUTO"
+print_wrapped "16. YSF module:		$MODAUTO"
 fi
 echo ""
 while true; do
     print_yellow "Are these settings correct? (YES/NO)"
     printf "> "
     read -r CONFIRM
+
+    CONFIRM=${CONFIRM:-YES}
     CONFIRM=$(echo "$CONFIRM" | tr '[:lower:]' '[:upper:]')
     if [[ "$CONFIRM" == "YES" || "$CONFIRM" == "NO" ]]; then
         break
