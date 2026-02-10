@@ -34,6 +34,9 @@ line_type1() {
 line_type2() {
     printf "%${width}s\n" | tr ' ' '='
 }
+line_type3() {
+    printf "%${width}s\n" | tr ' ' ':'
+}
 # Function to display text with adjusted line breaks
 print_wrapped() {
     echo "$1" | fold -s -w "$width"
@@ -50,6 +53,7 @@ XLXDASH="https://github.com/PU5KOD/XLX_Dark_Dashboard.git"
 DMRIDURL="http://xlxapi.rlx.lu/api/exportdmr.php"
 WEBDIR="/var/www/html/xlxd"
 XLXINSTDIR="/usr/src"
+XLXDIR="/xlxd"
 ACCEPT="| [ENTER] to accept..."
 APPS="git git-core make gcc g++ pv sqlite3 apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl php-sqlite3 build-essential vnstat certbot python3-certbot-apache"
 RED='\033[0;31m'
@@ -79,15 +83,28 @@ center_wrap_color() {
         printf "%b%*s%s%b\n" "$color" "$padding" "" "$line" "$NC"
     done
 }
+
+# Check for existing installs
+if [ -e "$XLXDIR/xlxd" ]; then
+    echo ""
+    line_type2
+    echo ""
+    center_wrap_color $RED "XLXD ALREADY INSTALLED!!! Run the 'uninstaller.sh'."
+    echo ""
+    line_type2
+    echo ""
+    exit 1
+else
+
 # Start of data collection.
 clear
-line_type1
+line_type3
 echo ""
 center_wrap_color $GREEN_BRIGHT "XLX MULTIPROTOCOL AMATEUR RADIO REFLECTOR INSTALLER PROGRAM"
 echo ""
 center_wrap_color $GREEN_BRIGHT "Next, you will be asked some questions. Answer with the requested information or, if applicable, to accept the suggested value, press [ENTER]"
 echo ""
-line_type1
+line_type3
 echo ""
 print_blueb "REFLECTOR DATA INPUT"
 print_blue "===================="
@@ -122,7 +139,7 @@ line_type1
 while true; do
 echo ""
     print_redb "Mandatory"
-    print_wrapped "02. Dashboard FQDN (fully qualified domain name). (e.g., xlx.domain.com)"
+    print_wrapped "02. Dashboard FQDN (fully qualified domain name), (e.g., xlxbra.net)"
     printf "> "
     read -r XLXDOMAIN
     XLXDOMAIN=$(echo "$XLXDOMAIN" | tr '[:upper:]' '[:lower:]')
@@ -152,14 +169,14 @@ line_type1
 while true; do
 echo ""
     print_redb "Mandatory"
-    print_wrapped "04. Sysop callsign. Only letters and numbers allowed. Max 8 characters."
+    print_wrapped "04. Sysop callsign. Only letters and numbers allowed, max 8 characters."
     printf "> "
     read -r CALLSIGN
     CALLSIGN=$(echo "$CALLSIGN" | tr '[:lower:]' '[:upper:]')
     if [[ "$CALLSIGN" =~ ^[A-Z0-9]{3,8}$ ]]; then
         break
     fi
-    print_red "Invalid callsign. Use only letters and numbers (Min 3, max 8 characters)."
+    print_red "Invalid callsign. Use only letters and numbers, 3 - 8 characters."
 done
 print_yellow "Using: $CALLSIGN"
 line_type1
@@ -167,7 +184,7 @@ line_type1
 while true; do
 echo ""
     print_redb "Mandatory"
-    print_wrapped "05. What is the country of the reflector?"
+    print_wrapped "05. Reflector country name."
     printf "> "
     read -r COUNTRY
     if [ -z "$COUNTRY" ]; then
@@ -232,10 +249,10 @@ FRIENDLY_OFFSET="UTC${SIGN}${HH}:${MM}"
     echo ""
     print_redb "Mandatory"
 if [[ -n "$AUTO_TZ" ]]; then
-    print_wrapped "06. What is the local timezone? Detected: $AUTO_TZ ($FRIENDLY_OFFSET)"
+    print_wrapped "06. Local timezone. Detected: $AUTO_TZ ($FRIENDLY_OFFSET)"
     print_wrapped "Press ENTER to keep it or type another timezone."
 else
-    print_wrapped "06. What is the server timezone? (e.g., America/Sao_Paulo, UTC, GMT-3)"
+    print_wrapped "06. What is the local timezone? (e.g., America/Sao_Paulo, UTC, GMT-3)"
 fi
 
 # Interactive timezone selection
@@ -325,7 +342,7 @@ line_type1
 while true; do
 echo ""
     COMMENT_DEFAULT="$XRFNUM Multiprotocol Reflector by $CALLSIGN, info: $EMAIL"
-    print_wrapped "07. What is the comment to be shown in the XLX Reflectors list?"
+    print_wrapped "07. Comment to XLX Reflectors list."
     print_wrapped "Suggested: \"$COMMENT_DEFAULT\" $ACCEPT"
     printf "> "
     read -r COMMENT
@@ -340,8 +357,8 @@ print_yellow "Using: $COMMENT"
 line_type1
 
 echo ""
-    HEADER_DEFAULT="$XRFNUM Multiprotocol Reflector, Provided by $CALLSIGN"
-    print_wrapped "08. Custom tab page name of the dashboard webpage."
+    HEADER_DEFAULT="$XRFNUM by $CALLSIGN"
+    print_wrapped "08. Custom text for the dashboard tab, preferably very short."
     print_wrapped "Suggested: \"$HEADER_DEFAULT\" $ACCEPT"
     printf "> "
     read -r HEADER
@@ -368,7 +385,7 @@ line_type1
 
 while true; do
 echo ""
-    print_wrapped "10. Do you want to make an SSL certification for the dashboard? (Y/N)"
+    print_wrapped "10. Create an SSL certificate (https) for the dashboard webpage? (Y/N)"
     print_wrapped "Suggested: Y $ACCEPT"
     printf "> "
     read -r INSTALL_SSL
@@ -385,7 +402,7 @@ line_type1
 
 while true; do
 echo ""
-    print_wrapped "11. Do you want to install Echo Test Server? (Y/N)"
+    print_wrapped "11. Install Echo Test on module E? (Y/N)"
     print_wrapped "Suggested: Y $ACCEPT"
     printf "> "
     read -r INSTALL_ECHO
@@ -405,7 +422,7 @@ echo ""
     if [ "$INSTALL_ECHO" == "Y" ]; then
         MIN_MODULES=5
     fi
-    print_wrapped "12. How many active modules does the reflector have? ($MIN_MODULES-26)"
+    print_wrapped "12. Number of active modules for the DStar Reflector. ($MIN_MODULES - 26)"
     print_wrapped "Suggested: 5 $ACCEPT"
     printf "> "
     read -r MODQTD
@@ -421,7 +438,7 @@ line_type1
 
 while true; do
 echo ""
-    print_wrapped "13. What is the YSF UDP port number? (1-65535)"
+    print_wrapped "13. YSF Reflector UDP port number. (1-65535)"
     print_wrapped "Suggested: 42000 $ACCEPT"
     printf "> "
     read -r YSFPORT
@@ -437,7 +454,7 @@ line_type1
 
 while true; do
 echo ""
-    print_wrapped "14. What is the frequency of YSF Wires-X? (In Hertz, 9 digits, e.g., 433125000)"
+    print_wrapped "14. YSF Wires-X frequency. In Hertz, 9 digits."
     print_wrapped "Suggested: 433125000 $ACCEPT"
     printf "> "
     read -r YSFFREQ
@@ -453,7 +470,7 @@ line_type1
 
 while true; do
 echo ""
-    print_wrapped "15. Is YSF auto-link enabled? (Y/N)"
+    print_wrapped "15. Auto-link YSF to a module? (Y/N)"
     print_wrapped "Suggested: Y $ACCEPT"
     printf "> "
     read -r AUTOLINK_USER
@@ -501,10 +518,10 @@ if [[ "$AUTOLINK" -eq 1 ]]; then
     # Smart display of available modules
     if (( MODQTD <= 3 )); then
         # Full listing, since it's short
-        print_wrapped "16. Default module for autolink (One of ${VALID_MODULES[*]})"
+        print_wrapped "16. Module to Auto-link YSF. (One of ${VALID_MODULES[*]})"
     else
         # Smart compact range
-        print_wrapped "16. Default module for autolink (Choose from A to $LAST_LETTER)"
+        print_wrapped "16. Module to Auto-link YSF. (Choose from A to $LAST_LETTER)"
     fi
 
     print_wrapped "Suggested: $SUGGESTED $ACCEPT"
@@ -555,7 +572,7 @@ print_wrapped "03. E-mail: $EMAIL"
 print_wrapped "04. Callsign: $CALLSIGN"
 print_wrapped "05. Country: $COUNTRY"
 print_wrapped "06. Time Zome: $TIMEZONE"
-print_wrapped "07. Comment in list: $COMMENT"
+print_wrapped "07. XLX list comment: $COMMENT"
 print_wrapped "08. Tab page text: $HEADER"
 print_wrapped "09. Dashboard footnote: $FOOTER"
 print_wrapped "10. SSL certification: $INSTALL_SSL (Y/N)"
@@ -563,7 +580,7 @@ print_wrapped "11. Echo Test: $INSTALL_ECHO (Y/N)"
 print_wrapped "12. Modules: $MODQTD"
 print_wrapped "13. YSF UDP Port: $YSFPORT"
 print_wrapped "14. YSF frequency: $YSFFREQ"
-print_wrapped "15. YSF autolink: $AUTOLINK_USER (Y/N)"
+print_wrapped "15. YSF Auto-link: $AUTOLINK_USER (Y/N)"
 if [ "$AUTOLINK" -eq 1 ]; then
         print_wrapped "16. YSF module: $MODAUTO"
 fi
@@ -607,26 +624,6 @@ print_blue "=========================="
 echo ""
 mkdir -p "$XLXINSTDIR"
 apt -y install $APPS
-if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
-    echo ""
-    line_type2
-    echo ""
-    center_wrap_color $RED_BRIGHT "XLXD ALREADY COMPILED!!! Run the 'uninstaller.sh' or manually delete the following directories:"
-    echo ""
-    center_wrap_color $NC "'/xlxd', '/var/www/html/xlxd', '/usr/src/xlxd', '/usr/src/XLXEcho', '/usr/src/XLX_Dark_Dashboard'"
-    echo ""
-    center_wrap_color $RED_BRIGHT "Also delete the following files:"
-    echo ""
-    center_wrap_color $NC "'/etc/systemd/system/xlxd.service*', '/etc/systemd/system/xlxecho.service' '/etc/systemd/system/xlx_log.service', '/etc/systemd/system/update_XLX_db.service', '/etc/systemd/system/update_XLX_db.timer', '/usr/local/bin/xlx_log.sh', '/var/log/xlxd.xml', '/var/log/xlxd.pid', '/var/log/xlx.log', '/var/log/xlxecho.log', '/etc/logrotate.d/xlx_logrotate.conf' and related web address at '/etc/apache2/sites-available/*'"
-    echo ""
-    center_wrap_color $RED_BRIGHT "And finally remove any task scheduling related to XLX"
-    echo ""
-    center_wrap_color $NC "Type 'sudo crontab -e' and check the active schedules"
-    echo ""
-    line_type2
-    echo ""
-    exit 1
-else
     echo ""
     print_blueb "DOWNLOADING THE XLX APP..."
     print_blue "=========================="
@@ -673,7 +670,7 @@ echo ""
 print_blueb "COPYING COMPONENTS..."
 print_blue "====================="
 echo ""
-mkdir -p /xlxd
+mkdir -p "$XLXDIR"
 mkdir -p "$WEBDIR"
 touch /var/log/xlxd.xml
 echo "Downloading DMR ID file..."
