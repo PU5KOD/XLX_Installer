@@ -8,10 +8,7 @@
 LOGFILE="$PWD/log/log_xlx_install_$(date +%F_%H-%M-%S).log"
 exec > >(tee -a "$LOGFILE") 2>&1
 
-#######################################################
 #  INITIAL CHECKS
-#######################################################
-
 # 1. root user check with automatic relaunch.
 if [ "$(id -u)" -ne 0 ]; then
     echo "This script is not being run as root."
@@ -62,7 +59,7 @@ line_type3() {
 print_wrapped() {
     echo "$1" | fold -s -w "$width"
 }
-
+SEPQUE="_-_-_-_-_-_-_-_-_-_-_"
 # 7. Parameter definition
 DIRDIR=$(pwd)
 LOCAL_IP=$(hostname -I | awk '{print $1}')
@@ -80,24 +77,47 @@ XLXDIR="/xlxd"
 ACCEPT="| [ENTER] to accept..."
 APPS="git git-core make gcc g++ pv sqlite3 apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl php-sqlite3 build-essential vnstat certbot python3-certbot-apache"
 
-# 8. Colors
-RED='\033[0;31m'
-RED_BRIGHT='\033[1;31m'
-GREEN='\033[0;32m'
-GREEN_BRIGHT='\033[1;32m'
-BLUE='\033[0;34m'
-BLUE_BRIGHT='\033[1;34m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+# 8. Color palette
+# msg_info - BLUE 38;5;39 - Information
+# msg_success - GREEN 38;5;46 - Success
+# msg_warn - YELLOW 38;5;226 - Warning
+# msg_caution - ORANGE 38;5;208 - Caution
+# msg_error - RED_BRIGHT 38;5;196 - Error
+# msg_note - GRAY_250 38;5;250 - Technical note
+# msg_fatal - RED_DARK 38;5;124 - Fatal message!!!
 
-# 9. Functions to display text with adjusted line breaks and colors
-print_red() { echo -e "${RED}$(echo "$1" | fold -s -w "$width")${NC}"; }
-print_redb() { echo -e "${RED_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"; }
-print_green() { echo -e "${GREEN}$(echo "$1" | fold -s -w "$width")${NC}"; }
-print_greenb() { echo -e "${GREEN_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"; }
+NC='\033[0m'
+BLUE='\033[38;5;39m'
+BLUE_BRIGHT='\033[1;34m'
+GREEN='\033[38;5;46m'
+YELLOW='\033[38;5;226m'
+ORANGE='\033[38;5;208m'
+RED='\033[38;5;196m'
+RED_DARK='\033[38;5;124m'
+GRAY='\033[38;5;250m'
+
+# 9. Unicode icons
+ICON_OK="✔"
+ICON_ERR="✖"
+ICON_WARN="⚠"
+ICON_INFO="ℹ"
+ICON_FATAL="‼"
+ICON_NOTE="🛈"
+ICON_ROCKET="🚀"
+ICON_GEAR="⚙"
+ICON_DOWNLOAD="⬇"
+ICON_COMPILE="🔨"
+ICON_SSL="🔒"
+
+# 10. Functions to display text with adjusted line breaks and colors
 print_blue() { echo -e "${BLUE}$(echo "$1" | fold -s -w "$width")${NC}"; }
 print_blueb() { echo -e "${BLUE_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"; }
+print_green() { echo -e "${GREEN}$(echo "$1" | fold -s -w "$width")${NC}"; }
 print_yellow() { echo -e "${YELLOW}$(echo "$1" | fold -s -w "$width")${NC}"; }
+print_orange() { echo -e "${ORANGE}$(echo "$1" | fold -s -w "$width")${NC}"; }
+print_red() { echo -e "${RED}$(echo "$1" | fold -s -w "$width")${NC}"; }
+print_redd() { echo -e "${RED_DARK}$(echo "$1" | fold -s -w "$width")${NC}"; }
+print_gray() { echo -e "${GRAY}$(echo "$1" | fold -s -w "$width")${NC}"; }
 center_wrap_color() {
     local color="$1"
     local text="$2"
@@ -110,7 +130,7 @@ center_wrap_color() {
     done
 }
 
-# 10. Check for existing installs
+# 11. Check for existing installs
 if [ -e "$XLXDIR/xlxd" ]; then
     echo ""
     line_type2
@@ -122,32 +142,33 @@ if [ -e "$XLXDIR/xlxd" ]; then
     exit 1
 else
 
-# 11. Start of data collection.
+# 12. Start of data collection.
 clear
 line_type3
 echo ""
-center_wrap_color $GREEN_BRIGHT "XLX MULTIPROTOCOL AMATEUR RADIO REFLECTOR INSTALLER PROGRAM"
+center_wrap_color $GREEN "XLX MULTIPROTOCOL AMATEUR RADIO REFLECTOR INSTALLER PROGRAM"
 echo ""
-center_wrap_color $GREEN_BRIGHT "Next, you will be asked some questions. Answer with the requested information or, if applicable, to accept the suggested value, press [ENTER]"
+center_wrap_color $GREEN "Next, you will be asked some questions. Answer with the requested information or, if applicable, to accept the suggested value, press [ENTER]"
 echo ""
 line_type3
 echo ""
-print_blueb "REFLECTOR DATA INPUT"
-print_blue "===================="
+center_wrap_color $BLUE_BRIGHT "REFLECTOR DATA INPUT"
+center_wrap_color $BLUE "===================="
 echo ""
 
 # Teste de impresao de cores, descomente e execute para verificar
-#print_red "Vermelho ============"
-#print_redb "Vermelho Brilhante ="
-#print_green "Verde ============="
-#print_greenb "Verde Brilhante =="
 #print_blue "Azul ==============="
 #print_blueb "Azul Brilhante ===="
+#print_green "Verde ============="
 #print_yellow "Amarelo =========="
-#echo ""
+#print_orange "Laranja =========="
+#print_red "Vermelho ============"
+#print_redd "Vermelho Dask ======"
+#print_gray "Cinza =============="
+echo ""
 
 while true; do
-    print_redb "Mandatory"
+    print_red "Mandatory"
     print_wrapped "01. XLX Reflector ID, 3 alphanumeric characters. (e.g., 300, US1, BRA)"
     printf "> "
     read -r XRFDIGIT
@@ -155,16 +176,18 @@ while true; do
     if [[ "$XRFDIGIT" =~ ^[A-Z0-9]{3}$ ]]; then
         break
     fi
-    print_red "Invalid ID. Must be exactly 3 characters (A–Z and/or 0–9). Try again!"
+    print_orange "Invalid ID. Must be exactly 3 characters (A–Z and/or 0–9). Try again!"
 done
 
 XRFNUM="XLX$XRFDIGIT"
 print_yellow "Using: $XRFNUM"
-line_type1
+
 
 while true; do
 echo ""
-    print_redb "Mandatory"
+echo "$SEPQUE"
+echo ""
+    print_red "Mandatory"
     print_wrapped "02. Dashboard FQDN (fully qualified domain name), (e.g., xlxbra.net)"
     printf "> "
     read -r XLXDOMAIN
@@ -172,14 +195,16 @@ echo ""
     if [[ "$XLXDOMAIN" =~ ^([a-z0-9-]+\.)+[a-z]{2,}$ ]]; then
         break
     fi
-        print_red "Invalid domain. Must be a valid FQDN (e.g., xlx.example.com)."
+        print_orange "Invalid domain. Must be a valid FQDN (e.g., xlx.example.com)."
 done
 print_yellow "Using: $XLXDOMAIN"
-line_type1
+
 
 while true; do
 echo ""
-    print_redb "Mandatory"
+echo "$SEPQUE"
+echo ""
+    print_red "Mandatory"
     print_wrapped "03. Sysop e-mail address"
     printf "> "
     read -r EMAIL
@@ -187,14 +212,16 @@ echo ""
     if [[ "$EMAIL" =~ ^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$ ]]; then
         break
     fi
-    print_red "Invalid email format. (e.g., user@doamain.com)."
+    print_orange "Invalid email format. (e.g., user@doamain.com)."
 done
 print_yellow "Using: $EMAIL"
-line_type1
+
 
 while true; do
 echo ""
-    print_redb "Mandatory"
+echo "$SEPQUE"
+echo ""
+    print_red "Mandatory"
     print_wrapped "04. Sysop callsign. Only letters and numbers allowed, max 8 characters."
     printf "> "
     read -r CALLSIGN
@@ -202,26 +229,30 @@ echo ""
     if [[ "$CALLSIGN" =~ ^[A-Z0-9]{3,8}$ ]]; then
         break
     fi
-    print_red "Invalid callsign. Use only letters and numbers, 3 - 8 characters."
+    print_orange "Invalid callsign. Use only letters and numbers, 3 - 8 characters."
 done
 print_yellow "Using: $CALLSIGN"
-line_type1
+
 
 while true; do
 echo ""
-    print_redb "Mandatory"
+echo "$SEPQUE"
+echo ""
+    print_red "Mandatory"
     print_wrapped "05. Reflector country name."
     printf "> "
     read -r COUNTRY
     if [ -z "$COUNTRY" ]; then
-        print_red "Error: This field is mandatory and cannot be empty. Try again!"
+        print_orange "Error: This field is mandatory and cannot be empty. Try again!"
     else
         break
     fi
 done
 print_yellow "Using: $COUNTRY"
-line_type1
 
+
+echo ""
+echo "$SEPQUE"
 # Resolve timezone from user input, checking only real system timezones
 resolve_timezone() {
     local input="$1"
@@ -273,10 +304,10 @@ HH=${OFFSET:1:2}
 MM=${OFFSET:3:2}
 FRIENDLY_OFFSET="UTC${SIGN}${HH}:${MM}"
     echo ""
-    print_redb "Mandatory"
+    print_red "Mandatory"
 if [[ -n "$AUTO_TZ" ]]; then
     print_wrapped "06. Local timezone. Detected: $AUTO_TZ ($FRIENDLY_OFFSET)"
-    print_wrapped "Press ENTER to keep it or type another timezone."
+    print_gray "Press ENTER to keep it or type another timezone."
 else
     print_wrapped "06. What is the local timezone? (e.g., America/Sao_Paulo, UTC, GMT-3)"
 fi
@@ -315,7 +346,7 @@ while true; do
     TZ_RESOLVED=$(resolve_timezone "$USER_TZ")
 
     if [[ -z "$TZ_RESOLVED" ]]; then
-        print_redb "Invalid timezone. Please try again."
+        print_orange "Invalid timezone. Please try again."
         continue
     fi
 
@@ -344,8 +375,8 @@ while true; do
 
     # Inverted GMT warning
     if [[ "$TIMEZONE" =~ ^Etc/GMT ]]; then
-        print_wrapped "IMPORTANT: Linux POSIX GMT zones use inverted sign notation."
-        print_wrapped "In your case, $TIMEZONE (inverted) corresponds to $DISPLAY_OFFSET (real)."
+        print_orange "IMPORTANT: Linux POSIX GMT zones use inverted sign notation."
+        print_gray "In your case, $TIMEZONE (inverted) corresponds to $DISPLAY_OFFSET (real)."
     fi
 
     print_yellow "Confirm this timezone? (Y/N, ENTER = Y)"
@@ -358,146 +389,163 @@ while true; do
         break
     fi
 
-    print_redb "Please inform your timezone or press ENTER to accept detected."
+    print_yellow "Please inform your timezone or press ENTER to accept detected."
 done
 
 # Final output
 print_yellow "Using: $FINAL_DISPLAY"
-line_type1
+
 
 while true; do
 echo ""
+echo "$SEPQUE"
+echo ""
     COMMENT_DEFAULT="$XRFNUM Multiprotocol Reflector by $CALLSIGN, info: $EMAIL"
     print_wrapped "07. Comment to XLX Reflectors list."
-    print_wrapped "Suggested: \"$COMMENT_DEFAULT\" $ACCEPT"
+    print_gray "Suggested: \"$COMMENT_DEFAULT\" $ACCEPT"
     printf "> "
     read -r COMMENT
     COMMENT=${COMMENT:-"$COMMENT_DEFAULT"}
     if [ ${#COMMENT} -le 100 ]; then
         break
     else
-        print_red "Error: Comment must be max 100 characters. Please try again!"
+        print_orange "Error: Comment must be max 100 characters. Please try again!"
     fi
 done
 print_yellow "Using: $COMMENT"
-line_type1
 
+echo ""
+echo "$SEPQUE"
 echo ""
     HEADER_DEFAULT="$XRFNUM by $CALLSIGN"
     print_wrapped "08. Custom text for the dashboard tab, preferably very short."
-    print_wrapped "Suggested: \"$HEADER_DEFAULT\" $ACCEPT"
+    print_gray "Suggested: \"$HEADER_DEFAULT\" $ACCEPT"
     printf "> "
     read -r HEADER
     HEADER=${HEADER:-"$HEADER_DEFAULT"}
 print_yellow "Using: $HEADER"
-line_type1
+
 
 while true; do
 echo ""
+echo "$SEPQUE"
+echo ""
     FOOTER_DEFAULT="Provided by $CALLSIGN, info: $EMAIL"
     print_wrapped "09. Custom text on footer of the dashboard webpage."
-    print_wrapped "Suggested: \"$FOOTER_DEFAULT\" $ACCEPT"
+    print_gray "Suggested: \"$FOOTER_DEFAULT\" $ACCEPT"
     printf "> "
     read -r FOOTER
     FOOTER=${FOOTER:-"$FOOTER_DEFAULT"}
     if [ ${#FOOTER} -le 100 ]; then
         break
     else
-        print_red "Error: Comment must be max 100 characters. Please try again!"
+        print_orange "Error: Comment must be max 100 characters. Please try again!"
     fi
 done
 print_yellow "Using: $FOOTER"
-line_type1
+
 
 while true; do
 echo ""
+echo "$SEPQUE"
+echo ""
     print_wrapped "10. Create an SSL certificate (https) for the dashboard webpage? (Y/N)"
-    print_wrapped "Suggested: Y $ACCEPT"
+    print_gray "Suggested: Y $ACCEPT"
     printf "> "
     read -r INSTALL_SSL
     INSTALL_SSL=$(echo "${INSTALL_SSL:-Y}" | tr '[:lower:]' '[:upper:]')
     if [[ "$INSTALL_SSL" == "Y" || "$INSTALL_SSL" == "N" ]]; then
         break
     else
-        print_red "Please enter 'Y' or 'N'."
+        print_orange "Please enter 'Y' or 'N'."
     fi
 done
 
 print_yellow "Using: $INSTALL_SSL"
-line_type1
+
 
 while true; do
 echo ""
+echo "$SEPQUE"
+echo ""
     print_wrapped "11. Install Echo Test on module E? (Y/N)"
-    print_wrapped "Suggested: Y $ACCEPT"
+    print_gray "Suggested: Y $ACCEPT"
     printf "> "
     read -r INSTALL_ECHO
     INSTALL_ECHO=$(echo "${INSTALL_ECHO:-Y}" | tr '[:lower:]' '[:upper:]')
     if [[ "$INSTALL_ECHO" == "Y" || "$INSTALL_ECHO" == "N" ]]; then
         break
     else
-        print_red "Please enter 'Y' or 'N'."
+        print_orange "Please enter 'Y' or 'N'."
     fi
 done
 print_yellow "Using: $INSTALL_ECHO"
-line_type1
+
 
 while true; do
+echo ""
+echo "$SEPQUE"
 echo ""
     MIN_MODULES=1
     if [ "$INSTALL_ECHO" == "Y" ]; then
         MIN_MODULES=5
     fi
     print_wrapped "12. Number of active modules for the DStar Reflector. ($MIN_MODULES - 26)"
-    print_wrapped "Suggested: 5 $ACCEPT"
+    print_gray "Suggested: 5 $ACCEPT"
     printf "> "
     read -r MODQTD
     MODQTD=${MODQTD:-5}
     if [[ "$MODQTD" =~ ^[0-9]+$ && "$MODQTD" -ge "$MIN_MODULES" && "$MODQTD" -le 26 ]]; then
         break
     else
-        print_red "Error: Must be a number between $MIN_MODULES and 26. Try again!"
+        print_orange "Error: Must be a number between $MIN_MODULES and 26. Try again!"
     fi
 done
 print_yellow "Using: $MODQTD"
-line_type1
+
 
 while true; do
 echo ""
+echo "$SEPQUE"
+echo ""
     print_wrapped "13. YSF Reflector UDP port number. (1-65535)"
-    print_wrapped "Suggested: 42000 $ACCEPT"
+    print_gray "Suggested: 42000 $ACCEPT"
     printf "> "
     read -r YSFPORT
     YSFPORT=${YSFPORT:-42000}
     if [[ "$YSFPORT" =~ ^[0-9]+$ && "$YSFPORT" -ge 1 && "$YSFPORT" -le 65535 ]]; then
         break
     else
-        print_red "Error: Must be a number between 1 and 65535. Try again!"
+        print_orange "Error: Must be a number between 1 and 65535. Try again!"
     fi
 done
 print_yellow "Using: $YSFPORT"
-line_type1
+
 
 while true; do
 echo ""
+echo "$SEPQUE"
+echo ""
     print_wrapped "14. YSF Wires-X frequency. In Hertz, 9 digits."
-    print_wrapped "Suggested: 433125000 $ACCEPT"
+    print_gray "Suggested: 433125000 $ACCEPT"
     printf "> "
     read -r YSFFREQ
     YSFFREQ=${YSFFREQ:-433125000}
     if [[ "$YSFFREQ" =~ ^[0-9]{9}$ ]]; then
         break
     else
-        print_red "Error: Must be exactly 9 numeric digits (e.g., 433125000). Try again!"
+        print_orange "Error: Must be exactly 9 numeric digits (e.g., 433125000). Try again!"
     fi
 done
 print_yellow "Using: $YSFFREQ"
-line_type1
+
 
 while true; do
 echo ""
+echo "$SEPQUE"
+echo ""
     print_wrapped "15. Auto-link YSF to a module? (Y/N)"
-    print_wrapped "Suggested: Y $ACCEPT"
+    print_gray "Suggested: Y $ACCEPT"
     printf "> "
     read -r AUTOLINK_USER
     AUTOLINK_USER=$(echo "${AUTOLINK_USER:-Y}" | tr '[:lower:]' '[:upper:]')
@@ -505,7 +553,7 @@ echo ""
     if [[ "$AUTOLINK_USER" == "Y" || "$AUTOLINK_USER" == "N" ]]; then
         break
     else
-        print_red "Please enter 'Y' or 'N'."
+        print_orange "Please enter 'Y' or 'N'."
     fi
 done
 
@@ -517,8 +565,10 @@ else
 fi
 
 print_yellow "Using: $AUTOLINK_USER"
-line_type1
 
+
+echo ""
+echo "$SEPQUE"
 echo ""
 if [[ "$AUTOLINK" -eq 1 ]]; then
 
@@ -550,7 +600,7 @@ if [[ "$AUTOLINK" -eq 1 ]]; then
         print_wrapped "16. Module to Auto-link YSF. (Choose from A to $LAST_LETTER)"
     fi
 
-    print_wrapped "Suggested: $SUGGESTED $ACCEPT"
+    print_gray "Suggested: $SUGGESTED $ACCEPT"
     printf "> "
     read -r MODAUTO
 
@@ -580,17 +630,19 @@ if [[ "$AUTOLINK" -eq 1 ]]; then
                 break
             fi
 
-            print_red "Invalid entry. Choose from: ${VALID_MODULES[*]}"
+            print_orange "Invalid entry. Choose from: ${VALID_MODULES[*]}"
         done
     fi
 
     print_yellow "Using: $MODAUTO"
-    line_type1
 fi
+echo ""
 
 # Data verification
+line_type1
 echo ""
-print_blueb "PLEASE REVIEW YOUR SETTINGS:"
+center_wrap_color $ORANGE "PLEASE REVIEW YOUR SETTINGS:"
+center_wrap_color $BLUE "============================"
 echo ""
 print_wrapped "01. Reflector ID:	$XRFNUM"
 print_wrapped "02. FQDN:		$XLXDOMAIN"
@@ -621,17 +673,18 @@ while true; do
     if [[ "$CONFIRM" == "YES" || "$CONFIRM" == "NO" ]]; then
         break
     else
-        print_redb "Please enter 'YES' or 'NO'."
+        print_orange "Please enter 'YES' or 'NO'."
     fi
 done
 if [ "$CONFIRM" == "NO" ]; then
-    print_red "Installation aborted by user."
+    print_redd "Installation aborted by user."
     exit 1
 fi
 
+line_type1
 echo ""
-print_blueb "UPDATING OS..."
-print_blue "=============="
+center_wrap_color $BLUE_BRIGHT "UPDATING OS..."
+center_wrap_color $BLUE "=============="
 echo ""
 apt update
 apt full-upgrade -y
@@ -646,15 +699,17 @@ if [[ "$TIMEZONE_USE_SYSTEM" -eq 0 ]]; then
 else
     print_wrapped "Detected system timezone preserved: $TIMEZONE"
 fi
+line_type1
 echo ""
-print_blueb "INSTALLING DEPENDENCIES..."
-print_blue "=========================="
+center_wrap_color $BLUE_BRIGHT "INSTALLING DEPENDENCIES..."
+center_wrap_color $BLUE "=========================="
 echo ""
 mkdir -p "$XLXINSTDIR"
 apt -y install $APPS
+    line_type1
     echo ""
-    print_blueb "DOWNLOADING THE XLX APP..."
-    print_blue "=========================="
+    center_wrap_color $BLUE_BRIGHT "DOWNLOADING THE XLX APP..."
+    center_wrap_color $BLUE "=========================="
     echo ""
     cd "$XLXINSTDIR"
     echo "Cloning repository..."
@@ -671,9 +726,10 @@ apt -y install $APPS
     if [ "$AUTOLINK" -eq 1 ]; then
         sed -i "s|\(YSF_AUTOLINK_MODULE\s*\)'\([A-Z]*\)'|\1'$MODAUTO'|g" "$MAINCONFIG"
     fi
+    line_type1
     echo ""
-    print_blueb "COMPILING..."
-    print_blue "============"
+    center_wrap_color $BLUE_BRIGHT "COMPILING..."
+    center_wrap_color $BLUE "============"
     echo ""
     make
     make install
@@ -694,9 +750,10 @@ else
     echo ""
     exit 1
 fi
+line_type1
 echo ""
-print_blueb "COPYING COMPONENTS..."
-print_blue "====================="
+center_wrap_color $BLUE_BRIGHT "COPYING COMPONENTS..."
+center_wrap_color $BLUE "====================="
 echo ""
 mkdir -p "$XLXDIR"
 mkdir -p "$WEBDIR"
@@ -711,7 +768,7 @@ else
     wget -q -O - "$DMRIDURL" | pv --force -p -t -r -b -s "$FILE_SIZE" > /xlxd/dmrid.dat
 fi
 if [ $? -ne 0 ] || [ ! -s /xlxd/dmrid.dat ]; then
-    print_red "Error: Failed to download or empty DMR ID file."
+    print_redd "Error: Failed to download or empty DMR ID file."
 fi
 echo "Creating custom XLX log..."
     cp "$DIRDIR/templates/xlx_log.service" /etc/systemd/system/
@@ -749,8 +806,10 @@ print_green "✔ Operation completed successfully!"
 echo ""
 # Echo Test installation conditional on answering question 08
 if [ "$INSTALL_ECHO" == "Y" ]; then
-    print_blueb "INSTALLING ECHO TEST SERVER..."
-    print_blue "=============================="
+    line_type1
+    echo ""
+    center_wrap_color $BLUE_BRIGHT "INSTALLING ECHO TEST SERVER..."
+    center_wrap_color $BLUE "=============================="
     echo ""
     cd "$XLXINSTDIR"
     echo "Cloning repository..."
@@ -764,8 +823,10 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
     print_green "✔ Echo Test server successfully installed!"
     echo ""
 fi
-print_blueb "INSTALLING DASHBOARD..."
-print_blue "======================="
+line_type1
+echo ""
+center_wrap_color $BLUE_BRIGHT "INSTALLING DASHBOARD..."
+center_wrap_color $BLUE "======================="
 echo ""
 cd "$XLXINSTDIR"
 echo "Cloning repository..."
@@ -810,15 +871,19 @@ echo -e "\n${GREEN}✔ Dashboard successfully installed!${NC}"
 # SSL certification install
 if [ "$INSTALL_SSL" == "Y" ]; then
     echo ""
-    print_blueb "CONFIGURING SSL CERTIFICATE..."
-    print_blue "=============================="
+    line_type1
+    echo ""
+    center_wrap_color $BLUE_BRIGHT "CONFIGURING SSL CERTIFICATE..."
+    center_wrap_color $BLUE "=============================="
     echo ""
     certbot --apache -d "$XLXDOMAIN" -n --agree-tos -m "$EMAIL"
 fi
 
 echo ""
-print_blueb "STARTING $XRFNUM REFLECTOR..."
-print_blue "============================="
+line_type1
+echo ""
+center_wrap_color $BLUE_BRIGHT "STARTING $XRFNUM REFLECTOR..."
+center_wrap_color $BLUE "============================="
 echo ""
 systemctl enable --now xlxd.service >/dev/null 2>&1 &
 pid=$!
@@ -849,6 +914,8 @@ fi
 echo ""
 echo -e "\n${GREEN}✔ Initialization completed!${NC}"
 echo ""
+line_type2
+echo ""
 echo ""
 center_wrap_color $GREEN "========================================="
 center_wrap_color $GREEN "|  REFLECTOR INSTALLED SUCCESSFULLY!!!  |"
@@ -857,13 +924,13 @@ echo ""
 echo ""
 line_type2
 echo ""
-center_wrap_color $GREEN_BRIGHT "Your Reflector $XRFNUM is now installed and running!"
+center_wrap_color $GREEN "Your Reflector $XRFNUM is now installed and running!"
 echo ""
-center_wrap_color $GREEN_BRIGHT "For Public Reflectors:"
+center_wrap_color $GREEN "For Public Reflectors:"
 echo ""
-center_wrap_color $GREEN_BRIGHT "• If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour. If you don't want the reflector to be published just set callinghome to [false] in the main file in $XLXCONFIG."
-center_wrap_color $GREEN_BRIGHT "• Many other settings can be changed in this file."
-center_wrap_color $GREEN_BRIGHT "• More Information about XLX Reflectors check $INFREF"
-center_wrap_color $GREEN_BRIGHT "• Your $XRFNUM dashboard should now be accessible at http://$XLXDOMAIN"
+center_wrap_color $GREEN "• If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour. If you don't want the reflector to be published just set callinghome to [false] in the main file in $XLXCONFIG."
+center_wrap_color $GREEN "• Many other settings can be changed in this file."
+center_wrap_color $GREEN "• More Information about XLX Reflectors check $INFREF"
+center_wrap_color $GREEN "• Your $XRFNUM dashboard should now be accessible at http://$XLXDOMAIN"
 echo ""
 line_type2
