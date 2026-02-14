@@ -72,32 +72,33 @@ APPS="git git-core make gcc g++ pv sqlite3 apache2 php libapache2-mod-php php-cl
 
 log_info() {
     local message="$1"
-    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [INFO] $message" | tee -a "$LOGFILE" >/dev/null
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [INFO] $message" >&2
     msg_info "$message"
 }
 
 log_success() {
     local message="$1"
-    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [SUCCESS] $message" | tee -a "$LOGFILE" >/dev/null
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [SUCCESS] $message" >&2
     msg_success "$message"
 }
 
 log_warn() {
     local message="$1"
-    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [WARN] $message" | tee -a "$LOGFILE" >/dev/null
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [WARN] $message" >&2
     msg_warn "$message"
 }
 
 log_error() {
     local message="$1"
-    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [ERROR] $message" | tee -a "$LOGFILE" >/dev/null
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [ERROR] $message" >&2
     msg_error "$message"
 }
 
 log_fatal() {
     local message="$1"
-    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [FATAL] $message" | tee -a "$LOGFILE" >/dev/null
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [FATAL] $message" >&2
     msg_fatal "$message"
+    exit 1
 }
 
 log_command() {
@@ -132,10 +133,23 @@ set_directory_permissions() {
     log_info "Setting directory permissions on: $path (owner: $owner)"
     
     if [ -d "$path" ]; then
+        # Set directory permissions to 755
         find "$path" -type d -exec chmod 755 {} \;
+        
+        # Set executable files (binaries and scripts) to 755
+        find "$path" -type f -executable -exec chmod 755 {} \;
+        
+        # Set shell scripts to 755 (even if not currently executable)
         find "$path" -type f -name "*.sh" -exec chmod 755 {} \;
+        
+        # Set service files to 644
         find "$path" -type f -name "*.service" -exec chmod 644 {} \;
-        find "$path" -type f ! -name "*.sh" ! -name "*.service" -exec chmod 644 {} \;
+        find "$path" -type f -name "*.timer" -exec chmod 644 {} \;
+        
+        # Set non-executable, non-script, non-service files to 644
+        find "$path" -type f ! -executable ! -name "*.sh" ! -name "*.service" ! -name "*.timer" -exec chmod 644 {} \;
+        
+        # Set ownership
         chown -R "$owner:$owner" "$path"
         log_success "Permissions set for $path"
     else
@@ -697,15 +711,24 @@ collect_user_input() {
         echo ""
         
         # Determine available modules based on MODQTD
+        # Create array of all letters A-Z
+        ALL_LETTERS=(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z)
+        
+        # Get the last letter based on MODQTD
         LAST_INDEX=$((MODQTD - 1))
-        LAST_LETTER=$(printf "\\$(printf '%03o' $((65 + LAST_INDEX)))")
+        LAST_LETTER="${ALL_LETTERS[$LAST_INDEX]}"
         
         # Build array of valid modules
         VALID_MODULES=()
         for ((i=0; i<MODQTD; i++)); do
-            VALID_MODULES+=("$(printf "\\$(printf '%03o' $((65 + i)))")")
+            VALID_MODULES+=("${ALL_LETTERS[$i]}")
         done
-        MODLIST=$(echo {A..Z} | tr -d ' ' | head -c "$MODQTD")
+        
+        # Build MODLIST string for configuration
+        MODLIST=""
+        for ((i=0; i<MODQTD; i++)); do
+            MODLIST="${MODLIST}${ALL_LETTERS[$i]}"
+        done
         
         # Determine smart suggestion
         if (( MODQTD >= 3 )); then
@@ -1007,18 +1030,23 @@ copy_components() {
     log_info "Downloading DMR ID file from: $DMRIDURL"
     FILE_SIZE=$(wget --spider --server-response "$DMRIDURL" 2>&1 | grep -i Content-Length | awk '{print $2}')
     
+    DMR_DOWNLOAD_SUCCESS=0
     if [ -z "$FILE_SIZE" ]; then
         log_info "Downloading DMR ID file (unknown size)..."
-        wget -q -O - "$DMRIDURL" | pv --force -p -t -r -b > /xlxd/dmrid.dat
+        if wget -q -O - "$DMRIDURL" | pv --force -p -t -r -b > /xlxd/dmrid.dat; then
+            DMR_DOWNLOAD_SUCCESS=1
+        fi
     else
         log_info "Downloading DMR ID file (size: $FILE_SIZE bytes)..."
-        wget -q -O - "$DMRIDURL" | pv --force -p -t -r -b -s "$FILE_SIZE" > /xlxd/dmrid.dat
+        if wget -q -O - "$DMRIDURL" | pv --force -p -t -r -b -s "$FILE_SIZE" > /xlxd/dmrid.dat; then
+            DMR_DOWNLOAD_SUCCESS=1
+        fi
     fi
     
-    if [ $? -ne 0 ] || [ ! -s /xlxd/dmrid.dat ]; then
-        log_error "Failed to download or empty DMR ID file."
-    else
+    if [ "$DMR_DOWNLOAD_SUCCESS" -eq 1 ] && [ -s /xlxd/dmrid.dat ]; then
         log_success "DMR ID file downloaded successfully"
+    else
+        log_error "Failed to download or empty DMR ID file."
     fi
     
     # Install XLX log components
@@ -1037,7 +1065,13 @@ copy_components() {
     # Configure XLXD terminal file
     log_info "Configuring XLXD terminal file..."
     TERMXLX="/xlxd/xlxd.terminal"
-    MODLIST=$(echo {A..Z} | tr -d ' ' | head -c "$MODQTD")
+    
+    # Build MODLIST string (A-Z based on MODQTD)
+    ALL_LETTERS=(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z)
+    MODLIST=""
+    for ((i=0; i<MODQTD; i++)); do
+        MODLIST="${MODLIST}${ALL_LETTERS[$i]}"
+    done
     
     log_command "sed -i 's|#address|address $PUBLIC_IP|g' $TERMXLX"
     sed -i "s|#address|address $PUBLIC_IP|g" "$TERMXLX"
@@ -1305,50 +1339,51 @@ start_services() {
     
     # Start XLXD service
     log_info "Enabling and starting XLXD service..."
-    systemctl enable --now xlxd.service >/dev/null 2>&1 &
-    pid=$!
-    
-    for ((i=10; i>0; i--)); do
-        printf "\r${BLUE}${ICON_INFO}${NC} Initializing $XRFNUM %2d seconds" "$i"
-        sleep 1
-    done
-    
-    wait $pid
-    log_success "XLXD service started"
+    if systemctl enable --now xlxd.service >/dev/null 2>&1; then
+        # Wait a moment and verify service status
+        sleep 3
+        if systemctl is-active --quiet xlxd.service; then
+            log_success "XLXD service started successfully"
+        else
+            log_warn "XLXD service may not have started correctly. Check status with: systemctl status xlxd.service"
+        fi
+    else
+        log_error "Failed to enable/start XLXD service"
+    fi
     echo ""
     
     # Start XLX log service
     log_info "Enabling and starting XLX log service..."
-    systemctl enable --now xlx_log.service >/dev/null 2>&1 &
-    pid=$!
-    
-    for ((i=5; i>0; i--)); do
-        printf "\r${BLUE}${ICON_INFO}${NC} Initializing log %2d seconds" "$i"
-        sleep 1
-    done
-    
-    wait $pid
-    log_success "XLX log service started"
+    if systemctl enable --now xlx_log.service >/dev/null 2>&1; then
+        sleep 2
+        if systemctl is-active --quiet xlx_log.service; then
+            log_success "XLX log service started successfully"
+        else
+            log_warn "XLX log service may not have started correctly. Check status with: systemctl status xlx_log.service"
+        fi
+    else
+        log_error "Failed to enable/start XLX log service"
+    fi
     echo ""
     
     # Start Echo Test service (if installed)
     if [ "$INSTALL_ECHO" == "Y" ]; then
         log_info "Enabling and starting Echo Test service..."
-        systemctl enable --now xlxecho.service >/dev/null 2>&1 &
-        pid=$!
-        
-        for ((i=5; i>0; i--)); do
-            printf "\r${BLUE}${ICON_INFO}${NC} Initializing Echo Test %2d seconds" "$i"
-            sleep 1
-        done
-        
-        wait $pid
-        log_success "Echo Test service started"
+        if systemctl enable --now xlxecho.service >/dev/null 2>&1; then
+            sleep 2
+            if systemctl is-active --quiet xlxecho.service; then
+                log_success "Echo Test service started successfully"
+            else
+                log_warn "Echo Test service may not have started correctly. Check status with: systemctl status xlxecho.service"
+            fi
+        else
+            log_error "Failed to enable/start Echo Test service"
+        fi
         echo ""
     fi
     
     echo ""
-    log_success "All services initialized successfully!"
+    log_success "All services initialized!"
     echo ""
 }
 
