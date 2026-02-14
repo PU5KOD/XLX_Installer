@@ -2,6 +2,18 @@
 
 This project, developed by Daniel K. ([PU5KOD](https://www.qrz.com/db/PU5KOD)), builds upon the original work by [N5AMD](https://github.com/n5amd/xlxd-debian-installer) to simplify the installation of the XLX reflector, created by [LX3JL](https://github.com/LX3JL/xlxd). The script automates the setup of an XLX reflector and its accompanying dashboard, requiring minimal user intervention. It prompts for essential configuration details and handles the installation process, resulting in a fully operational multi-mode reflector supporting D-Star, C4FM, and DMR protocols. Additionally, it offers an optional Echo Test (Parrot) service, linked by default to Module E, for audio testing.
 
+## Recent Improvements
+
+The installer has been recently optimized with the following enhancements:
+- **Enhanced Logging**: Comprehensive logging system with timestamps and log levels for better troubleshooting
+- **Optimized Permissions**: File-type-specific permission management (755 for executables, 644 for configs)
+- **Visual Functions**: Professional interface using semantic message functions and visual separators
+- **Code Organization**: Modular structure with clear sections and consistent naming conventions
+- **Input Validation**: Dedicated validation functions for all user inputs
+- **English Language**: All messages, comments, and documentation in English
+
+For details, see [OPTIMIZATION_SUMMARY.md](OPTIMIZATION_SUMMARY.md).
+
 Since early 2020, XLX supports native C4FM connections, eliminating the need for AMBE transcoding hardware for C4FM and DMR interoperability. However, D-Star integration with other modes requires AMBE chips. For D-Star-only or YSF/DMR reflectors, no additional hardware is needed. The script installs the latest versions of the official XLX reflector (v2.5.3) and dashboard (v2.4.2) as of this writing, and is compatible with Debian 10, 11, and 12 (recommended), as well as derivatives like RaspiOS and Armbian. It is lightweight, suitable for low-resource devices like the Raspberry Pi Zero.
 
 **Upon completion, you will have a fully functional public D-Star/YSF/DMR XLX reflector with a monitoring dashboard.**
