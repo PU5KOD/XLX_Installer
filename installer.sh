@@ -581,6 +581,7 @@ if [[ "$AUTOLINK" -eq 1 ]]; then
     for ((i=0; i<MODQTD; i++)); do
         VALID_MODULES+=("$(printf "\\$(printf '%03o' $((65 + i)))")")
     done
+    MODLIST=$(echo {A..Z} | tr -d ' ' | head -c "$MODQTD")
 
     # Determine smart suggestion
     if (( MODQTD >= 3 )); then
