@@ -376,7 +376,7 @@ while true; do
     # Inverted GMT warning
     if [[ "$TIMEZONE" =~ ^Etc/GMT ]]; then
         print_orange "IMPORTANT: Linux POSIX GMT zones use inverted sign notation."
-        print_gray "In your case, $TIMEZONE (inverted) corresponds to $DISPLAY_OFFSET (real)."
+        print_orange "In your case, $TIMEZONE (inverted) corresponds to $DISPLAY_OFFSET (real)."
     fi
 
     print_yellow "Confirm this timezone? (Y/N, ENTER = Y)"
@@ -643,7 +643,7 @@ echo ""
 line_type1
 echo ""
 center_wrap_color $ORANGE "PLEASE REVIEW YOUR SETTINGS:"
-center_wrap_color $BLUE "============================"
+center_wrap_color $YELLOW "============================"
 echo ""
 print_wrapped "01. Reflector ID:	$XRFNUM"
 print_wrapped "02. FQDN:		$XLXDOMAIN"
@@ -677,11 +677,14 @@ while true; do
         print_orange "Please enter 'YES' or 'NO'."
     fi
 done
-if [ "$CONFIRM" == "NO" ]; then
+echo ""
+if [ "$CONFIRM" == "YES" ]; then
+    print_green "✔ Information verified, installation starting!"
+    else
     print_redd "Installation aborted by user."
     exit 1
 fi
-
+echo ""
 line_type1
 echo ""
 center_wrap_color $BLUE_BRIGHT "UPDATING OS..."
@@ -700,6 +703,9 @@ if [[ "$TIMEZONE_USE_SYSTEM" -eq 0 ]]; then
 else
     print_wrapped "Detected system timezone preserved: $TIMEZONE"
 fi
+echo ""
+print_green "✔ System updated successfully!"
+echo ""
 line_type1
 echo ""
 center_wrap_color $BLUE_BRIGHT "INSTALLING DEPENDENCIES..."
@@ -707,18 +713,21 @@ center_wrap_color $BLUE "=========================="
 echo ""
 mkdir -p "$XLXINSTDIR"
 apt -y install $APPS
-    line_type1
-    echo ""
-    center_wrap_color $BLUE_BRIGHT "DOWNLOADING THE XLX APP..."
-    center_wrap_color $BLUE "=========================="
-    echo ""
-    cd "$XLXINSTDIR"
-    echo "Cloning repository..."
-    git clone "$XLXDREPO"
-    cd "$XLXINSTDIR/xlxd/src"
-    make clean
-    echo "Seeding customizations..."
-    MAINCONFIG="$XLXINSTDIR/xlxd/src/main.h"
+echo ""
+print_green "✔ Operation completed successfully!"
+echo ""
+line_type1
+echo ""
+center_wrap_color $BLUE_BRIGHT "DOWNLOADING THE XLX APP..."
+center_wrap_color $BLUE "=========================="
+echo ""
+cd "$XLXINSTDIR"
+echo "Cloning repository..."
+git clone "$XLXDREPO"
+cd "$XLXINSTDIR/xlxd/src"
+make clean
+echo "Seeding customizations..."
+MAINCONFIG="$XLXINSTDIR/xlxd/src/main.h"
     sed -i "s|\(NB_OF_MODULES\s*\)\([0-9]*\)|\1$MODQTD|g" "$MAINCONFIG"
     sed -i "s|\(YSF_PORT\s*\)\([0-9]*\)|\1$YSFPORT|g" "$MAINCONFIG"
     sed -i "s|\(YSF_DEFAULT_NODE_TX_FREQ\s*\)\([0-9]*\)|\1$YSFFREQ|g" "$MAINCONFIG"
@@ -727,13 +736,16 @@ apt -y install $APPS
     if [ "$AUTOLINK" -eq 1 ]; then
         sed -i "s|\(YSF_AUTOLINK_MODULE\s*\)'\([A-Z]*\)'|\1'$MODAUTO'|g" "$MAINCONFIG"
     fi
-    line_type1
-    echo ""
-    center_wrap_color $BLUE_BRIGHT "COMPILING..."
-    center_wrap_color $BLUE "============"
-    echo ""
-    make
-    make install
+echo ""
+print_green "✔ Repository cloned and customizations applied!"
+echo ""
+line_type1
+echo ""
+center_wrap_color $BLUE_BRIGHT "COMPILING..."
+center_wrap_color $BLUE "============"
+echo ""
+make
+make install
 fi
 if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
     echo ""
@@ -772,12 +784,12 @@ if [ $? -ne 0 ] || [ ! -s /xlxd/dmrid.dat ]; then
     print_redd "Error: Failed to download or empty DMR ID file."
 fi
 echo "Creating custom XLX log..."
-    cp "$DIRDIR/templates/xlx_log.service" /etc/systemd/system/
-    cp "$DIRDIR/templates/xlx_log.sh" /usr/local/bin/
-    cp "$DIRDIR/templates/xlx_logrotate.conf" /etc/logrotate.d/
-    chmod 755 /etc/systemd/system/xlx_log.service
-    chmod 755 /usr/local/bin/xlx_log.sh
-    chmod 644 /etc/logrotate.d/xlx_logrotate.conf
+cp "$DIRDIR/templates/xlx_log.service" /etc/systemd/system/
+cp "$DIRDIR/templates/xlx_log.sh" /usr/local/bin/
+cp "$DIRDIR/templates/xlx_logrotate.conf" /etc/logrotate.d/
+chmod 755 /etc/systemd/system/xlx_log.service
+chmod 755 /usr/local/bin/xlx_log.sh
+chmod 644 /etc/logrotate.d/xlx_logrotate.conf
 echo "Seeding customizations..."
 TERMXLX="/xlxd/xlxd.terminal"
 sed -i "s|#address|address $PUBLIC_IP|g" "$TERMXLX"
@@ -867,11 +879,11 @@ find "$WEBDIR" -type f -exec chmod 755 {} \;
 systemctl stop apache2 >/dev/null 2>&1
 systemctl start apache2 >/dev/null 2>&1
 systemctl daemon-reload
-echo -e "\n${GREEN}✔ Dashboard successfully installed!${NC}"
-
+echo ""
+print_green "✔ Dashboard successfully installed!"
+echo ""
 # SSL certification install
 if [ "$INSTALL_SSL" == "Y" ]; then
-    echo ""
     line_type1
     echo ""
     center_wrap_color $BLUE_BRIGHT "CONFIGURING SSL CERTIFICATE..."
@@ -879,7 +891,8 @@ if [ "$INSTALL_SSL" == "Y" ]; then
     echo ""
     certbot --apache -d "$XLXDOMAIN" -n --agree-tos -m "$EMAIL"
 fi
-
+echo ""
+print_green "✔ Operation completed!"
 echo ""
 line_type1
 echo ""
