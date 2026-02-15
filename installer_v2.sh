@@ -987,21 +987,12 @@ compile_xlx() {
     # Verify compilation success
     if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
         echo ""
-        sep_block
-        echo ""
-        banner "COMPILATION SUCCESSFUL"
-        echo ""
-        sep_block
-        echo ""
         log_success "XLX compiled successfully!"
+        echo ""
     else
         echo ""
-        sep_block
+        log_fatal "XLX compilation  FAILED. Check the output for errors."
         echo ""
-        msg_fatal "Compilation FAILED. Check the output for errors."
-        sep_block
-        echo ""
-        log_fatal "XLX compilation failed"
     fi
 }
 
@@ -1314,6 +1305,7 @@ install_ssl() {
 
         log_info "Running certbot for domain: $XLXDOMAIN"
         log_command "certbot --apache -d $XLXDOMAIN -n --agree-tos -m $EMAIL"
+        echo ""
 
         if certbot --apache -d "$XLXDOMAIN" -n --agree-tos -m "$EMAIL"; then
             log_success "SSL certificate installed successfully!"
@@ -1419,14 +1411,11 @@ show_completion_message() {
     else
         msg_success "Your $XRFNUM dashboard should now be accessible at: http://$XLXDOMAIN"
     fi
-
+    
     echo ""
-    sep_block
-    echo ""
-
     log_info "Installation completed successfully!"
-    log_info "Dashboard URL: http://$XLXDOMAIN"
     log_info "Log file location: $LOGFILE"
+    echo ""
 }
 
 ################################################################################
@@ -1462,8 +1451,9 @@ main() {
 
     # Show completion message
     show_completion_message
-
-    log_info "=== XLX Installation Completed Successfully ==="
+    echo ""
+    msg_success "=== XLX Installation Completed Successfully ==="
+    echo ""
 }
 
 # Run main function
