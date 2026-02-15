@@ -16,6 +16,27 @@
 set -o pipefail
 
 ################################################################################
+# EARLY ROOT CHECK
+################################################################################
+
+# Check if running as root FIRST, before any other operations
+if [ "$(id -u)" -ne 0 ]; then
+    echo "This script is not being run as root."
+    read -r -p "Do you want to relaunch with sudo? (y/n) " answer
+    
+    case "$answer" in
+        y|Y|yes|YES)
+            echo "Relaunching with sudo..."
+            exec sudo bash "$0" "$@"
+            ;;
+        *)
+            echo "Operation cancelled by user."
+            exit 1
+            ;;
+    esac
+fi
+
+################################################################################
 # CONFIGURATION AND CONSTANTS
 ################################################################################
 
@@ -72,31 +93,31 @@ APPS="git git-core make gcc g++ pv sqlite3 apache2 php libapache2-mod-php php-cl
 
 log_info() {
     local message="$1"
-    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [INFO] $message" >&2
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [INFO] $message" >> "$LOGFILE"
     msg_info "$message"
 }
 
 log_success() {
     local message="$1"
-    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [SUCCESS] $message" >&2
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [SUCCESS] $message" >> "$LOGFILE"
     msg_success "$message"
 }
 
 log_warn() {
     local message="$1"
-    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [WARN] $message" >&2
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [WARN] $message" >> "$LOGFILE"
     msg_warn "$message"
 }
 
 log_error() {
     local message="$1"
-    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [ERROR] $message" >&2
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [ERROR] $message" >> "$LOGFILE"
     msg_error "$message"
 }
 
 log_fatal() {
     local message="$1"
-    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [FATAL] $message" >&2
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] [FATAL] $message" >> "$LOGFILE"
     msg_fatal "$message"
     exit 1
 }
@@ -1437,9 +1458,9 @@ show_completion_message() {
 main() {
     log_info "=== XLX Installation Started ==="
     log_info "Log file: $LOGFILE"
+    log_info "Running with root privileges"
     
     # Initial checks
-    check_root "$@"
     check_internet
     check_distro
     check_existing_install
