@@ -27,9 +27,9 @@ This project simplifies the installation of XLX reflectors with minimal user int
 
 - ✅ **No AMBE hardware needed** for C4FM and DMR interoperability (since early 2020)
 - ✅ **Dark theme dashboard** with improvements and modern UI
-- ✅ **Lightweight** - runs on Raspberry Pi Zero
+- ✅ **Lightweight** - it ever runs on Raspberry Pi Zero!
 - ✅ **Optional Echo Test** (Parrot) service on Module E
-- ✅ **Compatible** with Debian 10+ (13 recommended), Ubuntu, RaspiOS, and Armbian
+- ✅ **Compatible** with Debian 10+ (13 recommended), Ubuntu, RaspiOS, Armbian, etc...
 
 > **Note:** D-Star integration with other modes still requires AMBE chips. For D-Star-only or YSF/DMR reflectors, no additional hardware is needed.
 
@@ -41,7 +41,7 @@ This project simplifies the installation of XLX reflectors with minimal user int
 |---------|-------------|
 | 🔄 **Multi-Protocol** | Native support for D-Star, C4FM (YSF), and DMR |
 | 🎨 **Custom Dashboard** | Dark theme with enhanced monitoring capabilities |
-| 🔊 **Echo Test** | Optional Parrot service for audio testing (Module E) |
+| 🔊 **Echo Test** | Optional Parrot service for audio testing |
 | 🔒 **SSL Ready** | Automated SSL certificate setup with Certbot |
 | 📊 **Real-time Monitoring** | Live connection tracking and statistics |
 | 🌍 **YSF Auto-link** | Configurable automatic linking for YSF |
@@ -60,7 +60,7 @@ Before installation, ensure you have:
 
 ### 🔍 Finding Available Reflector Suffixes
 
-Visit the [active reflector dashboard](https://xlxbra.net/index.php?show=reflectors) to see which XLX suffixes are in use. Any unlisted suffix is available!
+Visit any active reflector dashboard to see which XLX suffixes are in use. Any unlisted suffix is available!
 
 ---
 
@@ -81,7 +81,7 @@ sudo git clone https://github.com/PU5KOD/XLX_Installer.git
 cd XLX_Installer/ && sudo chmod +x *.sh
 sudo ./installer.sh
 # or
-sudo ./Installer_v2.sh
+sudo ./installer_v2.sh
 ```
 
 ---
@@ -103,21 +103,21 @@ The installer will request the following information:
 | Prompt | Example | Default |
 |--------|---------|---------|
 | 3-digit XLX reflector | `300`, `US1`, `BRA` | - |
-| Dashboard FQDN | `xlx.domain.com` | - |
-| Sysop email address | `you@example.com` | - |
+| Dashboard FQDN | `xlxbra.net` | - |
+| Sysop email address | `xlxref@gmail.com` | - |
 | Sysop callsign | `PU5KOD` | - |
-| Reflector country | `Brazil` | - |
-| Time Zone | `America/Sao_Paulo` | - |
+| Reflector country | `Germany` | - |
+| Time Zone | `Europe/Berlin` | Detected |
 | Comment for XLX list | `My XLX Reflector` | - |
 | Custom tab name | `XLX Dashboard` | - |
 | Custom footnote | `Maintained by...` | - |
-| Install SSL? | `Y/N` | N |
-| Install Echo Test? | `Y/N` | N |
-| Number of modules | `1-26` | 26 |
+| Install SSL? | `Y/N` | Y |
+| Install Echo Test? | `Y/N` | Y |
+| Number of modules | `1-26` | 5 |
 | YSF UDP port | `1-65535` | 42000 |
-| YSF Wires-X frequency | `433125000` (Hz) | - |
-| Enable YSF auto-link? | `Y/N` | N |
-| YSF auto-link module | `A-Z` | - |
+| YSF Wires-X frequency | `433125000` (Hz) | 433125000 |
+| Enable YSF auto-link? | `Y/N` | Y |
+| YSF auto-link module | `A-Z` | C |
 
 ### Step 4: Completion ✅
 
@@ -127,34 +127,29 @@ The installation proceeds automatically. Once complete, your reflector will be o
 
 ## 🛡️ Firewall Configuration
 
-### Required Ports
+### Required Open Ports
 
-#### TCP Ports
-```
-22     SSH
-80     HTTP
-443    HTTPS
-8080   RepNet (optional)
-20001-20005   DPlus protocol
-40001  ICom G3
-```
-
-#### UDP Ports
-```
-8880   DMR+ DMO mode
-10001  JSON interface XLX Core
-10002  XLX interlink
-10100  AMBE controller
-10101-10199   AMBE transcoding
-12345-12346   ICom Terminal presence/request
-20001-20005   DPlus protocol
-21110  Yaesu IMRS protocol
-30001  DExtra protocol
-30051  DCS protocol
-40000  Terminal DV
-42000  YSF protocol
-62030  MMDVM protocol
-```
+| Port | Type | Description |
+|---------|-----|---------|
+| 22 | TCP | SSH |
+| 80 | TCP | HTTP |
+| 443 | TCP | HTTPS |
+| 8080 | TCP | RepNeT |
+| 20001-20005 | TCP | DPlus |
+| 40001 | TCP | ICom G3 |
+| 8880 | UDP| DMR+ DMO mode |
+| 10001 | UDP | JSON interface XLX Core |
+| 10002 | UDP | XLX interlink |
+| 10100 | UDP | AMBE controller |
+| 10101-10199 | UDP | AMBE transcoding |
+| 12345-12346 | UDP | ICom Terminal presence/request |
+| 20001-20005 | UDP | DPlus |
+| 21110 | UDP | Yaesu IMRS |
+| 30001 | UDP | DExtra |
+| 30051 | UDP | DCS |
+| 40000 | UDP | Terminal DV |
+| 42000 | UDP | YSF |
+| 62030 | UDP | MMDVM |
 
 ---
 
@@ -221,7 +216,7 @@ If you skipped automatic SSL during installation:
 |---------|--------|-------------|
 | **XLX Reflector** | [LX3JL](https://github.com/LX3JL/xlxd) | Original XLX reflector software |
 | **Original Installer Idea** | [N5AMD](https://github.com/n5amd/xlxd-debian-installer) | Initial Debian installer concept |
-| **YSF Registration** | [DG9VH](https://register.ysfreflector.de/) | YSF reflector registration service |
+| **YSF Registration** | [KC1AWV(https://dvref.com) | YSF Reflector registration service |
 | **Echo Test Service** | [Narspt](https://github.com/narspt/XLXEcho) | XLX Echo Test implementation |
 | **SSL Certification** | [Certbot](https://certbot.eff.org/) | Free SSL/TLS certificates |
 | **This Installer** | [PU5KOD](https://www.qrz.com/db/PU5KOD) | Automated installation script |
