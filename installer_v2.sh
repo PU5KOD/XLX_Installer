@@ -55,10 +55,10 @@ cols=$(tput cols 2>/dev/null || echo "$MAX_WIDTH")
 width=$(( cols < MAX_WIDTH ? cols : MAX_WIDTH ))
 
 # Source visual functions library
-if [ -f "$SCRIPT_DIR/templates/cli_visual_unicode.sh" ]; then
-    source "$SCRIPT_DIR/templates/cli_visual_unicode.sh"
+if [ -f "$SCRIPT_DIR/templates/cli_visual_unicode.txt" ]; then
+    source "$SCRIPT_DIR/templates/cli_visual_unicode.txt"
 else
-    echo "ERROR: cli_visual_unicode.sh not found in templates/"
+    echo "ERROR: cli_visual_unicode.txt not found in templates/"
     exit 1
 fi
 
