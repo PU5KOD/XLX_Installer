@@ -5,12 +5,11 @@
 # Lets begin!!!
 
 # Redirect all output to the log and keep it in the terminal
-cd /usr/src
 LOGFILE="$PWD/log/log_xlx_install_$(date +%F_%H-%M-%S).log"
 exec > >(tee -a "$LOGFILE") 2>&1
 
 #  INITIAL CHECKS
-# 1. root user check with automatic relaunch.
+# 1. root user check with automatic relaunch
 if [ "$(id -u)" -ne 0 ]; then
     echo "This script is not being run as root."
     read -r -p "Do you want to relaunch with sudo? (y/n)" answer
@@ -27,13 +26,13 @@ if [ "$(id -u)" -ne 0 ]; then
     esac
 fi
 
-# 2. Internet check.
+# 2. Internet check
 if ! ping -c 1 google.com &>/dev/null; then
     echo "Unable to proceed, no internet connection detected. Please check your network."
     exit 1
 fi
 
-# 3. Distro check.
+# 3. Distro check
 if [ ! -e "/etc/debian_version" ]; then
     echo "This script has only been tested on Debian-based distributions."
     read -p "Do you want to continue anyway? (Y/N) " answer
@@ -65,7 +64,7 @@ SEPQUE="_-_-_-_-_-_-_-_-_-_-_"
 
 # 7. Parameter definition
 XLXINS=$(pwd)
-INSDIR="/usr/src"
+USRSRC="/usr/src"
 HOMEIP=$(hostname -I | awk '{print $1}')
 PUBLIP=$(curl v4.ident.me)
 NETACT=$(ip -o addr show up | awk '{print $2}' | grep -v lo | head -n1)
@@ -144,7 +143,7 @@ if [ -e "$XLXDIR/xlxd" ]; then
     exit 1
 else
 
-# 12. Start of data collection.
+# 12. Start of data collection
 clear
 line_type3
 echo ""
@@ -723,13 +722,13 @@ echo ""
 center_wrap_color $BLUE_BRIGHT "DOWNLOADING THE XLX APP..."
 center_wrap_color $BLUE "=========================="
 echo ""
-cd "$INSDIR"
+cd "$USRSRC"
 echo "Cloning repository..."
 git clone "$XLXREP"
-cd "$INSDIR/xlxd/src"
+cd "$USRSRC/xlxd/src"
 make clean
 echo "Seeding customizations..."
-MAINCONFIG="$INSDIR/xlxd/src/main.h"
+MAINCONFIG="$USRSRC/xlxd/src/main.h"
     sed -i "s|\(NB_OF_MODULES\s*\)\([0-9]*\)|\1$MODQTD|g" "$MAINCONFIG"
     sed -i "s|\(YSF_PORT\s*\)\([0-9]*\)|\1$YSFPORT|g" "$MAINCONFIG"
     sed -i "s|\(YSF_DEFAULT_NODE_TX_FREQ\s*\)\([0-9]*\)|\1$YSFFREQ|g" "$MAINCONFIG"
@@ -749,7 +748,7 @@ echo ""
 make
 make install
 fi
-if [ -e "$INSDIR/xlxd/src/xlxd" ]; then
+if [ -e "$USRSRC/xlxd/src/xlxd" ]; then
     echo ""
     echo ""
     center_wrap_color $GREEN "==============================="
@@ -796,7 +795,7 @@ echo "Seeding customizations..."
 TERMXLX="/xlxd/xlxd.terminal"
 sed -i "s|#address|address $PUBLIP|g" "$TERMXLX"
 sed -i "s|#modules|modules $MODLIST|g" "$TERMXLX"
-cp "$INSDIR/xlxd/scripts/xlxd.service" /etc/systemd/system/
+cp "$USRSRC/xlxd/scripts/xlxd.service" /etc/systemd/system/
 chmod 755 /etc/systemd/system/xlxd.service
 sed -i "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM $HOMEIP 127.0.0.1|g" /etc/systemd/system/xlxd.service
 # Comment out the line "ECHO 127.0.0.1 E" in /xlxd/xlxd.interlink if Echo Test is not installed
@@ -826,13 +825,13 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
     center_wrap_color $BLUE_BRIGHT "INSTALLING ECHO TEST SERVER..."
     center_wrap_color $BLUE "=============================="
     echo ""
-    cd "$INSDIR"
+    cd "$USRSRC"
     echo "Cloning repository..."
     git clone "$XLXECO"
     cd XLXEcho/
     gcc -o xlxecho xlxecho.c
     cp xlxecho /xlxd/
-    cp "$INSDIR/xlxd/scripts/xlxecho.service" /etc/systemd/system/
+    cp "$USRSRC/xlxd/scripts/xlxecho.service" /etc/systemd/system/
     chmod 755 /etc/systemd/system/xlxecho.service
     echo ""
     print_green "✔ Echo Test server successfully installed!"
@@ -843,10 +842,10 @@ echo ""
 center_wrap_color $BLUE_BRIGHT "INSTALLING DASHBOARD..."
 center_wrap_color $BLUE "======================="
 echo ""
-cd "$INSDIR"
+cd "$USRSRC"
 echo "Cloning repository..."
 git clone "$XLXDSH"
-cp -R "$INSDIR/XLX_Dark_Dashboard/"* "$WEBDIR/"
+cp -R "$USRSRC/XLX_Dark_Dashboard/"* "$WEBDIR/"
 echo "Seeding customizations..."
 XLXCONFIG="$WEBDIR/pgs/config.inc.php"
 sed -i "s|your_email|$EMAIL|g" "$XLXCONFIG"
