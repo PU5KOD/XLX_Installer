@@ -641,7 +641,7 @@ if [[ "$AUTOLINK" -eq 1 ]]; then
 fi
 echo ""
 
-# Data verification
+# Data input verification
 line_type1
 echo ""
 center_wrap_color $ORANGE "PLEASE REVIEW YOUR SETTINGS:"
@@ -725,6 +725,7 @@ echo ""
 center_wrap_color $BLUE_BRIGHT "DOWNLOADING THE XLX APP..."
 center_wrap_color $BLUE "=========================="
 echo ""
+echo ""
 cd "$USRSRC"
 echo "Cloning repository..."
 git clone "$XLXREP"
@@ -747,6 +748,7 @@ line_type1
 echo ""
 center_wrap_color $BLUE_BRIGHT "COMPILING..."
 center_wrap_color $BLUE "============"
+echo ""
 echo ""
 make
 make install
@@ -771,6 +773,7 @@ line_type1
 echo ""
 center_wrap_color $BLUE_BRIGHT "COPYING COMPONENTS..."
 center_wrap_color $BLUE "====================="
+echo ""
 echo ""
 mkdir -p "$XLXDIR"
 mkdir -p "$WEBDIR"
@@ -828,6 +831,7 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
     center_wrap_color $BLUE_BRIGHT "INSTALLING ECHO TEST SERVER..."
     center_wrap_color $BLUE "=============================="
     echo ""
+    echo ""
     cd "$USRSRC"
     echo "Cloning repository..."
     git clone "$XLXECO"
@@ -844,6 +848,7 @@ line_type1
 echo ""
 center_wrap_color $BLUE_BRIGHT "INSTALLING DASHBOARD..."
 center_wrap_color $BLUE "======================="
+echo ""
 echo ""
 cd "$USRSRC"
 echo "Cloning repository..."
@@ -893,6 +898,7 @@ if [ "$INSTALL_SSL" == "Y" ]; then
     center_wrap_color $BLUE_BRIGHT "CONFIGURING SSL CERTIFICATE..."
     center_wrap_color $BLUE "=============================="
     echo ""
+    echo ""
     certbot --apache -d "$XLXDOMAIN" -n --agree-tos -m "$EMAIL"
 fi
 echo ""
@@ -902,6 +908,7 @@ line_type1
 echo ""
 center_wrap_color $BLUE_BRIGHT "STARTING $XRFNUM REFLECTOR..."
 center_wrap_color $BLUE "============================="
+echo ""
 echo ""
 systemctl enable --now xlxd.service >/dev/null 2>&1 &
 pid=$!
