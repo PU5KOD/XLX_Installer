@@ -9,18 +9,19 @@ LOGFILE="$PWD/log/log_xlx_install_$(date +%F_%H-%M-%S).log"
 exec > >(tee -a "$LOGFILE") 2>&1
 
 #  INITIAL CHECKS
-# 1. root user check with automatic relaunch
+# 1. Check if running as root, with automatic relaunch
 if [ "$(id -u)" -ne 0 ]; then
     echo "This script is not being run as root."
-    read -r -p "Do you want to relaunch with sudo? (y/n)" answer
+    read -r -p "Do you want to relaunch with sudo? (y/n) " answer
 
+    answer=${answer:-y}
     case "$answer" in
         y|Y|yes|YES)
             echo "Relaunching with sudo..."
-            exec sudo "$0" "$@"
+            exec sudo bash "$0" "$@"
             ;;
         *)
-            echo "Operation cancelled."
+            echo "Operation cancelled by user."
             exit 1
             ;;
     esac
