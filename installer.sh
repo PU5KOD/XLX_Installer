@@ -9,7 +9,7 @@ LOGFILE="$PWD/log/log_xlx_install_$(date +%F_%H-%M-%S).log"
 exec > >(tee -a "$LOGFILE") 2>&1
 
 #  INITIAL CHECKS
-# 1. root user check with automatic relaunch.
+# 1. root user check with automatic relaunch
 if [ "$(id -u)" -ne 0 ]; then
     echo "This script is not being run as root."
     read -r -p "Do you want to relaunch with sudo? (y/n)" answer
@@ -26,13 +26,13 @@ if [ "$(id -u)" -ne 0 ]; then
     esac
 fi
 
-# 2. Internet check.
+# 2. Internet check
 if ! ping -c 1 google.com &>/dev/null; then
     echo "Unable to proceed, no internet connection detected. Please check your network."
     exit 1
 fi
 
-# 3. Distro check.
+# 3. Distro check
 if [ ! -e "/etc/debian_version" ]; then
     echo "This script has only been tested on Debian-based distributions."
     read -p "Do you want to continue anyway? (Y/N) " answer
@@ -59,23 +59,24 @@ line_type3() {
 print_wrapped() {
     echo "$1" | fold -s -w "$width"
 }
+
 SEPQUE="_-_-_-_-_-_-_-_-_-_-_"
+
 # 7. Parameter definition
-DIRDIR=$(pwd)
-LOCAL_IP=$(hostname -I | awk '{print $1}')
-PUBLIC_IP=$(curl v4.ident.me)
+XLXINS=$(pwd)
+USRSRC="/usr/src"
+HOMEIP=$(hostname -I | awk '{print $1}')
+PUBLIP=$(curl v4.ident.me)
 NETACT=$(ip -o addr show up | awk '{print $2}' | grep -v lo | head -n1)
 INFREF="https://xlxbbs.epf.lu/"
-PHPVER=$(php -v | head -n1 | awk '{print $2}' | cut -d. -f1,2)
-XLXDREPO="https://github.com/PU5KOD/xlxd.git"
-XLXECHO="https://github.com/PU5KOD/XLXEcho.git"
-XLXDASH="https://github.com/PU5KOD/XLX_Dark_Dashboard.git"
-DMRIDURL="http://xlxapi.rlx.lu/api/exportdmr.php"
+XLXREP="https://github.com/PU5KOD/xlxd.git"
+XLXECO="https://github.com/PU5KOD/XLXEcho.git"
+XLXDSH="https://github.com/PU5KOD/XLX_Dark_Dashboard.git"
+DMRURL="http://xlxapi.rlx.lu/api/exportdmr.php"
 WEBDIR="/var/www/html/xlxd"
-XLXINSTDIR="/usr/src"
 XLXDIR="/xlxd"
 ACCEPT="| [ENTER] to accept..."
-APPS="git git-core make gcc g++ pv sqlite3 apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl php-sqlite3 build-essential vnstat certbot python3-certbot-apache"
+DEPAPP="git git-core make gcc g++ pv sqlite3 apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl php-sqlite3 build-essential vnstat certbot python3-certbot-apache"
 
 # 8. Color palette
 # msg_info - BLUE 38;5;39 - Information
@@ -142,7 +143,7 @@ if [ -e "$XLXDIR/xlxd" ]; then
     exit 1
 else
 
-# 12. Start of data collection.
+# 12. Start of data collection
 clear
 line_type3
 echo ""
@@ -711,8 +712,8 @@ echo ""
 center_wrap_color $BLUE_BRIGHT "INSTALLING DEPENDENCIES..."
 center_wrap_color $BLUE "=========================="
 echo ""
-mkdir -p "$XLXINSTDIR"
-apt -y install $APPS
+apt -y install $DEPAPP
+PHPVER=$(php -v | head -n1 | awk '{print $2}' | cut -d. -f1,2)
 echo ""
 print_green "✔ Operation completed successfully!"
 echo ""
@@ -721,13 +722,13 @@ echo ""
 center_wrap_color $BLUE_BRIGHT "DOWNLOADING THE XLX APP..."
 center_wrap_color $BLUE "=========================="
 echo ""
-cd "$XLXINSTDIR"
+cd "$USRSRC"
 echo "Cloning repository..."
-git clone "$XLXDREPO"
-cd "$XLXINSTDIR/xlxd/src"
+git clone "$XLXREP"
+cd "$USRSRC/xlxd/src"
 make clean
 echo "Seeding customizations..."
-MAINCONFIG="$XLXINSTDIR/xlxd/src/main.h"
+MAINCONFIG="$USRSRC/xlxd/src/main.h"
     sed -i "s|\(NB_OF_MODULES\s*\)\([0-9]*\)|\1$MODQTD|g" "$MAINCONFIG"
     sed -i "s|\(YSF_PORT\s*\)\([0-9]*\)|\1$YSFPORT|g" "$MAINCONFIG"
     sed -i "s|\(YSF_DEFAULT_NODE_TX_FREQ\s*\)\([0-9]*\)|\1$YSFFREQ|g" "$MAINCONFIG"
@@ -747,7 +748,7 @@ echo ""
 make
 make install
 fi
-if [ -e "$XLXINSTDIR/xlxd/src/xlxd" ]; then
+if [ -e "$USRSRC/xlxd/src/xlxd" ]; then
     echo ""
     echo ""
     center_wrap_color $GREEN "==============================="
@@ -772,31 +773,31 @@ mkdir -p "$XLXDIR"
 mkdir -p "$WEBDIR"
 touch /var/log/xlxd.xml
 echo "Downloading DMR ID file..."
-FILE_SIZE=$(wget --spider --server-response "$DMRIDURL" 2>&1 | grep -i Content-Length | awk '{print $2}')
+FILE_SIZE=$(wget --spider --server-response "$DMRURL" 2>&1 | grep -i Content-Length | awk '{print $2}')
 if [ -z "$FILE_SIZE" ]; then
     echo "Downloading..."
-    wget -q -O - "$DMRIDURL" | pv --force -p -t -r -b > /xlxd/dmrid.dat
+    wget -q -O - "$DMRURL" | pv --force -p -t -r -b > /xlxd/dmrid.dat
 else
     echo "File size: $FILE_SIZE bytes"
-    wget -q -O - "$DMRIDURL" | pv --force -p -t -r -b -s "$FILE_SIZE" > /xlxd/dmrid.dat
+    wget -q -O - "$DMRURL" | pv --force -p -t -r -b -s "$FILE_SIZE" > /xlxd/dmrid.dat
 fi
 if [ $? -ne 0 ] || [ ! -s /xlxd/dmrid.dat ]; then
     print_redd "Error: Failed to download or empty DMR ID file."
 fi
 echo "Creating custom XLX log..."
-cp "$DIRDIR/templates/xlx_log.service" /etc/systemd/system/
-cp "$DIRDIR/templates/xlx_log.sh" /usr/local/bin/
-cp "$DIRDIR/templates/xlx_logrotate.conf" /etc/logrotate.d/
+cp "$XLXINS/templates/xlx_log.service" /etc/systemd/system/
+cp "$XLXINS/templates/xlx_log.sh" /usr/local/bin/
+cp "$XLXINS/templates/xlx_logrotate.conf" /etc/logrotate.d/
 chmod 755 /etc/systemd/system/xlx_log.service
 chmod 755 /usr/local/bin/xlx_log.sh
 chmod 644 /etc/logrotate.d/xlx_logrotate.conf
 echo "Seeding customizations..."
 TERMXLX="/xlxd/xlxd.terminal"
-sed -i "s|#address|address $PUBLIC_IP|g" "$TERMXLX"
+sed -i "s|#address|address $PUBLIP|g" "$TERMXLX"
 sed -i "s|#modules|modules $MODLIST|g" "$TERMXLX"
-cp "$XLXINSTDIR/xlxd/scripts/xlxd.service" /etc/systemd/system/
+cp "$USRSRC/xlxd/scripts/xlxd.service" /etc/systemd/system/
 chmod 755 /etc/systemd/system/xlxd.service
-sed -i "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM $LOCAL_IP 127.0.0.1|g" /etc/systemd/system/xlxd.service
+sed -i "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM $HOMEIP 127.0.0.1|g" /etc/systemd/system/xlxd.service
 # Comment out the line "ECHO 127.0.0.1 E" in /xlxd/xlxd.interlink if Echo Test is not installed
 if [ "$INSTALL_ECHO" == "N" ]; then
     sed -i 's|^ECHO 127.0.0.1 E|#ECHO 127.0.0.1 E|' /xlxd/xlxd.interlink
@@ -808,8 +809,8 @@ if command -v crontab &>/dev/null; then
     echo "Entry added successfully!"
 else
     echo "crontab is not installed, using systemd..."
-    cp "$DIRDIR/templates/update_XLX_db.service" /etc/systemd/system/
-    cp "$DIRDIR/templates/update_XLX_db.timer" /etc/systemd/system/
+    cp "$XLXINS/templates/update_XLX_db.service" /etc/systemd/system/
+    cp "$XLXINS/templates/update_XLX_db.timer" /etc/systemd/system/
     chmod 755 /etc/systemd/system/update_XLX_db.*
     systemctl daemon-reload
     systemctl enable --now update_XLX_db.timer
@@ -824,13 +825,13 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
     center_wrap_color $BLUE_BRIGHT "INSTALLING ECHO TEST SERVER..."
     center_wrap_color $BLUE "=============================="
     echo ""
-    cd "$XLXINSTDIR"
+    cd "$USRSRC"
     echo "Cloning repository..."
-    git clone "$XLXECHO"
+    git clone "$XLXECO"
     cd XLXEcho/
     gcc -o xlxecho xlxecho.c
     cp xlxecho /xlxd/
-    cp "$XLXINSTDIR/xlxd/scripts/xlxecho.service" /etc/systemd/system/
+    cp "$USRSRC/xlxd/scripts/xlxecho.service" /etc/systemd/system/
     chmod 755 /etc/systemd/system/xlxecho.service
     echo ""
     print_green "✔ Echo Test server successfully installed!"
@@ -841,10 +842,10 @@ echo ""
 center_wrap_color $BLUE_BRIGHT "INSTALLING DASHBOARD..."
 center_wrap_color $BLUE "======================="
 echo ""
-cd "$XLXINSTDIR"
+cd "$USRSRC"
 echo "Cloning repository..."
-git clone "$XLXDASH"
-cp -R "$XLXINSTDIR/XLX_Dark_Dashboard/"* "$WEBDIR/"
+git clone "$XLXDSH"
+cp -R "$USRSRC/XLX_Dark_Dashboard/"* "$WEBDIR/"
 echo "Seeding customizations..."
 XLXCONFIG="$WEBDIR/pgs/config.inc.php"
 sed -i "s|your_email|$EMAIL|g" "$XLXCONFIG"
@@ -856,7 +857,7 @@ sed -i "s#http://your_dashboard#http://$XLXDOMAIN#g" "$XLXCONFIG"
 sed -i "s|your_country|$COUNTRY|g" "$XLXCONFIG"
 sed -i "s|your_comment|$COMMENT|g" "$XLXCONFIG"
 sed -i "s|netact|$NETACT|g" "$XLXCONFIG"
-cp "$DIRDIR/templates/apache.tbd.conf" /etc/apache2/sites-available/"$XLXDOMAIN".conf
+cp "$XLXINS/templates/apache.tbd.conf" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 sed -i "s|apache.tbd|$XLXDOMAIN|g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 sed -i "s#ysf-xlxd#html/xlxd#g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
 sed -i "s|^;\?date\.timezone\s*=.*|date.timezone = \"$TIMEZONE\"|" /etc/php/"$PHPVER"/apache2/php.ini
