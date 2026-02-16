@@ -4,12 +4,8 @@
 # Customized by Daniel K., PU5KOD
 # Lets begin!!!
 
-# Redirect all output to the log and keep it in the terminal
-LOGFILE="$PWD/log/log_xlx_install_$(date +%F_%H-%M-%S).log"
-exec > >(tee -a "$LOGFILE") 2>&1
-
 #  INITIAL CHECKS
-# 1. Check if running as root, with automatic relaunch
+#  1. Check if running as root, with automatic relaunch
 if [ "$(id -u)" -ne 0 ]; then
     echo "This script is not being run as root."
     read -r -p "Do you want to relaunch with sudo? (y/n) " answer
@@ -27,25 +23,29 @@ if [ "$(id -u)" -ne 0 ]; then
     esac
 fi
 
-# 2. Internet check
+#  2. Redirect all output to the log and keep it in the terminal
+LOGFILE="$PWD/log/log_xlx_install_$(date +%F_%H-%M-%S).log"
+exec > >(tee -a "$LOGFILE") 2>&1
+
+#  3. Internet check
 if ! ping -c 1 google.com &>/dev/null; then
     echo "Unable to proceed, no internet connection detected. Please check your network."
     exit 1
 fi
 
-# 3. Distro check
+#  4. Distro check
 if [ ! -e "/etc/debian_version" ]; then
     echo "This script has only been tested on Debian-based distributions."
     read -p "Do you want to continue anyway? (Y/N) " answer
     [[ "$answer" =~ ^[yY](es)?$ ]] || { echo "Execution cancelled."; exit 1; }
 fi
 
-# 4. Set the fixed character limit
+#  5. Set the fixed character limit
 MAX_WIDTH=100
 cols=$(tput cols 2>/dev/null || echo "$MAX_WIDTH")
 width=$(( cols < MAX_WIDTH ? cols : MAX_WIDTH ))
 
-# 5. Function to create different types of lines adjusted to length
+#  6. Function to create different types of lines adjusted to length
 line_type1() {
     printf "%${width}s\n" | tr ' ' '_'
 }
@@ -56,14 +56,14 @@ line_type3() {
     printf "%${width}s\n" | tr ' ' ':'
 }
 
-# 6. Function to display text with adjusted line breaks
+#  7. Function to display text with adjusted line breaks
 print_wrapped() {
     echo "$1" | fold -s -w "$width"
 }
 
-SEPQUE="_-_-_-_-_-_-_-_-_-_-_"
+SEPQUE="_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_"
 
-# 7. Parameter definition
+#  8. Parameter definition
 XLXINS=$(pwd)
 USRSRC="/usr/src"
 HOMEIP=$(hostname -I | awk '{print $1}')
@@ -79,7 +79,7 @@ XLXDIR="/xlxd"
 ACCEPT="| [ENTER] to accept..."
 DEPAPP="git git-core make gcc g++ pv sqlite3 apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl php-sqlite3 build-essential vnstat certbot python3-certbot-apache"
 
-# 8. Color palette
+#  9. Color palette
 # msg_info - BLUE 38;5;39 - Information
 # msg_success - GREEN 38;5;46 - Success
 # msg_warn - YELLOW 38;5;226 - Warning
@@ -98,7 +98,7 @@ RED='\033[38;5;196m'
 RED_DARK='\033[38;5;124m'
 GRAY='\033[38;5;250m'
 
-# 9. Unicode icons
+#  10. Unicode icons
 ICON_OK="✔"
 ICON_ERR="✖"
 ICON_WARN="⚠"
@@ -111,7 +111,7 @@ ICON_DOWNLOAD="⬇"
 ICON_COMPILE="🔨"
 ICON_SSL="🔒"
 
-# 10. Functions to display text with adjusted line breaks and colors
+#  11. Functions to display text with adjusted line breaks and colors
 print_blue() { echo -e "${BLUE}$(echo "$1" | fold -s -w "$width")${NC}"; }
 print_blueb() { echo -e "${BLUE_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"; }
 print_green() { echo -e "${GREEN}$(echo "$1" | fold -s -w "$width")${NC}"; }
@@ -132,7 +132,7 @@ center_wrap_color() {
     done
 }
 
-# 11. Check for existing installs
+#  12. Check for existing installs
 if [ -e "$XLXDIR/xlxd" ]; then
     echo ""
     line_type2
@@ -144,7 +144,7 @@ if [ -e "$XLXDIR/xlxd" ]; then
     exit 1
 else
 
-# 12. Start of data collection
+#  13. Start of data collection
 clear
 line_type3
 echo ""
