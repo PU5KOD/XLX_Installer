@@ -698,11 +698,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 #  Apply timezone only if it's NOT the system timezone.
+echo ""
+print_wrapped "Timezone adjustment"
 if [[ "$TIMEZONE_USE_SYSTEM" -eq 0 ]]; then
     print_yellow "Applying new timezone: $TIMEZONE"
     timedatectl set-timezone "$TIMEZONE"
 else
-    print_wrapped "Detected system timezone preserved: $TIMEZONE"
+    print_gray "Detected system timezone preserved: $TIMEZONE"
 fi
 echo ""
 print_green "✔ System updated successfully!"
