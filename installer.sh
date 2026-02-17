@@ -876,7 +876,8 @@ TERMXLX="/xlxd/xlxd.terminal"
 # Safely escape variables for sed
 PUBLIP_ESC=$(escape_sed "$PUBLIP")
 # Create module list - MODQTD already validated during user input (lines 528-541)
-MODLIST=$(printf "%0${MODQTD}s" | tr ' ' '\n' | awk '{printf "%c", 65+NR-1}' | tr -d '\n')
+# printf "%${MODQTD}s" creates MODQTD spaces, tr converts to newlines, awk generates A-Z letters
+MODLIST=$(printf "%${MODQTD}s" | tr ' ' '\n' | awk '{printf "%c", 65+NR-1}' | tr -d '\n')
 MODLIST_ESC=$(escape_sed "$MODLIST")
 
 sed -i "s|#address|address $PUBLIP_ESC|g" "$TERMXLX"
@@ -909,7 +910,7 @@ fi
 echo ""
 success_msg "Components copied and configured!"
 echo ""
-# Echo Test installation conditional on answering question 11
+# Echo Test installation conditional (question 11 in user input sequence)
 if [ "$INSTALL_ECHO" == "Y" ]; then
     line_type1
     echo ""
