@@ -27,7 +27,10 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 #  2. Redirect all output to the log and keep it in the terminal
-mkdir -p "$PWD/log"
+if ! mkdir -p "$PWD/log"; then
+    echo "ERROR: Failed to create log directory at $PWD/log"
+    exit 1
+fi
 LOGFILE="$PWD/log/log_xlx_install_$(date +%F_%H-%M-%S).log"
 exec > >(tee -a "$LOGFILE") 2>&1
 
@@ -872,10 +875,7 @@ echo "Seeding customizations..."
 TERMXLX="/xlxd/xlxd.terminal"
 # Safely escape variables for sed
 PUBLIP_ESC=$(escape_sed "$PUBLIP")
-# Create module list - validate MODQTD first
-if [[ ! "$MODQTD" =~ ^[0-9]+$ ]] || [ "$MODQTD" -lt 1 ] || [ "$MODQTD" -gt 26 ]; then
-    error_exit "Invalid MODQTD value: $MODQTD (must be 1-26)"
-fi
+# Create module list - MODQTD already validated during user input (lines 528-541)
 MODLIST=$(printf "%0${MODQTD}s" | tr ' ' '\n' | awk '{printf "%c", 65+NR-1}' | tr -d '\n')
 MODLIST_ESC=$(escape_sed "$MODLIST")
 
@@ -1003,8 +1003,10 @@ fi
 if [ -f /xlxd/xlxecho ]; then
     chmod 755 /xlxd/xlxecho
 fi
-# Use find for safe handling of .sh files
-find /xlxd/users_db -type f -name '*.sh' -exec chmod 755 {} \; 2>/dev/null || true
+# Use find for safe handling of .sh files in users_db directory
+if [ -d /xlxd/users_db ]; then
+    find /xlxd/users_db -type f -name '*.sh' -exec chmod 755 {} \;
+fi
 
 /bin/bash /xlxd/users_db/update_db.sh || print_orange "Warning: Failed to update user database"
 /usr/sbin/a2ensite "$XLXDOMAIN".conf 2>/dev/null | head -n1
