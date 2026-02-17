@@ -875,7 +875,11 @@ echo "Seeding customizations..."
 TERMXLX="/xlxd/xlxd.terminal"
 # Safely escape variables for sed
 PUBLIP_ESC=$(escape_sed "$PUBLIP")
-# Create module list - MODQTD already validated during user input (lines 528-541)
+# Create module list - MODQTD already validated during user input (line 538: 1-26 range)
+# Defensive assertion in case validation is bypassed
+if [ "$MODQTD" -lt 1 ] || [ "$MODQTD" -gt 26 ]; then
+    error_exit "MODQTD out of valid range (1-26): $MODQTD"
+fi
 # printf "%${MODQTD}s" creates MODQTD spaces, tr converts to newlines, awk generates A-Z letters
 MODLIST=$(printf "%${MODQTD}s" | tr ' ' '\n' | awk '{printf "%c", 65+NR-1}' | tr -d '\n')
 MODLIST_ESC=$(escape_sed "$MODLIST")
