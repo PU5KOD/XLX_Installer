@@ -161,7 +161,7 @@ success_msg() {
 
 # Escape special characters for use in sed replacement strings
 escape_sed() {
-    printf '%s\n' "$1" | sed 's:[&/\\]:\\&:g'
+    printf '%s\n' "$1" | sed 's/[&/\]/\\&/g'
 }
 
 #  13. Check for existing installs
@@ -873,8 +873,8 @@ TERMXLX="/xlxd/xlxd.terminal"
 # Safely escape variables for sed
 PUBLIP_ESC=$(escape_sed "$PUBLIP")
 # Create module list - validate MODQTD first
-if [[ ! "$MODQTD" =~ ^[0-9]+$ ]] || [ "$MODQTD" -lt 1 ]; then
-    error_exit "Invalid MODQTD value: $MODQTD"
+if [[ ! "$MODQTD" =~ ^[0-9]+$ ]] || [ "$MODQTD" -lt 1 ] || [ "$MODQTD" -gt 26 ]; then
+    error_exit "Invalid MODQTD value: $MODQTD (must be 1-26)"
 fi
 MODLIST=$(printf "%0${MODQTD}s" | tr ' ' '\n' | awk '{printf "%c", 65+NR-1}' | tr -d '\n')
 MODLIST_ESC=$(escape_sed "$MODLIST")
@@ -883,10 +883,12 @@ sed -i "s|#address|address $PUBLIP_ESC|g" "$TERMXLX"
 sed -i "s|#modules|modules $MODLIST_ESC|g" "$TERMXLX"
 cp "$USRSRC/xlxd/scripts/xlxd.service" /etc/systemd/system/ || error_exit "Failed to copy xlxd.service"
 chmod 755 /etc/systemd/system/xlxd.service
-# Escape variables for sed
+# Escape variables for sed and combine operations
 XRFNUM_ESC=$(escape_sed "$XRFNUM")
 HOMEIP_ESC=$(escape_sed "$HOMEIP")
-sed -i "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM_ESC $HOMEIP_ESC 127.0.0.1|g" /etc/systemd/system/xlxd.service
+sed -i \
+    -e "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM_ESC $HOMEIP_ESC 127.0.0.1|g" \
+    /etc/systemd/system/xlxd.service
 # Comment out the line "ECHO 127.0.0.1 E" in /xlxd/xlxd.interlink if Echo Test is not installed
 if [ "$INSTALL_ECHO" == "N" ]; then
     sed -i 's|^ECHO 127.0.0.1 E|#ECHO 127.0.0.1 E|' /xlxd/xlxd.interlink
@@ -978,7 +980,7 @@ sed -i \
 TIMEZONE_ESC=$(escape_sed "$TIMEZONE")
 sed -i "s|^;\\?date\\.timezone\\s*=.*|date.timezone = \"$TIMEZONE_ESC\"|" /etc/php/"$PHPVER"/apache2/php.ini
 
-# Detect Apache user (use pgrep instead of ps aux | grep)
+# Detect Apache user
 APACHE_USER=$(ps aux | grep -E '[a]pache|[h]ttpd' | grep -v root | head -1 | awk '{print $1}')
 if [ -z "$APACHE_USER" ]; then
     APACHE_USER="www-data"
@@ -1001,9 +1003,8 @@ fi
 if [ -f /xlxd/xlxecho ]; then
     chmod 755 /xlxd/xlxecho
 fi
-if compgen -G "/xlxd/users_db/*.sh" > /dev/null; then
-    chmod 755 /xlxd/users_db/*.sh
-fi
+# Use find for safe handling of .sh files
+find /xlxd/users_db -type f -name '*.sh' -exec chmod 755 {} \; 2>/dev/null || true
 
 /bin/bash /xlxd/users_db/update_db.sh || print_orange "Warning: Failed to update user database"
 /usr/sbin/a2ensite "$XLXDOMAIN".conf 2>/dev/null | head -n1
