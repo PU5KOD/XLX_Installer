@@ -388,7 +388,13 @@ while true; do
     TIMEZONE_USE_SYSTEM=0
 
     # Resolve tzdata link
-    ZONEFILE=$(readlink -f "/usr/share/zoneinfo/$TIMEZONE")
+    ZONEFILE=$(readlink -f "/usr/share/zoneinfo/$TIMEZONE" 2>/dev/null)
+    if [ -z "$ZONEFILE" ] || [ ! -f "$ZONEFILE" ]; then
+        print_orange "Warning: Timezone file not found. Using system default."
+        TIMEZONE="$AUTO_TZ"
+        ZONEFILE=$(readlink -f "/usr/share/zoneinfo/$TIMEZONE")
+    fi
+    
     REAL_OFFSET=$(TZ="$ZONEFILE" date +%z)
 
     # Prepare offset
@@ -554,6 +560,16 @@ echo ""
     fi
 done
 print_yellow "Using: $YSFPORT"
+
+# Check if port is already in use
+if ss -tuln 2>/dev/null | grep -q ":$YSFPORT "; then
+    print_orange "Warning: Port $YSFPORT appears to be in use. Installation may fail if this port is not available."
+    read -p "Do you want to continue anyway? (Y/N) " PORT_ANSWER
+    PORT_ANSWER=$(echo "${PORT_ANSWER:-N}" | tr '[:lower:]' '[:upper:]')
+    if [ "$PORT_ANSWER" != "Y" ]; then
+        error_exit "Installation cancelled due to port conflict"
+    fi
+fi
 
 
 while true; do
@@ -1048,6 +1064,57 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
 fi
 echo ""
 echo -e "\n${GREEN}✔ Initialization completed!${NC}"
+echo ""
+
+# Post-installation validation
+echo "Running post-installation validation..."
+VALIDATION_FAILED=0
+
+# Check if xlxd binary exists
+if [ ! -f "/xlxd/xlxd" ]; then
+    print_red "✖ XLXD binary not found at /xlxd/xlxd"
+    VALIDATION_FAILED=1
+else
+    print_green "✔ XLXD binary found"
+fi
+
+# Check if xlxd service is running
+if systemctl is-active --quiet xlxd.service; then
+    print_green "✔ XLXD service is running"
+else
+    print_red "✖ XLXD service is not running"
+    VALIDATION_FAILED=1
+fi
+
+# Check if Apache is running
+if systemctl is-active --quiet apache2; then
+    print_green "✔ Apache service is running"
+else
+    print_orange "⚠ Apache service is not running"
+fi
+
+# Check if dashboard files exist
+if [ -f "$WEBDIR/index.php" ]; then
+    print_green "✔ Dashboard files found"
+else
+    print_orange "⚠ Dashboard files not found at expected location"
+fi
+
+# Check if echo service is running (if installed)
+if [ "$INSTALL_ECHO" == "Y" ]; then
+    if systemctl is-active --quiet xlxecho.service; then
+        print_green "✔ Echo Test service is running"
+    else
+        print_orange "⚠ Echo Test service is not running"
+    fi
+fi
+
+if [ "$VALIDATION_FAILED" -eq 1 ]; then
+    echo ""
+    print_orange "⚠ Some validation checks failed. Please review the installation logs."
+    print_orange "You can check service status with: systemctl status xlxd.service"
+fi
+
 echo ""
 line_type2
 echo ""
