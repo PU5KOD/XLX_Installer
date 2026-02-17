@@ -4,6 +4,9 @@
 # Customized by Daniel K., PU5KOD
 # Lets begin!!!
 
+# Enable strict error handling
+set -o pipefail
+
 #  INITIAL CHECKS
 #  1. Check if running as root, with automatic relaunch
 if [ "$(id -u)" -ne 0 ]; then
@@ -24,11 +27,21 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 #  2. Redirect all output to the log and keep it in the terminal
+mkdir -p "$PWD/log"
 LOGFILE="$PWD/log/log_xlx_install_$(date +%F_%H-%M-%S).log"
 exec > >(tee -a "$LOGFILE") 2>&1
 
-#  3. Internet check
-if ! ping -c 1 google.com &>/dev/null; then
+#  3. Internet check (retry up to 3 times for reliability)
+PING_SUCCESS=0
+for i in {1..3}; do
+    if ping -c 1 -W 2 google.com &>/dev/null; then
+        PING_SUCCESS=1
+        break
+    fi
+    sleep 1
+done
+
+if [ "$PING_SUCCESS" -eq 0 ]; then
     echo "Unable to proceed, no internet connection detected. Please check your network."
     exit 1
 fi
@@ -67,7 +80,11 @@ SEPQUE="_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_"
 XLXINS=$(pwd)
 USRSRC="/usr/src"
 HOMEIP=$(hostname -I | awk '{print $1}')
-PUBLIP=$(curl v4.ident.me)
+PUBLIP=$(curl -m 5 -s https://v4.ident.me)
+if [ -z "$PUBLIP" ]; then
+    echo "Warning: Could not determine public IP address"
+    PUBLIP="0.0.0.0"
+fi
 NETACT=$(ip -o addr show up | awk '{print $2}' | grep -v lo | head -n1)
 INFREF="https://xlxbbs.epf.lu/"
 XLXREP="https://github.com/PU5KOD/xlxd.git"
@@ -132,7 +149,22 @@ center_wrap_color() {
     done
 }
 
-#  12. Check for existing installs
+#  12. Helper functions for error handling and sed escaping
+error_exit() {
+    print_redd "ERROR: $1"
+    exit 1
+}
+
+success_msg() {
+    print_green "✔ $1"
+}
+
+# Escape special characters for use in sed replacement strings
+escape_sed() {
+    printf '%s\n' "$1" | sed 's:[&/\]:\\&:g'
+}
+
+#  13. Check for existing installs
 if [ -e "$XLXDIR/xlxd" ]; then
     echo ""
     line_type2
@@ -214,7 +246,7 @@ echo ""
     if [[ "$EMAIL" =~ ^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$ ]]; then
         break
     fi
-    print_orange "Invalid email format. (e.g., user@doamain.com)."
+    print_orange "Invalid email format. (e.g., user@domain.com)."
 done
 print_yellow "Using: $EMAIL"
 
@@ -652,7 +684,7 @@ print_wrapped "02. FQDN:		$XLXDOMAIN"
 print_wrapped "03. E-mail:		$EMAIL"
 print_wrapped "04. Callsign:		$CALLSIGN"
 print_wrapped "05. Country:		$COUNTRY"
-print_wrapped "06. Time Zome:		$TIMEZONE"
+print_wrapped "06. Time Zone:		$TIMEZONE"
 print_wrapped "07. XLX list comment:	$COMMENT"
 print_wrapped "08. Tab page text:	$HEADER"
 print_wrapped "09. Dashboard footnote:	$FOOTER"
@@ -715,10 +747,25 @@ echo ""
 center_wrap_color $BLUE_BRIGHT "INSTALLING DEPENDENCIES..."
 center_wrap_color $BLUE "=========================="
 echo ""
+
+# Check available disk space (require at least 1GB)
+AVAIL_SPACE=$(df /usr/src | tail -1 | awk '{print $4}')
+if [ "$AVAIL_SPACE" -lt 1048576 ]; then
+    error_exit "Insufficient disk space. At least 1GB required in /usr/src"
+fi
+
 apt -y install $DEPAPP
+if [ $? -ne 0 ]; then
+    error_exit "Failed to install dependencies. Check package manager configuration."
+fi
+
 PHPVER=$(php -v | head -n1 | awk '{print $2}' | cut -d. -f1,2)
+if [ -z "$PHPVER" ]; then
+    error_exit "PHP installation failed or version could not be determined"
+fi
+
 echo ""
-print_green "✔ Operation completed successfully!"
+success_msg "Dependencies installed! PHP version: $PHPVER"
 echo ""
 line_type1
 echo ""
@@ -726,23 +773,31 @@ center_wrap_color $BLUE_BRIGHT "DOWNLOADING THE XLX APP..."
 center_wrap_color $BLUE "=========================="
 echo ""
 echo ""
-cd "$USRSRC"
+cd "$USRSRC" || error_exit "Failed to change to $USRSRC directory"
 echo "Cloning repository..."
-git clone "$XLXREP"
-cd "$USRSRC/xlxd/src"
+git clone --depth 1 "$XLXREP" || error_exit "Failed to clone XLX repository"
+cd "$USRSRC/xlxd/src" || error_exit "Failed to change to xlxd/src directory"
 make clean
 echo "Seeding customizations..."
 MAINCONFIG="$USRSRC/xlxd/src/main.h"
-    sed -i "s|\(NB_OF_MODULES\s*\)\([0-9]*\)|\1$MODQTD|g" "$MAINCONFIG"
-    sed -i "s|\(YSF_PORT\s*\)\([0-9]*\)|\1$YSFPORT|g" "$MAINCONFIG"
-    sed -i "s|\(YSF_DEFAULT_NODE_TX_FREQ\s*\)\([0-9]*\)|\1$YSFFREQ|g" "$MAINCONFIG"
-    sed -i "s|\(YSF_DEFAULT_NODE_RX_FREQ\s*\)\([0-9]*\)|\1$YSFFREQ|g" "$MAINCONFIG"
-    sed -i "s|\(YSF_AUTOLINK_ENABLE\s*\)\([0-9]*\)|\1$AUTOLINK|g" "$MAINCONFIG"
-    if [ "$AUTOLINK" -eq 1 ]; then
-        sed -i "s|\(YSF_AUTOLINK_MODULE\s*\)'\([A-Z]*\)'|\1'$MODAUTO'|g" "$MAINCONFIG"
-    fi
+if [ ! -f "$MAINCONFIG" ]; then
+    error_exit "Configuration file $MAINCONFIG not found"
+fi
+
+# Use safer sed with proper escaping and combined operations
+sed -i \
+    -e "s|\(NB_OF_MODULES\s*\)[0-9]*|\1$MODQTD|g" \
+    -e "s|\(YSF_PORT\s*\)[0-9]*|\1$YSFPORT|g" \
+    -e "s|\(YSF_DEFAULT_NODE_TX_FREQ\s*\)[0-9]*|\1$YSFFREQ|g" \
+    -e "s|\(YSF_DEFAULT_NODE_RX_FREQ\s*\)[0-9]*|\1$YSFFREQ|g" \
+    -e "s|\(YSF_AUTOLINK_ENABLE\s*\)[0-9]*|\1$AUTOLINK|g" \
+    "$MAINCONFIG"
+
+if [ "$AUTOLINK" -eq 1 ]; then
+    sed -i "s|\(YSF_AUTOLINK_MODULE\s*\)'[A-Z]*'|\1'$MODAUTO'|g" "$MAINCONFIG"
+fi
 echo ""
-print_green "✔ Repository cloned and customizations applied!"
+success_msg "Repository cloned and customizations applied!"
 echo ""
 line_type1
 echo ""
@@ -750,8 +805,8 @@ center_wrap_color $BLUE_BRIGHT "COMPILING..."
 center_wrap_color $BLUE "============"
 echo ""
 echo ""
-make
-make install
+make || error_exit "Compilation failed. Check build dependencies and logs."
+make install || error_exit "Installation of compiled binaries failed"
 fi
 if [ -e "$USRSRC/xlxd/src/xlxd" ]; then
     echo ""
@@ -775,8 +830,8 @@ center_wrap_color $BLUE_BRIGHT "COPYING COMPONENTS..."
 center_wrap_color $BLUE "====================="
 echo ""
 echo ""
-mkdir -p "$XLXDIR"
-mkdir -p "$WEBDIR"
+mkdir -p "$XLXDIR" || error_exit "Failed to create $XLXDIR directory"
+mkdir -p "$WEBDIR" || error_exit "Failed to create $WEBDIR directory"
 touch /var/log/xlxd.xml
 echo "Downloading DMR ID file..."
 FILE_SIZE=$(wget --spider --server-response "$DMRURL" 2>&1 | grep -i Content-Length | awk '{print $2}')
@@ -788,22 +843,29 @@ else
     wget -q -O - "$DMRURL" | pv --force -p -t -r -b -s "$FILE_SIZE" > /xlxd/dmrid.dat
 fi
 if [ $? -ne 0 ] || [ ! -s /xlxd/dmrid.dat ]; then
-    print_redd "Error: Failed to download or empty DMR ID file."
+    error_exit "Failed to download DMR ID file or file is empty"
 fi
 echo "Creating custom XLX log..."
-cp "$XLXINS/templates/xlx_log.service" /etc/systemd/system/
-cp "$XLXINS/templates/xlx_log.sh" /usr/local/bin/
-cp "$XLXINS/templates/xlx_logrotate.conf" /etc/logrotate.d/
+cp "$XLXINS/templates/xlx_log.service" /etc/systemd/system/ || error_exit "Failed to copy xlx_log.service"
+cp "$XLXINS/templates/xlx_log.sh" /usr/local/bin/ || error_exit "Failed to copy xlx_log.sh"
+cp "$XLXINS/templates/xlx_logrotate.conf" /etc/logrotate.d/ || error_exit "Failed to copy xlx_logrotate.conf"
 chmod 755 /etc/systemd/system/xlx_log.service
 chmod 755 /usr/local/bin/xlx_log.sh
 chmod 644 /etc/logrotate.d/xlx_logrotate.conf
 echo "Seeding customizations..."
 TERMXLX="/xlxd/xlxd.terminal"
-sed -i "s|#address|address $PUBLIP|g" "$TERMXLX"
+# Safely escape variables for sed
+PUBLIP_ESC=$(escape_sed "$PUBLIP")
+# Create module list
+MODLIST=$(printf "%0${MODQTD}s" | tr ' ' '\n' | awk '{printf "%c", 65+NR-1}' | tr -d '\n')
+sed -i "s|#address|address $PUBLIP_ESC|g" "$TERMXLX"
 sed -i "s|#modules|modules $MODLIST|g" "$TERMXLX"
-cp "$USRSRC/xlxd/scripts/xlxd.service" /etc/systemd/system/
+cp "$USRSRC/xlxd/scripts/xlxd.service" /etc/systemd/system/ || error_exit "Failed to copy xlxd.service"
 chmod 755 /etc/systemd/system/xlxd.service
-sed -i "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM $HOMEIP 127.0.0.1|g" /etc/systemd/system/xlxd.service
+# Escape variables for sed
+XRFNUM_ESC=$(escape_sed "$XRFNUM")
+HOMEIP_ESC=$(escape_sed "$HOMEIP")
+sed -i "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM_ESC $HOMEIP_ESC 127.0.0.1|g" /etc/systemd/system/xlxd.service
 # Comment out the line "ECHO 127.0.0.1 E" in /xlxd/xlxd.interlink if Echo Test is not installed
 if [ "$INSTALL_ECHO" == "N" ]; then
     sed -i 's|^ECHO 127.0.0.1 E|#ECHO 127.0.0.1 E|' /xlxd/xlxd.interlink
@@ -822,9 +884,9 @@ else
     systemctl enable --now update_XLX_db.timer
 fi
 echo ""
-print_green "✔ Operation completed successfully!"
+success_msg "Components copied and configured!"
 echo ""
-# Echo Test installation conditional on answering question 08
+# Echo Test installation conditional on answering question 11
 if [ "$INSTALL_ECHO" == "Y" ]; then
     line_type1
     echo ""
@@ -832,16 +894,16 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
     center_wrap_color $BLUE "=============================="
     echo ""
     echo ""
-    cd "$USRSRC"
+    cd "$USRSRC" || error_exit "Failed to change to $USRSRC directory"
     echo "Cloning repository..."
-    git clone "$XLXECO"
-    cd XLXEcho/
-    gcc -o xlxecho xlxecho.c
-    cp xlxecho /xlxd/
-    cp "$USRSRC/xlxd/scripts/xlxecho.service" /etc/systemd/system/
+    git clone --depth 1 "$XLXECO" || error_exit "Failed to clone Echo Test repository"
+    cd XLXEcho/ || error_exit "Failed to change to XLXEcho directory"
+    gcc -o xlxecho xlxecho.c || error_exit "Failed to compile Echo Test"
+    cp xlxecho /xlxd/ || error_exit "Failed to copy Echo Test binary"
+    cp "$USRSRC/xlxd/scripts/xlxecho.service" /etc/systemd/system/ || error_exit "Failed to copy xlxecho.service"
     chmod 755 /etc/systemd/system/xlxecho.service
     echo ""
-    print_green "✔ Echo Test server successfully installed!"
+    success_msg "Echo Test server successfully installed!"
     echo ""
 fi
 line_type1
@@ -850,46 +912,79 @@ center_wrap_color $BLUE_BRIGHT "INSTALLING DASHBOARD..."
 center_wrap_color $BLUE "======================="
 echo ""
 echo ""
-cd "$USRSRC"
+cd "$USRSRC" || error_exit "Failed to change to $USRSRC directory"
 echo "Cloning repository..."
-git clone "$XLXDSH"
-cp -R "$USRSRC/XLX_Dark_Dashboard/"* "$WEBDIR/"
+git clone --depth 1 "$XLXDSH" || error_exit "Failed to clone Dashboard repository"
+cp -R "$USRSRC/XLX_Dark_Dashboard/"* "$WEBDIR/" || error_exit "Failed to copy dashboard files"
 echo "Seeding customizations..."
 XLXCONFIG="$WEBDIR/pgs/config.inc.php"
-sed -i "s|your_email|$EMAIL|g" "$XLXCONFIG"
-sed -i "s|LX1IQ|$CALLSIGN|g" "$XLXCONFIG"
-sed -i "s|MODQTD|$MODQTD|g" "$XLXCONFIG"
-sed -i "s|custom_header|$HEADER|g" "$XLXCONFIG"
-sed -i "s|custom_footnote|$FOOTER|g" "$XLXCONFIG"
-sed -i "s#http://your_dashboard#http://$XLXDOMAIN#g" "$XLXCONFIG"
-sed -i "s|your_country|$COUNTRY|g" "$XLXCONFIG"
-sed -i "s|your_comment|$COMMENT|g" "$XLXCONFIG"
-sed -i "s|netact|$NETACT|g" "$XLXCONFIG"
-cp "$XLXINS/templates/apache.tbd.conf" /etc/apache2/sites-available/"$XLXDOMAIN".conf
-sed -i "s|apache.tbd|$XLXDOMAIN|g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
-sed -i "s#ysf-xlxd#html/xlxd#g" /etc/apache2/sites-available/"$XLXDOMAIN".conf
-sed -i "s|^;\?date\.timezone\s*=.*|date.timezone = \"$TIMEZONE\"|" /etc/php/"$PHPVER"/apache2/php.ini
+if [ ! -f "$XLXCONFIG" ]; then
+    error_exit "Configuration file $XLXCONFIG not found"
+fi
+
+# Escape variables for sed
+EMAIL_ESC=$(escape_sed "$EMAIL")
+CALLSIGN_ESC=$(escape_sed "$CALLSIGN")
+HEADER_ESC=$(escape_sed "$HEADER")
+FOOTER_ESC=$(escape_sed "$FOOTER")
+XLXDOMAIN_ESC=$(escape_sed "$XLXDOMAIN")
+COUNTRY_ESC=$(escape_sed "$COUNTRY")
+COMMENT_ESC=$(escape_sed "$COMMENT")
+NETACT_ESC=$(escape_sed "$NETACT")
+
+# Apply all customizations with escaped variables
+sed -i \
+    -e "s|your_email|$EMAIL_ESC|g" \
+    -e "s|LX1IQ|$CALLSIGN_ESC|g" \
+    -e "s|MODQTD|$MODQTD|g" \
+    -e "s|custom_header|$HEADER_ESC|g" \
+    -e "s|custom_footnote|$FOOTER_ESC|g" \
+    -e "s|your_country|$COUNTRY_ESC|g" \
+    -e "s|your_comment|$COMMENT_ESC|g" \
+    -e "s|netact|$NETACT_ESC|g" \
+    "$XLXCONFIG"
+
+# Handle URL separately due to # character
+sed -i "s#http://your_dashboard#http://$XLXDOMAIN_ESC#g" "$XLXCONFIG"
+
+cp "$XLXINS/templates/apache.tbd.conf" /etc/apache2/sites-available/"$XLXDOMAIN".conf || error_exit "Failed to copy Apache config"
+sed -i \
+    -e "s|apache.tbd|$XLXDOMAIN_ESC|g" \
+    -e "s#ysf-xlxd#html/xlxd#g" \
+    /etc/apache2/sites-available/"$XLXDOMAIN".conf
+
+# Set PHP timezone
+sed -i "s|^;\\?date\\.timezone\\s*=.*|date.timezone = \"$TIMEZONE\"|" /etc/php/"$PHPVER"/apache2/php.ini
+
+# Detect Apache user (use pgrep instead of ps aux | grep)
 APACHE_USER=$(ps aux | grep -E '[a]pache|[h]ttpd' | grep -v root | head -1 | awk '{print $1}')
 if [ -z "$APACHE_USER" ]; then
     APACHE_USER="www-data"
 fi
-mv "$WEBDIR/users_db/" /xlxd/
+mv "$WEBDIR/users_db/" /xlxd/ || error_exit "Failed to move users_db directory"
 echo "Updating permissions..."
 chown -R "$APACHE_USER:$APACHE_USER" /var/log/xlxd.xml
 chown -R "$APACHE_USER:$APACHE_USER" "$WEBDIR/"
 chown -R "$APACHE_USER:$APACHE_USER" /xlxd/
+# Set proper permissions: 755 for directories, 644 for regular files, 755 for executables
 find /xlxd -type d -exec chmod 755 {} \;
-find /xlxd -type f -exec chmod 755 {} \;
 find "$WEBDIR" -type d -exec chmod 755 {} \;
-find "$WEBDIR" -type f -exec chmod 755 {} \;
-/bin/bash /xlxd/users_db/update_db.sh
+# Set files to 644 by default
+find /xlxd -type f -exec chmod 644 {} \;
+find "$WEBDIR" -type f -exec chmod 644 {} \;
+# Make scripts executable
+chmod 755 /xlxd/xlxd 2>/dev/null || true
+chmod 755 /xlxd/xlxecho 2>/dev/null || true
+chmod 755 /xlxd/users_db/*.sh 2>/dev/null || true
+
+/bin/bash /xlxd/users_db/update_db.sh || print_orange "Warning: Failed to update user database"
 /usr/sbin/a2ensite "$XLXDOMAIN".conf 2>/dev/null | head -n1
 /usr/sbin/a2dissite 000-default 2>/dev/null | head -n1
 systemctl stop apache2 >/dev/null 2>&1
-systemctl start apache2 >/dev/null 2>&1
+systemctl start apache2 >/dev/null 2>&1 || error_exit "Failed to start Apache"
 systemctl daemon-reload
 echo ""
-print_green "✔ Dashboard successfully installed!"
+success_msg "Dashboard successfully installed!"
 echo ""
 # SSL certification install
 if [ "$INSTALL_SSL" == "Y" ]; then
@@ -899,10 +994,14 @@ if [ "$INSTALL_SSL" == "Y" ]; then
     center_wrap_color $BLUE "=============================="
     echo ""
     echo ""
-    certbot --apache -d "$XLXDOMAIN" -n --agree-tos -m "$EMAIL"
+    if certbot --apache -d "$XLXDOMAIN" -n --agree-tos -m "$EMAIL"; then
+        success_msg "SSL certificate installed successfully!"
+    else
+        print_orange "Warning: SSL certificate installation failed. You can configure it manually later."
+    fi
 fi
 echo ""
-print_green "✔ Operation completed!"
+success_msg "Configuration completed!"
 echo ""
 line_type1
 echo ""
@@ -917,6 +1016,12 @@ for ((i=10; i>0; i--)); do
     sleep 1
 done
 wait $pid
+
+# Verify service started successfully
+if ! systemctl is-active --quiet xlxd.service; then
+    print_orange "Warning: xlxd service may not have started correctly. Check with: systemctl status xlxd"
+fi
+
 echo ""
 systemctl enable --now xlx_log.service >/dev/null 2>&1 &
 pid=$!
@@ -935,6 +1040,11 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
         sleep 1
     done
     wait $pid
+    
+    # Verify echo service started
+    if ! systemctl is-active --quiet xlxecho.service; then
+        print_orange "Warning: xlxecho service may not have started correctly"
+    fi
 fi
 echo ""
 echo -e "\n${GREEN}✔ Initialization completed!${NC}"
