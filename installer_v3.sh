@@ -204,9 +204,10 @@ echo ""
 #print_gray "Cinza =============="
 echo ""
 
-while true; do
+
     print_red "Mandatory"
     print_wrapped "01. XLX Reflector ID, 3 alphanumeric characters. (e.g., 300, US1, BRA)"
+    while true; do
     printf "> "
     read -r XRFDIGIT
     XRFDIGIT=$(echo "$XRFDIGIT" | tr '[:lower:]' '[:upper:]')
@@ -220,12 +221,12 @@ XRFNUM="XLX$XRFDIGIT"
 print_yellow "Using: $XRFNUM"
 
 
-while true; do
 echo ""
 echo "$SEPQUE"
 echo ""
     print_red "Mandatory"
     print_wrapped "02. Dashboard FQDN (fully qualified domain name), (e.g., xlxbra.net)"
+    while true; do
     printf "> "
     read -r XLXDOMAIN
     XLXDOMAIN=$(echo "$XLXDOMAIN" | tr '[:upper:]' '[:lower:]')
@@ -237,12 +238,12 @@ done
 print_yellow "Using: $XLXDOMAIN"
 
 
-while true; do
 echo ""
 echo "$SEPQUE"
 echo ""
     print_red "Mandatory"
     print_wrapped "03. Sysop e-mail address"
+    while true; do
     printf "> "
     read -r EMAIL
     EMAIL=$(echo "$EMAIL" | tr '[:upper:]' '[:lower:]')
@@ -254,12 +255,12 @@ done
 print_yellow "Using: $EMAIL"
 
 
-while true; do
 echo ""
 echo "$SEPQUE"
 echo ""
     print_red "Mandatory"
     print_wrapped "04. Sysop callsign. Only letters and numbers allowed, max 8 characters."
+    while true; do
     printf "> "
     read -r CALLSIGN
     CALLSIGN=$(echo "$CALLSIGN" | tr '[:lower:]' '[:upper:]')
@@ -271,12 +272,12 @@ done
 print_yellow "Using: $CALLSIGN"
 
 
-while true; do
 echo ""
 echo "$SEPQUE"
 echo ""
     print_red "Mandatory"
     print_wrapped "05. Reflector country name."
+    while true; do
     printf "> "
     read -r COUNTRY
     if [ -z "$COUNTRY" ]; then
@@ -439,13 +440,13 @@ done
 print_yellow "Using: $FINAL_DISPLAY"
 
 
-while true; do
 echo ""
 echo "$SEPQUE"
 echo ""
     COMMENT_DEFAULT="$XRFNUM Multiprotocol Reflector by $CALLSIGN, info: $EMAIL"
     print_wrapped "07. Comment to XLX Reflectors list."
     print_gray "Suggested: \"$COMMENT_DEFAULT\" $ACCEPT"
+    while true; do
     printf "> "
     read -r COMMENT
     COMMENT=${COMMENT:-"$COMMENT_DEFAULT"}
@@ -463,19 +464,26 @@ echo ""
     HEADER_DEFAULT="$XRFNUM by $CALLSIGN"
     print_wrapped "08. Custom text for the dashboard tab, preferably very short."
     print_gray "Suggested: \"$HEADER_DEFAULT\" $ACCEPT"
+    while true; do
     printf "> "
     read -r HEADER
     HEADER=${HEADER:-"$HEADER_DEFAULT"}
+    if [ ${#HEADER} -le 50 ]; then
+        break
+    else
+        print_orange "Error: Comment must be max 50 characters. Please try again!"
+    fi
+done
 print_yellow "Using: $HEADER"
 
 
-while true; do
 echo ""
 echo "$SEPQUE"
 echo ""
     FOOTER_DEFAULT="Provided by $CALLSIGN, info: $EMAIL"
     print_wrapped "09. Custom text on footer of the dashboard webpage."
     print_gray "Suggested: \"$FOOTER_DEFAULT\" $ACCEPT"
+    while true; do
     printf "> "
     read -r FOOTER
     FOOTER=${FOOTER:-"$FOOTER_DEFAULT"}
@@ -488,12 +496,12 @@ done
 print_yellow "Using: $FOOTER"
 
 
-while true; do
 echo ""
 echo "$SEPQUE"
 echo ""
     print_wrapped "10. Create an SSL certificate (https) for the dashboard webpage? (Y/N)"
     print_gray "Suggested: Y $ACCEPT"
+    while true; do
     printf "> "
     read -r INSTALL_SSL
     INSTALL_SSL=$(echo "${INSTALL_SSL:-Y}" | tr '[:lower:]' '[:upper:]')
@@ -507,12 +515,12 @@ done
 print_yellow "Using: $INSTALL_SSL"
 
 
-while true; do
 echo ""
 echo "$SEPQUE"
 echo ""
     print_wrapped "11. Install Echo Test on module E? (Y/N)"
     print_gray "Suggested: Y $ACCEPT"
+    while true; do
     printf "> "
     read -r INSTALL_ECHO
     INSTALL_ECHO=$(echo "${INSTALL_ECHO:-Y}" | tr '[:lower:]' '[:upper:]')
@@ -525,7 +533,6 @@ done
 print_yellow "Using: $INSTALL_ECHO"
 
 
-while true; do
 echo ""
 echo "$SEPQUE"
 echo ""
@@ -535,6 +542,7 @@ echo ""
     fi
     print_wrapped "12. Number of active modules for the DStar Reflector. ($MIN_MODULES - 26)"
     print_gray "Suggested: 5 $ACCEPT"
+    while true; do
     printf "> "
     read -r MODQTD
     MODQTD=${MODQTD:-5}
@@ -547,40 +555,59 @@ done
 print_yellow "Using: $MODQTD"
 
 
-while true; do
 echo ""
 echo "$SEPQUE"
 echo ""
-    print_wrapped "13. YSF Reflector UDP port number. (1-65535)"
-    print_gray "Suggested: 42000 $ACCEPT"
+print_wrapped "13. YSF Reflector UDP port number. (1-65535)"
+print_gray "Suggested: 42000 $ACCEPT"
+while true; do
     printf "> "
     read -r YSFPORT
     YSFPORT=${YSFPORT:-42000}
-    if [[ "$YSFPORT" =~ ^[0-9]+$ && "$YSFPORT" -ge 1 && "$YSFPORT" -le 65535 ]]; then
-        break
-    else
+
+    # Validação numérica
+    if [[ ! "$YSFPORT" =~ ^[0-9]+$ || "$YSFPORT" -lt 1 || "$YSFPORT" -gt 65535 ]]; then
         print_orange "Error: Must be a number between 1 and 65535. Try again!"
+        continue
     fi
+
+    # Checagem se porta está em uso
+    if ss -tuln 2>/dev/null | grep -q ":$YSFPORT "; then
+        print_orange "Warning: Port $YSFPORT appears to be in use."
+
+        while true; do
+            read -p "Do you want to continue anyway? (Y/N) " PORT_ANSWER
+            PORT_ANSWER=$(echo "${PORT_ANSWER:-N}" | tr '[:lower:]' '[:upper:]')
+
+            case "$PORT_ANSWER" in
+                Y)
+                    break 2   # sai dos dois loops
+                    ;;
+                N)
+                    print_gray "Please enter a different port."
+                    break     # sai só do loop interno
+                    ;;
+                *)
+                    print_orange "Please answer Y or N."
+                    ;;
+            esac
+        done
+
+        continue
+    fi
+
+    break
 done
+
 print_yellow "Using: $YSFPORT"
 
-# Check if port is already in use
-if ss -tuln 2>/dev/null | grep -q ":$YSFPORT "; then
-    print_orange "Warning: Port $YSFPORT appears to be in use. Installation may fail if this port is not available."
-    read -p "Do you want to continue anyway? (Y/N) " PORT_ANSWER
-    PORT_ANSWER=$(echo "${PORT_ANSWER:-N}" | tr '[:lower:]' '[:upper:]')
-    if [ "$PORT_ANSWER" != "Y" ]; then
-        error_exit "Installation cancelled due to port conflict"
-    fi
-fi
 
-
-while true; do
 echo ""
 echo "$SEPQUE"
 echo ""
     print_wrapped "14. YSF Wires-X frequency. In Hertz, 9 digits."
     print_gray "Suggested: 433125000 $ACCEPT"
+    while true; do
     printf "> "
     read -r YSFFREQ
     YSFFREQ=${YSFFREQ:-433125000}
@@ -593,12 +620,12 @@ done
 print_yellow "Using: $YSFFREQ"
 
 
-while true; do
 echo ""
 echo "$SEPQUE"
 echo ""
     print_wrapped "15. Auto-link YSF to a module? (Y/N)"
     print_gray "Suggested: Y $ACCEPT"
+    while true; do
     printf "> "
     read -r AUTOLINK_USER
     AUTOLINK_USER=$(echo "${AUTOLINK_USER:-Y}" | tr '[:lower:]' '[:upper:]')
@@ -717,8 +744,8 @@ if [ "$AUTOLINK" -eq 1 ]; then
 print_wrapped "16. YSF module:		$MODAUTO"
 fi
 echo ""
-while true; do
     print_yellow "Are these settings correct? (YES/NO)"
+    while true; do
     printf "> "
     read -r CONFIRM
 
