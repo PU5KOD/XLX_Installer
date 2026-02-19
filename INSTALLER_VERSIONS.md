@@ -4,14 +4,21 @@ Este documento descreve as diferentes versões do script instalador disponíveis
 
 ## 📋 Versões Disponíveis
 
-### installer.sh (Versão Original)
-- **Status**: Versão estável atual
-- **Descrição**: Script instalador original sem as melhorias mais recentes
+### installer.sh (Versão Atual - baseado em v3) ⭐
+- **Status**: Versão estável em produção
+- **Descrição**: Versão melhorada com correções de segurança, validação e tratamento de erros
 - **Uso**: `sudo ./installer.sh`
-- **Recomendado para**: Produção (até que v3 seja testada)
+- **Recomendado para**: Produção
+- **Nota**: A partir de 2026-02-19, installer.sh é baseado em installer_v3.sh com todas as melhorias
+
+### installer_v1.sh (Versão Original Preservada)
+- **Status**: Backup da versão original
+- **Descrição**: Script instalador original preservado para referência
+- **Uso**: `sudo ./installer_v1.sh`
+- **Nota**: Esta é a versão original que estava em installer.sh antes de 2026-02-19
 
 ### installer_v2.sh
-- **Status**: Versão alternativa
+- **Status**: Versão alternativa experimental
 - **Descrição**: Versão com refatoração de código e uso de biblioteca de funções visuais
 - **Características**: 
   - Usa arquivo de biblioteca externa (templates/cli_visual_unicode.txt)
@@ -19,9 +26,10 @@ Este documento descreve as diferentes versões do script instalador disponíveis
   - ~1460 linhas
 - **Uso**: `sudo ./installer_v2.sh`
 
-### installer_v3.sh ⭐ **NOVO**
-- **Status**: Versão de teste com melhorias de segurança
+### installer_v3.sh ✅ **PROMOVIDO PARA PRODUÇÃO**
+- **Status**: Agora é a versão principal (instalada como installer.sh)
 - **Descrição**: Versão melhorada com correções de segurança, validação e tratamento de erros
+- **Nota**: A partir de 2026-02-19, esta versão substituiu installer.sh
 - **Características principais**:
   - ✅ 8 vulnerabilidades de segurança corrigidas
   - ✅ 17+ handlers de erro implementados
@@ -114,26 +122,33 @@ Este documento descreve as diferentes versões do script instalador disponíveis
    - Desconecte a rede temporariamente
    - Verifique se o script tenta 3 vezes antes de falhar
 
-## 🔄 Migração para Produção
+## ✅ Migração Concluída
 
-Quando `installer_v3.sh` for totalmente testado e validado:
+A migração de `installer_v3.sh` para `installer.sh` foi concluída em **2026-02-19**.
+
+**O que foi feito:**
 
 ```bash
-# Backup da versão atual
-mv installer.sh installer.sh.bak
+# Backup da versão original
+cp installer.sh installer_v1.sh
 
 # Promover v3 para principal
 cp installer_v3.sh installer.sh
 
-# Verificar
-bash -n installer.sh
+# Verificado
+bash -n installer.sh  # ✓ OK
 ```
+
+**Agora:**
+- `installer.sh` = versão v3 (produção)
+- `installer_v1.sh` = backup da versão original
+- `installer_v3.sh` = mantido para referência
 
 ## 📊 Comparação de Versões
 
-| Característica | installer.sh | installer_v2.sh | installer_v3.sh |
-|----------------|--------------|-----------------|-----------------|
-| Linhas de código | ~961 | ~1460 | ~1158 |
+| Característica | installer_v1.sh (original) | installer.sh (atual/v3) | installer_v2.sh |
+|----------------|----------------------------|-------------------------|-----------------|
+| Linhas de código | ~1158 | ~1323 | ~1460 |
 | Prevenção sed injection | ❌ | ❌ | ✅ |
 | HTTPS com timeout | ❌ | ❌ | ✅ |
 | Validação de espaço em disco | ❌ | ❌ | ✅ |
@@ -163,6 +178,7 @@ Se encontrar problemas com `installer_v3.sh`:
 
 ---
 
-**Última atualização**: 2026-02-17
+**Última atualização**: 2026-02-19
 **Autor**: Daniel K., PU5KOD
-**Versão recomendada para testes**: installer_v3.sh
+**Versão em produção**: installer.sh (baseado em v3)
+**Status**: Migração concluída com sucesso ✅
