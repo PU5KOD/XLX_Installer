@@ -162,12 +162,22 @@ success_msg() {
     print_green "✔ $1"
 }
 
-# Escape special characters for use in sed replacement strings
+#  13. Escape special characters for use in sed replacement strings
 escape_sed() {
     printf '%s\n' "$1" | sed 's/[&/\]/\\&/g'
 }
 
-#  13. Check for existing installs
+#  14. Utility: validate module against MODQTD
+is_module_valid() {
+    local module="$1"
+
+    [[ "$module" =~ ^[A-Z]$ ]] || return 1
+
+    local index=$(( $(printf "%d" "'$module") - 65 ))
+    (( index >= 0 && index < MODQTD ))
+}
+
+#  15. Check for existing installs
 if [ -e "$XLXDIR/xlxd" ]; then
     echo ""
     line_type2
@@ -177,121 +187,9 @@ if [ -e "$XLXDIR/xlxd" ]; then
     line_type2
     echo ""
     exit 1
-else
+fi
 
-#  13. Start of data collection
-clear
-line_type3
-echo ""
-center_wrap_color $GREEN "XLX MULTIPROTOCOL AMATEUR RADIO REFLECTOR INSTALLER PROGRAM"
-echo ""
-center_wrap_color $GREEN "Next, you will be asked some questions. Answer with the requested information or, if applicable, to accept the suggested value, press [ENTER]"
-echo ""
-line_type3
-echo ""
-center_wrap_color $BLUE_BRIGHT "REFLECTOR DATA INPUT"
-center_wrap_color $BLUE "===================="
-echo ""
-
-# Teste de impresao de cores, descomente e execute para verificar
-#print_blue "Azul ==============="
-#print_blueb "Azul Brilhante ===="
-#print_green "Verde ============="
-#print_yellow "Amarelo =========="
-#print_orange "Laranja =========="
-#print_red "Vermelho ============"
-#print_redd "Vermelho Dask ======"
-#print_gray "Cinza =============="
-echo ""
-
-
-    print_red "Mandatory"
-    print_wrapped "01. XLX Reflector ID, 3 alphanumeric characters. (e.g., 300, US1, BRA)"
-    while true; do
-    printf "> "
-    read -r XRFDIGIT
-    XRFDIGIT=$(echo "$XRFDIGIT" | tr '[:lower:]' '[:upper:]')
-    if [[ "$XRFDIGIT" =~ ^[A-Z0-9]{3}$ ]]; then
-        break
-    fi
-    print_orange "Invalid ID. Must be exactly 3 characters (A–Z and/or 0–9). Try again!"
-done
-
-XRFNUM="XLX$XRFDIGIT"
-print_yellow "Using: $XRFNUM"
-
-
-echo ""
-echo "$SEPQUE"
-echo ""
-    print_red "Mandatory"
-    print_wrapped "02. Dashboard FQDN (fully qualified domain name), (e.g., xlxbra.net)"
-    while true; do
-    printf "> "
-    read -r XLXDOMAIN
-    XLXDOMAIN=$(echo "$XLXDOMAIN" | tr '[:upper:]' '[:lower:]')
-    if [[ "$XLXDOMAIN" =~ ^([a-z0-9-]+\.)+[a-z]{2,}$ ]]; then
-        break
-    fi
-        print_orange "Invalid domain. Must be a valid FQDN (e.g., xlx.example.com)."
-done
-print_yellow "Using: $XLXDOMAIN"
-
-
-echo ""
-echo "$SEPQUE"
-echo ""
-    print_red "Mandatory"
-    print_wrapped "03. Sysop e-mail address"
-    while true; do
-    printf "> "
-    read -r EMAIL
-    EMAIL=$(echo "$EMAIL" | tr '[:upper:]' '[:lower:]')
-    if [[ "$EMAIL" =~ ^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$ ]]; then
-        break
-    fi
-    print_orange "Invalid email format. (e.g., user@domain.com)."
-done
-print_yellow "Using: $EMAIL"
-
-
-echo ""
-echo "$SEPQUE"
-echo ""
-    print_red "Mandatory"
-    print_wrapped "04. Sysop callsign. Only letters and numbers allowed, max 8 characters."
-    while true; do
-    printf "> "
-    read -r CALLSIGN
-    CALLSIGN=$(echo "$CALLSIGN" | tr '[:lower:]' '[:upper:]')
-    if [[ "$CALLSIGN" =~ ^[A-Z0-9]{3,8}$ ]]; then
-        break
-    fi
-    print_orange "Invalid callsign. Use only letters and numbers, 3 - 8 characters."
-done
-print_yellow "Using: $CALLSIGN"
-
-
-echo ""
-echo "$SEPQUE"
-echo ""
-    print_red "Mandatory"
-    print_wrapped "05. Reflector country name."
-    while true; do
-    printf "> "
-    read -r COUNTRY
-    if [ -z "$COUNTRY" ]; then
-        print_orange "Error: This field is mandatory and cannot be empty. Try again!"
-    else
-        break
-    fi
-done
-print_yellow "Using: $COUNTRY"
-
-
-echo ""
-echo "$SEPQUE"
-# Resolve timezone from user input, checking only real system timezones
+#  16. Resolve timezone from user input, checking only real system timezones
 resolve_timezone() {
     local input="$1"
     local input_upper input_lower match
@@ -333,6 +231,124 @@ resolve_timezone() {
     return 1
 }
 
+#  17. Start of data collection
+clear
+line_type3
+echo ""
+center_wrap_color $GREEN "XLX MULTIPROTOCOL AMATEUR RADIO REFLECTOR INSTALLER PROGRAM"
+echo ""
+center_wrap_color $GREEN "Next, you will be asked some questions. Answer with the requested information or, if applicable, to accept the suggested value, press [ENTER]"
+echo ""
+line_type3
+echo ""
+center_wrap_color $BLUE_BRIGHT "REFLECTOR DATA INPUT"
+center_wrap_color $BLUE "===================="
+echo ""
+
+# Test the color printing, uncomment and run to verify
+#print_blue "Azul ==============="
+#print_blueb "Azul Brilhante ===="
+#print_green "Verde ============="
+#print_yellow "Amarelo =========="
+#print_orange "Laranja =========="
+#print_red "Vermelho ============"
+#print_redd "Vermelho Dask ======"
+#print_gray "Cinza =============="
+echo ""
+
+#  18. Questions begin...
+question_01() {
+    print_red "Mandatory"
+    print_wrapped "01. XLX Reflector ID, 3 alphanumeric characters. (e.g., 300, US1, BRA)"
+    while true; do
+    printf "> "
+    read -r XRFDIGIT
+    XRFDIGIT=$(echo "$XRFDIGIT" | tr '[:lower:]' '[:upper:]')
+    if [[ "$XRFDIGIT" =~ ^[A-Z0-9]{3}$ ]]; then
+        break
+    fi
+    print_orange "Invalid ID. Must be exactly 3 characters (A–Z and/or 0–9). Try again!"
+done
+
+XRFNUM="XLX$XRFDIGIT"
+print_yellow "Using: $XRFNUM"
+}
+
+question_02() {
+echo ""
+echo "$SEPQUE"
+echo ""
+    print_red "Mandatory"
+    print_wrapped "02. Dashboard FQDN (fully qualified domain name), (e.g., xlxbra.net)"
+    while true; do
+    printf "> "
+    read -r XLXDOMAIN
+    XLXDOMAIN=$(echo "$XLXDOMAIN" | tr '[:upper:]' '[:lower:]')
+    if [[ "$XLXDOMAIN" =~ ^([a-z0-9-]+\.)+[a-z]{2,}$ ]]; then
+        break
+    fi
+        print_orange "Invalid domain. Must be a valid FQDN (e.g., xlx.example.com)."
+done
+print_yellow "Using: $XLXDOMAIN"
+}
+
+question_03() {
+echo ""
+echo "$SEPQUE"
+echo ""
+    print_red "Mandatory"
+    print_wrapped "03. Sysop e-mail address"
+    while true; do
+    printf "> "
+    read -r EMAIL
+    EMAIL=$(echo "$EMAIL" | tr '[:upper:]' '[:lower:]')
+    if [[ "$EMAIL" =~ ^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$ ]]; then
+        break
+    fi
+    print_orange "Invalid email format. (e.g., user@domain.com)."
+done
+print_yellow "Using: $EMAIL"
+}
+
+question_04() {
+echo ""
+echo "$SEPQUE"
+echo ""
+    print_red "Mandatory"
+    print_wrapped "04. Sysop callsign. Only letters and numbers allowed, max 8 characters."
+    while true; do
+    printf "> "
+    read -r CALLSIGN
+    CALLSIGN=$(echo "$CALLSIGN" | tr '[:lower:]' '[:upper:]')
+    if [[ "$CALLSIGN" =~ ^[A-Z0-9]{3,8}$ ]]; then
+        break
+    fi
+    print_orange "Invalid callsign. Use only letters and numbers, 3 - 8 characters."
+done
+print_yellow "Using: $CALLSIGN"
+}
+
+question_05() {
+echo ""
+echo "$SEPQUE"
+echo ""
+    print_red "Mandatory"
+    print_wrapped "05. Reflector country name."
+    while true; do
+    printf "> "
+    read -r COUNTRY
+    if [ -z "$COUNTRY" ]; then
+        print_orange "Error: This field is mandatory and cannot be empty. Try again!"
+    else
+        break
+    fi
+done
+print_yellow "Using: $COUNTRY"
+}
+
+question_06() {
+echo ""
+echo "$SEPQUE"
 # Detect current server timezone
 AUTO_TZ=$(timedatectl show --property=Timezone --value 2>/dev/null)
 
@@ -398,7 +414,7 @@ while true; do
         TIMEZONE="$AUTO_TZ"
         ZONEFILE=$(readlink -f "/usr/share/zoneinfo/$TIMEZONE")
     fi
-    
+
     REAL_OFFSET=$(TZ="$ZONEFILE" date +%z)
 
     # Prepare offset
@@ -438,8 +454,9 @@ done
 
 # Final output
 print_yellow "Using: $FINAL_DISPLAY"
+}
 
-
+question_07() {
 echo ""
 echo "$SEPQUE"
 echo ""
@@ -457,7 +474,9 @@ echo ""
     fi
 done
 print_yellow "Using: $COMMENT"
+}
 
+question_08() {
 echo ""
 echo "$SEPQUE"
 echo ""
@@ -475,8 +494,9 @@ echo ""
     fi
 done
 print_yellow "Using: $HEADER"
+}
 
-
+question_09() {
 echo ""
 echo "$SEPQUE"
 echo ""
@@ -494,8 +514,9 @@ echo ""
     fi
 done
 print_yellow "Using: $FOOTER"
+}
 
-
+question_10() {
 echo ""
 echo "$SEPQUE"
 echo ""
@@ -513,8 +534,9 @@ echo ""
 done
 
 print_yellow "Using: $INSTALL_SSL"
+}
 
-
+question_11() {
 echo ""
 echo "$SEPQUE"
 echo ""
@@ -531,8 +553,9 @@ echo ""
     fi
 done
 print_yellow "Using: $INSTALL_ECHO"
+}
 
-
+question_12() {
 echo ""
 echo "$SEPQUE"
 echo ""
@@ -553,8 +576,9 @@ echo ""
     fi
 done
 print_yellow "Using: $MODQTD"
+}
 
-
+question_13() {
 echo ""
 echo "$SEPQUE"
 echo ""
@@ -565,14 +589,14 @@ while true; do
     read -r YSFPORT
     YSFPORT=${YSFPORT:-42000}
 
-    # Validação numérica
+    # Numeric Validation
     if [[ ! "$YSFPORT" =~ ^[0-9]+$ || "$YSFPORT" -lt 1 || "$YSFPORT" -gt 65535 ]]; then
         print_orange "Error: Must be a number between 1 and 65535. Try again!"
         continue
     fi
 
-    # Checagem se porta está em uso
-    if ss -tuln 2>/dev/null | grep -q ":$YSFPORT "; then
+    # Check if port is in use.
+    if ss -H -tuln sport = :$YSFPORT 2>/dev/null | grep -q .; then
         print_orange "Warning: Port $YSFPORT appears to be in use."
 
         while true; do
@@ -581,11 +605,11 @@ while true; do
 
             case "$PORT_ANSWER" in
                 Y)
-                    break 2   # sai dos dois loops
+                    break 2   # exit two loops
                     ;;
                 N)
                     print_gray "Please enter a different port."
-                    break     # sai só do loop interno
+                    break     # only exit the internal loop
                     ;;
                 *)
                     print_orange "Please answer Y or N."
@@ -600,8 +624,9 @@ while true; do
 done
 
 print_yellow "Using: $YSFPORT"
+}
 
-
+question_14() {
 echo ""
 echo "$SEPQUE"
 echo ""
@@ -618,8 +643,9 @@ echo ""
     fi
 done
 print_yellow "Using: $YSFFREQ"
+}
 
-
+question_15() {
 echo ""
 echo "$SEPQUE"
 echo ""
@@ -645,8 +671,9 @@ else
 fi
 
 print_yellow "Using: $AUTOLINK_USER"
+}
 
-
+question_16() {
 echo ""
 echo "$SEPQUE"
 echo ""
@@ -718,52 +745,151 @@ if [[ "$AUTOLINK" -eq 1 ]]; then
     print_yellow "Using: $MODAUTO"
 fi
 echo ""
+}
+
+collect_all_questions() {
+    question_01
+    question_02
+    question_03
+    question_04
+    question_05
+    question_06
+    question_07
+    question_08
+    question_09
+    question_10
+    question_11
+    question_12
+    question_13
+    question_14
+    question_15
+
+    # It only calls q16 if Auto-link is enabled.
+    if [[ "$AUTOLINK" -eq 1 ]]; then
+        question_16
+    fi
+}
 
 # Data input verification
-line_type1
-echo ""
-center_wrap_color $ORANGE "PLEASE REVIEW YOUR SETTINGS:"
-center_wrap_color $YELLOW "============================"
-echo ""
-print_wrapped "01. Reflector ID:	$XRFNUM"
-print_wrapped "02. FQDN:		$XLXDOMAIN"
-print_wrapped "03. E-mail:		$EMAIL"
-print_wrapped "04. Callsign:		$CALLSIGN"
-print_wrapped "05. Country:		$COUNTRY"
-print_wrapped "06. Time Zone:		$TIMEZONE"
-print_wrapped "07. XLX list comment:	$COMMENT"
-print_wrapped "08. Tab page text:	$HEADER"
-print_wrapped "09. Dashboard footnote:	$FOOTER"
-print_wrapped "10. SSL certification:	$INSTALL_SSL (Y/N)"
-print_wrapped "11. Echo Test:		$INSTALL_ECHO (Y/N)"
-print_wrapped "12. Modules:		$MODQTD"
-print_wrapped "13. YSF UDP Port:	$YSFPORT"
-print_wrapped "14. YSF frequency:	$YSFFREQ"
-print_wrapped "15. YSF Auto-link:	$AUTOLINK_USER (Y/N)"
-if [ "$AUTOLINK" -eq 1 ]; then
-print_wrapped "16. YSF module:		$MODAUTO"
-fi
-echo ""
+review_settings() {
+    line_type1
+    echo ""
+    center_wrap_color $ORANGE "PLEASE REVIEW YOUR SETTINGS:"
+    center_wrap_color $YELLOW "============================"
+    echo ""
+
+    print_wrapped "01. Reflector ID:        $XRFNUM"
+    print_wrapped "02. FQDN:                $XLXDOMAIN"
+    print_wrapped "03. E-mail:              $EMAIL"
+    print_wrapped "04. Callsign:            $CALLSIGN"
+    print_wrapped "05. Country:             $COUNTRY"
+    print_wrapped "06. Time Zone:           $FINAL_DISPLAY"
+    print_wrapped "07. XLX list comment:    $COMMENT"
+    print_wrapped "08. Tab page text:       $HEADER"
+    print_wrapped "09. Dashboard footnote:  $FOOTER"
+    print_wrapped "10. SSL certification:   $INSTALL_SSL"
+    print_wrapped "11. Echo Test:           $INSTALL_ECHO"
+    print_wrapped "12. Modules:             $MODQTD"
+    print_wrapped "13. YSF UDP Port:        $YSFPORT"
+    print_wrapped "14. YSF frequency:       $YSFFREQ"
+    print_wrapped "15. YSF Auto-link:       $AUTOLINK_USER"
+
+    if [[ "$AUTOLINK" -eq 1 ]]; then
+        print_wrapped "16. YSF module:          $MODAUTO"
+    fi
+
+    echo ""
+}
+
+collect_all_questions
+
+while true; do
+
+    review_settings
+
     print_yellow "Are these settings correct? (YES/NO)"
-    while true; do
     printf "> "
     read -r CONFIRM
-
     CONFIRM=${CONFIRM:-YES}
     CONFIRM=$(echo "$CONFIRM" | tr '[:lower:]' '[:upper:]')
-    if [[ "$CONFIRM" == "YES" || "$CONFIRM" == "NO" ]]; then
+
+    if [[ "$CONFIRM" == "YES" ]]; then
+        print_green "✔ Information verified, installation starting!"
         break
-    else
-        print_orange "Please enter 'YES' or 'NO'."
     fi
+
+    if [[ "$CONFIRM" == "NO" ]]; then
+        print_yellow "Enter the question number you want to edit:"
+        printf "> "
+        read -r EDIT_NUMBER
+
+        case "$EDIT_NUMBER" in
+            1) question_01 ;;
+            2) question_02 ;;
+            3) question_03 ;;
+            4) question_04 ;;
+            5) question_05 ;;
+            6) question_06 ;;
+            7) question_07 ;;
+            8) question_08 ;;
+            9) question_09 ;;
+            10) question_10 ;;
+            11)
+                OLD_ECHO="$INSTALL_ECHO"
+                question_11
+
+                if [[ "$OLD_ECHO" == "N" && "$INSTALL_ECHO" == "Y" ]]; then
+                    print_gray "Minimum modules changed. Please reconfigure question 12."
+                    question_12
+                fi
+
+                # If Auto-link is enabled, validate module
+                if [[ "$AUTOLINK" -eq 1 && -n "$MODAUTO" ]]; then
+                    if ! is_module_valid "$MODAUTO"; then
+                        echo ""
+                        print_orange "Selected YSF Auto-link module is no longer valid, choose another."
+                        question_16
+                    fi
+                fi
+                ;;
+            12)
+                question_12
+                if [[ "$AUTOLINK" -eq 1 && -n "$MODAUTO" ]]; then
+                    if ! is_module_valid "$MODAUTO"; then
+                        print_gray "Module range changed. Please reconfigure question 16."
+                        question_16
+                    fi
+                fi
+                ;;
+            13) question_13 ;;
+            14) question_14 ;;
+            15)
+                OLD_AUTOLINK="$AUTOLINK"
+                question_15
+
+                if [[ "$OLD_AUTOLINK" -eq 0 && "$AUTOLINK" -eq 1 ]]; then
+                    question_16
+                fi
+
+                if [[ "$OLD_AUTOLINK" -eq 1 && "$AUTOLINK" -eq 0 ]]; then
+                    unset MODAUTO
+                fi
+                ;;
+            16)
+                if [[ "$AUTOLINK" -eq 1 ]]; then
+                    question_16
+                else
+                    print_orange "Question 16 is not active."
+                fi
+                ;;
+            *)
+                print_orange "Invalid question number."
+                ;;
+        esac
+    fi
+
 done
-echo ""
-if [ "$CONFIRM" == "YES" ]; then
-    print_green "✔ Information verified, installation starting!"
-    else
-    print_redd "Installation aborted by user."
-    exit 1
-fi
+
 echo ""
 line_type1
 echo ""
@@ -776,9 +902,10 @@ if [ $? -ne 0 ]; then
     center_wrap_color $RED "Error: Failed to update package lists. Check your internet connection or package manager configuration."
     exit 1
 fi
+
 #  Apply timezone only if it's NOT the system timezone.
 echo ""
-print_wrapped "Timezone adjustment"
+print_wrapped "Timezone adjustment:"
 if [[ "$TIMEZONE_USE_SYSTEM" -eq 0 ]]; then
     print_yellow "Applying new timezone: $TIMEZONE"
     timedatectl set-timezone "$TIMEZONE"
@@ -809,9 +936,9 @@ PHPVER=$(php -v | head -n1 | awk '{print $2}' | cut -d. -f1,2)
 if [ -z "$PHPVER" ]; then
     error_exit "PHP installation failed or version could not be determined"
 fi
-
+print_gray "PHP version: $PHPVER"
 echo ""
-success_msg "Dependencies installed! PHP version: $PHPVER"
+success_msg "Dependencies installed!"
 echo ""
 line_type1
 echo ""
@@ -853,7 +980,7 @@ echo ""
 echo ""
 make || error_exit "Compilation failed. Check build dependencies and logs."
 make install || error_exit "Installation of compiled binaries failed"
-fi
+
 if [ -e "$USRSRC/xlxd/src/xlxd" ]; then
     echo ""
     echo ""
@@ -900,8 +1027,10 @@ chmod 755 /usr/local/bin/xlx_log.sh
 chmod 644 /etc/logrotate.d/xlx_logrotate.conf
 echo "Seeding customizations..."
 TERMXLX="/xlxd/xlxd.terminal"
+
 # Safely escape variables for sed
 PUBLIP_ESC=$(escape_sed "$PUBLIP")
+
 # Create module list - MODQTD already validated during user input (line 538: 1-26 range)
 # Defensive assertion in case validation is bypassed
 if [ "$MODQTD" -lt 1 ] || [ "$MODQTD" -gt 26 ]; then
@@ -921,10 +1050,12 @@ HOMEIP_ESC=$(escape_sed "$HOMEIP")
 sed -i \
     -e "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM_ESC $HOMEIP_ESC 127.0.0.1|g" \
     /etc/systemd/system/xlxd.service
+
 # Comment out the line "ECHO 127.0.0.1 E" in /xlxd/xlxd.interlink if Echo Test is not installed
 if [ "$INSTALL_ECHO" == "N" ]; then
     sed -i 's|^ECHO 127.0.0.1 E|#ECHO 127.0.0.1 E|' /xlxd/xlxd.interlink
 fi
+
 # Creates daily update of users.db, checks if crontab is installed otherwise use systemd
 if command -v crontab &>/dev/null; then
     echo "crontab found, adding entry..."
@@ -941,6 +1072,7 @@ fi
 echo ""
 success_msg "Components copied and configured!"
 echo ""
+
 # Echo Test installation conditional (question 11 in user input sequence)
 if [ "$INSTALL_ECHO" == "Y" ]; then
     line_type1
@@ -1022,12 +1154,15 @@ echo "Updating permissions..."
 chown -R "$APACHE_USER:$APACHE_USER" /var/log/xlxd.xml
 chown -R "$APACHE_USER:$APACHE_USER" "$WEBDIR/"
 chown -R "$APACHE_USER:$APACHE_USER" /xlxd/
+
 # Set proper permissions: 755 for directories, 644 for regular files, 755 for executables
 find /xlxd -type d -exec chmod 755 {} \;
 find "$WEBDIR" -type d -exec chmod 755 {} \;
+
 # Set files to 644 by default
 find /xlxd -type f -exec chmod 644 {} \;
 find "$WEBDIR" -type f -exec chmod 644 {} \;
+
 # Make scripts executable (only if they exist)
 if [ -f /xlxd/xlxd ]; then
     chmod 755 /xlxd/xlxd
@@ -1035,6 +1170,7 @@ fi
 if [ -f /xlxd/xlxecho ]; then
     chmod 755 /xlxd/xlxecho
 fi
+
 # Use find for safe handling of .sh files in users_db directory
 if [ -d /xlxd/users_db ]; then
     find /xlxd/users_db -type f -name '*.sh' -exec chmod 755 {} \;
@@ -1049,6 +1185,7 @@ systemctl daemon-reload
 echo ""
 success_msg "Dashboard successfully installed!"
 echo ""
+
 # SSL certification install
 if [ "$INSTALL_SSL" == "Y" ]; then
     line_type1
@@ -1093,6 +1230,7 @@ for ((i=5; i>0; i--)); do
     sleep 1
 done
 wait $pid
+
 # Enable and start xlxecho.service only if Echo Test is installed
 echo ""
 if [ "$INSTALL_ECHO" == "Y" ]; then
@@ -1103,7 +1241,7 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
         sleep 1
     done
     wait $pid
-    
+
     # Verify echo service started
     if ! systemctl is-active --quiet xlxecho.service; then
         print_orange "Warning: xlxecho service may not have started correctly"
