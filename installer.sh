@@ -490,7 +490,7 @@ echo ""
     if [ ${#HEADER} -le 50 ]; then
         break
     else
-        print_orange "Error: Comment must be max 50 characters. Please try again!"
+        print_orange "Error: Tab page text must be max 50 characters. Please try again!"
     fi
 done
 print_yellow "Using: $HEADER"
@@ -596,7 +596,7 @@ while true; do
     fi
 
     # Check if port is in use.
-    if ss -H -tuln sport = :$YSFPORT 2>/dev/null | grep -q .; then
+    if ss -H -tuln "sport = :$YSFPORT" 2>/dev/null | grep -q .; then
         print_orange "Warning: Port $YSFPORT appears to be in use."
 
         while true; do
@@ -1031,7 +1031,7 @@ TERMXLX="/xlxd/xlxd.terminal"
 # Safely escape variables for sed
 PUBLIP_ESC=$(escape_sed "$PUBLIP")
 
-# Create module list - MODQTD already validated during user input (line 538: 1-26 range)
+# Create module list - MODQTD already validated during user input (question_12 function: 1-26 range)
 # Defensive assertion in case validation is bypassed
 if [ "$MODQTD" -lt 1 ] || [ "$MODQTD" -gt 26 ]; then
     error_exit "MODQTD out of valid range (1-26): $MODQTD"
