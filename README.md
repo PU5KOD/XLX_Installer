@@ -80,8 +80,6 @@ sudo git clone https://github.com/PU5KOD/XLX_Installer.git
 # Run installer
 cd XLX_Installer/ && sudo chmod +x *.sh
 sudo ./installer.sh
-# or
-sudo ./installer_v2.sh
 ```
 
 ---
