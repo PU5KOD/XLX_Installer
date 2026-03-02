@@ -7,7 +7,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Maintained](https://img.shields.io/badge/maintained-yes-brightgreen)
 
-**Automated installation script for XLX multi-mode reflectors**
+**Automated installation script for XLX multi-mode reflectors**  
 Supporting D-Star • C4FM • DMR protocols
 
 [Features](#-features) • [Quick Start](#-quick-start) • [Installation](#-installation) • [Configuration](#%EF%B8%8F-firewall-configuration)
