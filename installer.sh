@@ -5,7 +5,9 @@
 # Lets begin!!!
 
 # Enable strict error handling
-set -o pipefail
+# -e  : exit immediately on any command returning non-zero
+# -o pipefail : pipeline exit code reflects the first failed command
+set -eo pipefail
 
 #  INITIAL CHECKS
 #  1. Check if running as root, with automatic relaunch
@@ -49,19 +51,25 @@ if [ "$PING_SUCCESS" -eq 0 ]; then
     exit 1
 fi
 
-#  4. Distro check
+#  4. Bash version check
+if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
+    echo "ERROR: Bash 4.0 or higher is required."
+    exit 1
+fi
+
+#  5. Distro check
 if [ ! -e "/etc/debian_version" ]; then
     echo "This script has only been tested on Debian-based distributions."
-    read -p "Do you want to continue anyway? (Y/N) " answer
+    read -r -p "Do you want to continue anyway? (Y/N) " answer
     [[ "$answer" =~ ^[yY](es)?$ ]] || { echo "Execution cancelled."; exit 1; }
 fi
 
-#  5. Set the fixed character limit
+#  6. Set the fixed character limit
 MAX_WIDTH=100
 cols=$(tput cols 2>/dev/null || echo "$MAX_WIDTH")
 width=$(( cols < MAX_WIDTH ? cols : MAX_WIDTH ))
 
-#  6. Function to create different types of lines adjusted to length
+#  7. Function to create different types of lines adjusted to length
 line_type1() {
     printf "%${width}s\n" | tr ' ' '_'
 }
@@ -72,23 +80,23 @@ line_type3() {
     printf "%${width}s\n" | tr ' ' ':'
 }
 
-#  7. Function to display text with adjusted line breaks
+#  8. Function to display text with adjusted line breaks
 print_wrapped() {
     echo "$1" | fold -s -w "$width"
 }
 
 SEPQUE="_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_"
 
-#  8. Parameter definition
+#  9. Parameter definition
 XLXINS=$(pwd)
 USRSRC="/usr/src"
 HOMEIP=$(hostname -I | awk '{print $1}')
-PUBLIP=$(curl -m 5 -s https://v4.ident.me)
+PUBLIP=$(curl -m 5 -s -f https://v4.ident.me || curl -m 5 -s -f https://api4.ipify.org || true)
 if [ -z "$PUBLIP" ]; then
     echo "Warning: Could not determine public IP address"
     PUBLIP="0.0.0.0"
 fi
-NETACT=$(ip -o addr show up | awk '{print $2}' | grep -v lo | head -n1)
+NETACT=$(ip -o addr show up | awk '{print $2}' | grep -v lo | head -n1 || true)
 INFREF="https://xlxbbs.epf.lu/"
 XLXREP="https://github.com/PU5KOD/xlxd.git"
 XLXECO="https://github.com/PU5KOD/XLXEcho.git"
@@ -99,7 +107,7 @@ XLXDIR="/xlxd"
 ACCEPT="| [ENTER] to accept..."
 DEPAPP="git git-core make gcc g++ pv sqlite3 apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl php-sqlite3 build-essential vnstat certbot python3-certbot-apache"
 
-#  9. Color palette
+#  10. Color palette
 # msg_info - BLUE 38;5;39 - Information
 # msg_success - GREEN 38;5;46 - Success
 # msg_warn - YELLOW 38;5;226 - Warning
@@ -118,7 +126,7 @@ RED='\033[38;5;196m'
 RED_DARK='\033[38;5;124m'
 GRAY='\033[38;5;250m'
 
-#  10. Unicode icons
+#  11. Unicode icons
 ICON_OK="✔"
 ICON_ERR="✖"
 ICON_WARN="⚠"
@@ -131,7 +139,7 @@ ICON_DOWNLOAD="⬇"
 ICON_COMPILE="🔨"
 ICON_SSL="🔒"
 
-#  11. Functions to display text with adjusted line breaks and colors
+#  12. Functions to display text with adjusted line breaks and colors
 print_blue() { echo -e "${BLUE}$(echo "$1" | fold -s -w "$width")${NC}"; }
 print_blueb() { echo -e "${BLUE_BRIGHT}$(echo "$1" | fold -s -w "$width")${NC}"; }
 print_green() { echo -e "${GREEN}$(echo "$1" | fold -s -w "$width")${NC}"; }
@@ -144,7 +152,7 @@ center_wrap_color() {
     local color="$1"
     local text="$2"
     local wrapped_lines
-    IFS=$'\n' read -rd '' -a wrapped_lines <<<"$(echo "$text" | fold -s -w "$width")"
+    IFS=$'\n' read -rd '' -a wrapped_lines <<<"$(echo "$text" | fold -s -w "$width")" || true
     for line in "${wrapped_lines[@]}"; do
         local line_length=${#line}
         local padding=$(( (width - line_length) / 2 ))
@@ -152,7 +160,7 @@ center_wrap_color() {
     done
 }
 
-#  12. Helper functions for error handling and sed escaping
+#  13. Helper functions for error handling and sed escaping
 error_exit() {
     print_redd "ERROR: $1"
     exit 1
@@ -162,12 +170,12 @@ success_msg() {
     print_green "✔ $1"
 }
 
-#  13. Escape special characters for use in sed replacement strings
+#  14. Escape special characters for use in sed replacement strings
 escape_sed() {
-    printf '%s\n' "$1" | sed 's/[&/\]/\\&/g'
+    printf '%s\n' "$1" | sed 's/[&|/\]/\\&/g'
 }
 
-#  14. Utility: validate module against MODQTD
+#  15. Utility: validate module against MODQTD
 is_module_valid() {
     local module="$1"
 
@@ -177,7 +185,7 @@ is_module_valid() {
     (( index >= 0 && index < MODQTD ))
 }
 
-#  15. Check for existing installs
+#  16. Check for existing installs
 if [ -e "$XLXDIR/xlxd" ]; then
     echo ""
     line_type2
@@ -189,7 +197,7 @@ if [ -e "$XLXDIR/xlxd" ]; then
     exit 1
 fi
 
-#  16. Resolve timezone from user input, checking only real system timezones
+#  17. Resolve timezone from user input, checking only real system timezones
 resolve_timezone() {
     local input="$1"
     local input_upper input_lower match
@@ -231,7 +239,7 @@ resolve_timezone() {
     return 1
 }
 
-#  17. Start of data collection
+#  18. Start of data collection
 clear
 line_type3
 echo ""
@@ -256,309 +264,308 @@ echo ""
 #print_gray "Cinza =============="
 echo ""
 
-#  18. Questions begin...
+#  19. Questions begin...
 question_01() {
     print_red "Mandatory"
     print_wrapped "01. XLX Reflector ID, 3 alphanumeric characters. (e.g., 300, US1, BRA)"
     while true; do
-    printf "> "
-    read -r XRFDIGIT
-    XRFDIGIT=$(echo "$XRFDIGIT" | tr '[:lower:]' '[:upper:]')
-    if [[ "$XRFDIGIT" =~ ^[A-Z0-9]{3}$ ]]; then
-        break
-    fi
-    print_orange "Invalid ID. Must be exactly 3 characters (A–Z and/or 0–9). Try again!"
-done
+        printf "> "
+        read -r XRFDIGIT
+        XRFDIGIT=$(echo "$XRFDIGIT" | tr '[:lower:]' '[:upper:]')
+        if [[ "$XRFDIGIT" =~ ^[A-Z0-9]{3}$ ]]; then
+            break
+        fi
+        print_orange "Invalid ID. Must be exactly 3 characters (A-Z and/or 0-9). Try again!"
+    done
 
-XRFNUM="XLX$XRFDIGIT"
-print_yellow "Using: $XRFNUM"
+    XRFNUM="XLX$XRFDIGIT"
+    print_yellow "Using: $XRFNUM"
 }
 
 question_02() {
-echo ""
-echo "$SEPQUE"
-echo ""
+    echo ""
+    echo "$SEPQUE"
+    echo ""
     print_red "Mandatory"
     print_wrapped "02. Dashboard FQDN (fully qualified domain name), (e.g., xlxbra.net)"
     while true; do
-    printf "> "
-    read -r XLXDOMAIN
-    XLXDOMAIN=$(echo "$XLXDOMAIN" | tr '[:upper:]' '[:lower:]')
-    if [[ "$XLXDOMAIN" =~ ^([a-z0-9-]+\.)+[a-z]{2,}$ ]]; then
-        break
-    fi
+        printf "> "
+        read -r XLXDOMAIN
+        XLXDOMAIN=$(echo "$XLXDOMAIN" | tr '[:upper:]' '[:lower:]')
+        if [[ "$XLXDOMAIN" =~ ^([a-z0-9-]+\.)+[a-z]{2,}$ ]]; then
+            break
+        fi
         print_orange "Invalid domain. Must be a valid FQDN (e.g., xlx.example.com)."
-done
-print_yellow "Using: $XLXDOMAIN"
+    done
+    print_yellow "Using: $XLXDOMAIN"
 }
 
 question_03() {
-echo ""
-echo "$SEPQUE"
-echo ""
+    echo ""
+    echo "$SEPQUE"
+    echo ""
     print_red "Mandatory"
     print_wrapped "03. Sysop e-mail address"
     while true; do
-    printf "> "
-    read -r EMAIL
-    EMAIL=$(echo "$EMAIL" | tr '[:upper:]' '[:lower:]')
-    if [[ "$EMAIL" =~ ^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$ ]]; then
-        break
-    fi
-    print_orange "Invalid email format. (e.g., user@domain.com)."
-done
-print_yellow "Using: $EMAIL"
+        printf "> "
+        read -r EMAIL
+        EMAIL=$(echo "$EMAIL" | tr '[:upper:]' '[:lower:]')
+        if [[ "$EMAIL" =~ ^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$ ]]; then
+            break
+        fi
+        print_orange "Invalid email format. (e.g., user@domain.com)."
+    done
+    print_yellow "Using: $EMAIL"
 }
 
 question_04() {
-echo ""
-echo "$SEPQUE"
-echo ""
+    echo ""
+    echo "$SEPQUE"
+    echo ""
     print_red "Mandatory"
     print_wrapped "04. Sysop callsign. Only letters and numbers allowed, max 8 characters."
     while true; do
-    printf "> "
-    read -r CALLSIGN
-    CALLSIGN=$(echo "$CALLSIGN" | tr '[:lower:]' '[:upper:]')
-    if [[ "$CALLSIGN" =~ ^[A-Z0-9]{3,8}$ ]]; then
-        break
-    fi
-    print_orange "Invalid callsign. Use only letters and numbers, 3 - 8 characters."
-done
-print_yellow "Using: $CALLSIGN"
+        printf "> "
+        read -r CALLSIGN
+        CALLSIGN=$(echo "$CALLSIGN" | tr '[:lower:]' '[:upper:]')
+        if [[ "$CALLSIGN" =~ ^[A-Z0-9]{3,8}$ ]]; then
+            break
+        fi
+        print_orange "Invalid callsign. Use only letters and numbers, 3 - 8 characters."
+    done
+    print_yellow "Using: $CALLSIGN"
 }
 
 question_05() {
-echo ""
-echo "$SEPQUE"
-echo ""
+    echo ""
+    echo "$SEPQUE"
+    echo ""
     print_red "Mandatory"
     print_wrapped "05. Reflector country name."
     while true; do
-    printf "> "
-    read -r COUNTRY
-    if [ -z "$COUNTRY" ]; then
-        print_orange "Error: This field is mandatory and cannot be empty. Try again!"
-    else
-        break
-    fi
-done
-print_yellow "Using: $COUNTRY"
+        printf "> "
+        read -r COUNTRY
+        if [ -z "$COUNTRY" ]; then
+            print_orange "Error: This field is mandatory and cannot be empty. Try again!"
+        else
+            break
+        fi
+    done
+    print_yellow "Using: $COUNTRY"
 }
 
 question_06() {
-echo ""
-echo "$SEPQUE"
-# Detect current server timezone
-AUTO_TZ=$(timedatectl show --property=Timezone --value 2>/dev/null)
+    echo ""
+    echo "$SEPQUE"
+    # Detect current server timezone
+    AUTO_TZ=$(timedatectl show --property=Timezone --value 2>/dev/null || true)
 
-OFFSET=$(date +%z)
-SIGN=${OFFSET:0:1}
-HH=${OFFSET:1:2}
-MM=${OFFSET:3:2}
-FRIENDLY_OFFSET="UTC${SIGN}${HH}:${MM}"
+    OFFSET=$(date +%z)
+    SIGN=${OFFSET:0:1}
+    HH=${OFFSET:1:2}
+    MM=${OFFSET:3:2}
+    FRIENDLY_OFFSET="UTC${SIGN}${HH}:${MM}"
     echo ""
     print_red "Mandatory"
-if [[ -n "$AUTO_TZ" ]]; then
-    print_wrapped "06. Local timezone. Detected: $AUTO_TZ ($FRIENDLY_OFFSET)"
-    print_gray "Press ENTER to keep it or type another timezone."
-else
-    print_wrapped "06. What is the local timezone? (e.g., America/Sao_Paulo, UTC, GMT-3)"
-fi
+    if [[ -n "$AUTO_TZ" ]]; then
+        print_wrapped "06. Local timezone. Detected: $AUTO_TZ ($FRIENDLY_OFFSET)"
+        print_gray "Press ENTER to keep it or type another timezone."
+    else
+        print_wrapped "06. What is the local timezone? (e.g., America/Sao_Paulo, UTC, GMT-3)"
+    fi
 
-# Interactive timezone selection
-while true; do
-    printf "> "
-    read -r USER_TZ
+    # Interactive timezone selection
+    while true; do
+        printf "> "
+        read -r USER_TZ
 
-    # CASE 1 — USER PRESSED ENTER (KEEP DETECTED TIMEZONE)
-    if [[ -z "$USER_TZ" && -n "$AUTO_TZ" ]]; then
-        TIMEZONE="$AUTO_TZ"
-        TIMEZONE_USE_SYSTEM=1
+        # CASE 1 — USER PRESSED ENTER (KEEP DETECTED TIMEZONE)
+        if [[ -z "$USER_TZ" && -n "$AUTO_TZ" ]]; then
+            TIMEZONE="$AUTO_TZ"
+            TIMEZONE_USE_SYSTEM=1
+
+            # Resolve tzdata link
+            ZONEFILE=$(readlink -f "/usr/share/zoneinfo/$TIMEZONE" || true)
+            REAL_OFFSET=$(TZ="$ZONEFILE" date +%z)
+
+            # Prepare display offset
+            SIGN=${REAL_OFFSET:0:1}
+            HH=${REAL_OFFSET:1:2}
+            MM=${REAL_OFFSET:3:2}
+
+            # If UTC+00:00 → hide offset
+            if [[ "$REAL_OFFSET" == "+0000" ]]; then
+                FINAL_DISPLAY="$TIMEZONE"
+            else
+                FINAL_DISPLAY="$TIMEZONE (UTC${SIGN}${HH}:${MM})"
+            fi
+
+            # No confirmation needed
+            break
+        fi
+
+        # CASE 2 — USER ENTERED A CUSTOM TIMEZONE
+        TZ_RESOLVED=$(resolve_timezone "$USER_TZ")
+
+        if [[ -z "$TZ_RESOLVED" ]]; then
+            print_orange "Invalid timezone. Please try again."
+            continue
+        fi
+
+        TIMEZONE="$TZ_RESOLVED"
+        TIMEZONE_USE_SYSTEM=0
 
         # Resolve tzdata link
-        ZONEFILE=$(readlink -f "/usr/share/zoneinfo/$TIMEZONE")
+        ZONEFILE=$(readlink -f "/usr/share/zoneinfo/$TIMEZONE" 2>/dev/null || true)
+        if [ -z "$ZONEFILE" ] || [ ! -f "$ZONEFILE" ]; then
+            print_orange "Warning: Timezone file not found. Using system default."
+            TIMEZONE="$AUTO_TZ"
+            ZONEFILE=$(readlink -f "/usr/share/zoneinfo/$TIMEZONE" || true)
+        fi
+
         REAL_OFFSET=$(TZ="$ZONEFILE" date +%z)
 
-        # Prepare display offset
+        # Prepare offset
         SIGN=${REAL_OFFSET:0:1}
         HH=${REAL_OFFSET:1:2}
         MM=${REAL_OFFSET:3:2}
+        DISPLAY_OFFSET="UTC${SIGN}${HH}:${MM}"
 
         # If UTC+00:00 → hide offset
         if [[ "$REAL_OFFSET" == "+0000" ]]; then
             FINAL_DISPLAY="$TIMEZONE"
         else
-            FINAL_DISPLAY="$TIMEZONE (UTC${SIGN}${HH}:${MM})"
+            FINAL_DISPLAY="$TIMEZONE ($DISPLAY_OFFSET)"
         fi
 
-        # No confirmation needed
-        break
-    fi
+        # Confirmation prompt (ONLY for custom TZ)
+        print_yellow "Selected timezone: $FINAL_DISPLAY"
 
-    # CASE 2 — USER ENTERED A CUSTOM TIMEZONE
-    TZ_RESOLVED=$(resolve_timezone "$USER_TZ")
+        # Inverted GMT warning
+        if [[ "$TIMEZONE" =~ ^Etc/GMT ]]; then
+            print_orange "IMPORTANT: Linux POSIX GMT zones use inverted sign notation."
+            print_orange "In your case, $TIMEZONE (inverted) corresponds to $DISPLAY_OFFSET (real)."
+        fi
 
-    if [[ -z "$TZ_RESOLVED" ]]; then
-        print_orange "Invalid timezone. Please try again."
-        continue
-    fi
+        print_yellow "Confirm this timezone? (Y/N, ENTER = Y)"
+        printf "> "
+        read -r CONFIRM_TZ
+        CONFIRM_TZ=$(echo "$CONFIRM_TZ" | tr '[:lower:]' '[:upper:]')
 
-    TIMEZONE="$TZ_RESOLVED"
-    TIMEZONE_USE_SYSTEM=0
+        # Default = Y
+        if [[ -z "$CONFIRM_TZ" || "$CONFIRM_TZ" == "Y" ]]; then
+            break
+        fi
 
-    # Resolve tzdata link
-    ZONEFILE=$(readlink -f "/usr/share/zoneinfo/$TIMEZONE" 2>/dev/null)
-    if [ -z "$ZONEFILE" ] || [ ! -f "$ZONEFILE" ]; then
-        print_orange "Warning: Timezone file not found. Using system default."
-        TIMEZONE="$AUTO_TZ"
-        ZONEFILE=$(readlink -f "/usr/share/zoneinfo/$TIMEZONE")
-    fi
+        print_yellow "Please inform your timezone or press ENTER to accept detected."
+    done
 
-    REAL_OFFSET=$(TZ="$ZONEFILE" date +%z)
-
-    # Prepare offset
-    SIGN=${REAL_OFFSET:0:1}
-    HH=${REAL_OFFSET:1:2}
-    MM=${REAL_OFFSET:3:2}
-    DISPLAY_OFFSET="UTC${SIGN}${HH}:${MM}"
-
-    # If UTC+00:00 → hide offset
-    if [[ "$REAL_OFFSET" == "+0000" ]]; then
-        FINAL_DISPLAY="$TIMEZONE"
-    else
-        FINAL_DISPLAY="$TIMEZONE ($DISPLAY_OFFSET)"
-    fi
-
-    # Confirmation prompt (ONLY for custom TZ)
-    print_yellow "Selected timezone: $FINAL_DISPLAY"
-
-    # Inverted GMT warning
-    if [[ "$TIMEZONE" =~ ^Etc/GMT ]]; then
-        print_orange "IMPORTANT: Linux POSIX GMT zones use inverted sign notation."
-        print_orange "In your case, $TIMEZONE (inverted) corresponds to $DISPLAY_OFFSET (real)."
-    fi
-
-    print_yellow "Confirm this timezone? (Y/N, ENTER = Y)"
-    printf "> "
-    read -r CONFIRM_TZ
-    CONFIRM_TZ=$(echo "$CONFIRM_TZ" | tr '[:lower:]' '[:upper:]')
-
-    # Default = Y
-    if [[ -z "$CONFIRM_TZ" || "$CONFIRM_TZ" == "Y" ]]; then
-        break
-    fi
-
-    print_yellow "Please inform your timezone or press ENTER to accept detected."
-done
-
-# Final output
-print_yellow "Using: $FINAL_DISPLAY"
+    # Final output
+    print_yellow "Using: $FINAL_DISPLAY"
 }
 
 question_07() {
-echo ""
-echo "$SEPQUE"
-echo ""
+    echo ""
+    echo "$SEPQUE"
+    echo ""
     COMMENT_DEFAULT="$XRFNUM Multiprotocol Reflector by $CALLSIGN, info: $EMAIL"
     print_wrapped "07. Comment to XLX Reflectors list."
     print_gray "Suggested: \"$COMMENT_DEFAULT\" $ACCEPT"
     while true; do
-    printf "> "
-    read -r COMMENT
-    COMMENT=${COMMENT:-"$COMMENT_DEFAULT"}
-    if [ ${#COMMENT} -le 100 ]; then
-        break
-    else
-        print_orange "Error: Comment must be max 100 characters. Please try again!"
-    fi
-done
-print_yellow "Using: $COMMENT"
+        printf "> "
+        read -r COMMENT
+        COMMENT=${COMMENT:-"$COMMENT_DEFAULT"}
+        if [ ${#COMMENT} -le 100 ]; then
+            break
+        else
+            print_orange "Error: Comment must be max 100 characters. Please try again!"
+        fi
+    done
+    print_yellow "Using: $COMMENT"
 }
 
 question_08() {
-echo ""
-echo "$SEPQUE"
-echo ""
+    echo ""
+    echo "$SEPQUE"
+    echo ""
     HEADER_DEFAULT="$XRFNUM by $CALLSIGN"
     print_wrapped "08. Custom text for the dashboard tab, preferably very short."
     print_gray "Suggested: \"$HEADER_DEFAULT\" $ACCEPT"
     while true; do
-    printf "> "
-    read -r HEADER
-    HEADER=${HEADER:-"$HEADER_DEFAULT"}
-    if [ ${#HEADER} -le 50 ]; then
-        break
-    else
-        print_orange "Error: Tab page text must be max 50 characters. Please try again!"
-    fi
-done
-print_yellow "Using: $HEADER"
+        printf "> "
+        read -r HEADER
+        HEADER=${HEADER:-"$HEADER_DEFAULT"}
+        if [ ${#HEADER} -le 50 ]; then
+            break
+        else
+            print_orange "Error: Tab page text must be max 50 characters. Please try again!"
+        fi
+    done
+    print_yellow "Using: $HEADER"
 }
 
 question_09() {
-echo ""
-echo "$SEPQUE"
-echo ""
+    echo ""
+    echo "$SEPQUE"
+    echo ""
     FOOTER_DEFAULT="Provided by $CALLSIGN, info: $EMAIL"
     print_wrapped "09. Custom text on footer of the dashboard webpage."
     print_gray "Suggested: \"$FOOTER_DEFAULT\" $ACCEPT"
     while true; do
-    printf "> "
-    read -r FOOTER
-    FOOTER=${FOOTER:-"$FOOTER_DEFAULT"}
-    if [ ${#FOOTER} -le 100 ]; then
-        break
-    else
-        print_orange "Error: Comment must be max 100 characters. Please try again!"
-    fi
-done
-print_yellow "Using: $FOOTER"
+        printf "> "
+        read -r FOOTER
+        FOOTER=${FOOTER:-"$FOOTER_DEFAULT"}
+        if [ ${#FOOTER} -le 100 ]; then
+            break
+        else
+            print_orange "Error: Footer must be max 100 characters. Please try again!"
+        fi
+    done
+    print_yellow "Using: $FOOTER"
 }
 
 question_10() {
-echo ""
-echo "$SEPQUE"
-echo ""
+    echo ""
+    echo "$SEPQUE"
+    echo ""
     print_wrapped "10. Create an SSL certificate (https) for the dashboard webpage? (Y/N)"
     print_gray "Suggested: Y $ACCEPT"
     while true; do
-    printf "> "
-    read -r INSTALL_SSL
-    INSTALL_SSL=$(echo "${INSTALL_SSL:-Y}" | tr '[:lower:]' '[:upper:]')
-    if [[ "$INSTALL_SSL" == "Y" || "$INSTALL_SSL" == "N" ]]; then
-        break
-    else
-        print_orange "Please enter 'Y' or 'N'."
-    fi
-done
-
-print_yellow "Using: $INSTALL_SSL"
+        printf "> "
+        read -r INSTALL_SSL
+        INSTALL_SSL=$(echo "${INSTALL_SSL:-Y}" | tr '[:lower:]' '[:upper:]')
+        if [[ "$INSTALL_SSL" == "Y" || "$INSTALL_SSL" == "N" ]]; then
+            break
+        else
+            print_orange "Please enter 'Y' or 'N'."
+        fi
+    done
+    print_yellow "Using: $INSTALL_SSL"
 }
 
 question_11() {
-echo ""
-echo "$SEPQUE"
-echo ""
+    echo ""
+    echo "$SEPQUE"
+    echo ""
     print_wrapped "11. Install Echo Test on module E? (Y/N)"
     print_gray "Suggested: Y $ACCEPT"
     while true; do
-    printf "> "
-    read -r INSTALL_ECHO
-    INSTALL_ECHO=$(echo "${INSTALL_ECHO:-Y}" | tr '[:lower:]' '[:upper:]')
-    if [[ "$INSTALL_ECHO" == "Y" || "$INSTALL_ECHO" == "N" ]]; then
-        break
-    else
-        print_orange "Please enter 'Y' or 'N'."
-    fi
-done
-print_yellow "Using: $INSTALL_ECHO"
+        printf "> "
+        read -r INSTALL_ECHO
+        INSTALL_ECHO=$(echo "${INSTALL_ECHO:-Y}" | tr '[:lower:]' '[:upper:]')
+        if [[ "$INSTALL_ECHO" == "Y" || "$INSTALL_ECHO" == "N" ]]; then
+            break
+        else
+            print_orange "Please enter 'Y' or 'N'."
+        fi
+    done
+    print_yellow "Using: $INSTALL_ECHO"
 }
 
 question_12() {
-echo ""
-echo "$SEPQUE"
-echo ""
+    echo ""
+    echo "$SEPQUE"
+    echo ""
     MIN_MODULES=1
     if [ "$INSTALL_ECHO" == "Y" ]; then
         MIN_MODULES=5
@@ -566,185 +573,169 @@ echo ""
     print_wrapped "12. Number of active modules for the DStar Reflector. ($MIN_MODULES - 26)"
     print_gray "Suggested: 5 $ACCEPT"
     while true; do
-    printf "> "
-    read -r MODQTD
-    MODQTD=${MODQTD:-5}
-    if [[ "$MODQTD" =~ ^[0-9]+$ && "$MODQTD" -ge "$MIN_MODULES" && "$MODQTD" -le 26 ]]; then
-        break
-    else
-        print_orange "Error: Must be a number between $MIN_MODULES and 26. Try again!"
-    fi
-done
-print_yellow "Using: $MODQTD"
+        printf "> "
+        read -r MODQTD
+        MODQTD=${MODQTD:-5}
+        if [[ "$MODQTD" =~ ^[0-9]+$ && "$MODQTD" -ge "$MIN_MODULES" && "$MODQTD" -le 26 ]]; then
+            break
+        else
+            print_orange "Error: Must be a number between $MIN_MODULES and 26. Try again!"
+        fi
+    done
+    print_yellow "Using: $MODQTD"
 }
 
 question_13() {
-echo ""
-echo "$SEPQUE"
-echo ""
-print_wrapped "13. YSF Reflector UDP port number. (1-65535)"
-print_gray "Suggested: 42000 $ACCEPT"
-while true; do
-    printf "> "
-    read -r YSFPORT
-    YSFPORT=${YSFPORT:-42000}
+    echo ""
+    echo "$SEPQUE"
+    echo ""
+    print_wrapped "13. YSF Reflector UDP port number. (1-65535)"
+    print_gray "Suggested: 42000 $ACCEPT"
+    while true; do
+        printf "> "
+        read -r YSFPORT
+        YSFPORT=${YSFPORT:-42000}
 
-    # Numeric Validation
-    if [[ ! "$YSFPORT" =~ ^[0-9]+$ || "$YSFPORT" -lt 1 || "$YSFPORT" -gt 65535 ]]; then
-        print_orange "Error: Must be a number between 1 and 65535. Try again!"
-        continue
-    fi
+        # Numeric Validation
+        if [[ ! "$YSFPORT" =~ ^[0-9]+$ || "$YSFPORT" -lt 1 || "$YSFPORT" -gt 65535 ]]; then
+            print_orange "Error: Must be a number between 1 and 65535. Try again!"
+            continue
+        fi
 
-    # Check if port is in use.
-    if ss -H -tuln "sport = :$YSFPORT" 2>/dev/null | grep -q .; then
-        print_orange "Warning: Port $YSFPORT appears to be in use."
+        # Check if port is in use.
+        if ss -H -tuln "sport = :$YSFPORT" 2>/dev/null | grep -q .; then
+            print_orange "Warning: Port $YSFPORT appears to be in use."
 
-        while true; do
-            read -p "Do you want to continue anyway? (Y/N) " PORT_ANSWER
-            PORT_ANSWER=$(echo "${PORT_ANSWER:-N}" | tr '[:lower:]' '[:upper:]')
+            while true; do
+                read -r -p "Do you want to continue anyway? (Y/N) " PORT_ANSWER
+                PORT_ANSWER=$(echo "${PORT_ANSWER:-N}" | tr '[:lower:]' '[:upper:]')
 
-            case "$PORT_ANSWER" in
-                Y)
-                    break 2   # exit two loops
-                    ;;
-                N)
-                    print_gray "Please enter a different port."
-                    break     # only exit the internal loop
-                    ;;
-                *)
-                    print_orange "Please answer Y or N."
-                    ;;
-            esac
-        done
+                case "$PORT_ANSWER" in
+                    Y)
+                        break 2   # exit two loops
+                        ;;
+                    N)
+                        print_gray "Please enter a different port."
+                        break     # only exit the internal loop
+                        ;;
+                    *)
+                        print_orange "Please answer Y or N."
+                        ;;
+                esac
+            done
 
-        continue
-    fi
+            continue
+        fi
 
-    break
-done
+        break
+    done
 
-print_yellow "Using: $YSFPORT"
+    print_yellow "Using: $YSFPORT"
 }
 
 question_14() {
-echo ""
-echo "$SEPQUE"
-echo ""
+    echo ""
+    echo "$SEPQUE"
+    echo ""
     print_wrapped "14. YSF Wires-X frequency. In Hertz, 9 digits."
     print_gray "Suggested: 433125000 $ACCEPT"
     while true; do
-    printf "> "
-    read -r YSFFREQ
-    YSFFREQ=${YSFFREQ:-433125000}
-    if [[ "$YSFFREQ" =~ ^[0-9]{9}$ ]]; then
-        break
-    else
-        print_orange "Error: Must be exactly 9 numeric digits (e.g., 433125000). Try again!"
-    fi
-done
-print_yellow "Using: $YSFFREQ"
+        printf "> "
+        read -r YSFFREQ
+        YSFFREQ=${YSFFREQ:-433125000}
+        if [[ "$YSFFREQ" =~ ^[0-9]{9}$ ]]; then
+            break
+        else
+            print_orange "Error: Must be exactly 9 numeric digits (e.g., 433125000). Try again!"
+        fi
+    done
+    print_yellow "Using: $YSFFREQ"
 }
 
 question_15() {
-echo ""
-echo "$SEPQUE"
-echo ""
+    echo ""
+    echo "$SEPQUE"
+    echo ""
     print_wrapped "15. Auto-link YSF to a module? (Y/N)"
     print_gray "Suggested: Y $ACCEPT"
     while true; do
-    printf "> "
-    read -r AUTOLINK_USER
-    AUTOLINK_USER=$(echo "${AUTOLINK_USER:-Y}" | tr '[:lower:]' '[:upper:]')
+        printf "> "
+        read -r AUTOLINK_USER
+        AUTOLINK_USER=$(echo "${AUTOLINK_USER:-Y}" | tr '[:lower:]' '[:upper:]')
 
-    if [[ "$AUTOLINK_USER" == "Y" || "$AUTOLINK_USER" == "N" ]]; then
-        break
+        if [[ "$AUTOLINK_USER" == "Y" || "$AUTOLINK_USER" == "N" ]]; then
+            break
+        else
+            print_orange "Please enter 'Y' or 'N'."
+        fi
+    done
+
+    # Conversion (Y/N → 1/0)
+    if [ "$AUTOLINK_USER" == "Y" ]; then
+        AUTOLINK=1
     else
-        print_orange "Please enter 'Y' or 'N'."
+        AUTOLINK=0
     fi
-done
 
-# Conversion (Y/N → 1/0)
-if [ "$AUTOLINK_USER" == "Y" ]; then
-    AUTOLINK=1
-else
-    AUTOLINK=0
-fi
-
-print_yellow "Using: $AUTOLINK_USER"
+    print_yellow "Using: $AUTOLINK_USER"
 }
 
 question_16() {
-echo ""
-echo "$SEPQUE"
-echo ""
-if [[ "$AUTOLINK" -eq 1 ]]; then
+    echo ""
+    echo "$SEPQUE"
+    echo ""
+    if [[ "$AUTOLINK" -eq 1 ]]; then
 
-    # Determine available modules based on MODQTD
-    LAST_INDEX=$((MODQTD - 1))
-    LAST_LETTER=$(printf "\\$(printf '%03o' $((65 + LAST_INDEX)))")
+        # Determine available modules based on MODQTD
+        LAST_INDEX=$((MODQTD - 1))
+        LAST_LETTER=$(printf "\\$(printf '%03o' $((65 + LAST_INDEX)))")
 
-    # Build array of valid modules
-    VALID_MODULES=()
-    for ((i=0; i<MODQTD; i++)); do
-        VALID_MODULES+=("$(printf "\\$(printf '%03o' $((65 + i)))")")
-    done
-    MODLIST=$(echo {A..Z} | tr -d ' ' | head -c "$MODQTD")
+        # Build array of valid modules
+        VALID_MODULES=()
+        for ((i=0; i<MODQTD; i++)); do
+            VALID_MODULES+=("$(printf "\\$(printf '%03o' $((65 + i)))")")
+        done
+        LIST=$(echo {A..Z} | tr -d ' ' | head -c "$MODQTD")
 
-    # Determine smart suggestion
-    if (( MODQTD >= 3 )); then
-        SUGGESTED="C"
-    elif (( MODQTD == 2 )); then
-        SUGGESTED="B"
-    else
-        SUGGESTED="A"
-    fi
-
-    # Smart display of available modules
-    if (( MODQTD <= 3 )); then
-        # Full listing, since it's short
-        print_wrapped "16. Module to Auto-link YSF. (One of ${VALID_MODULES[*]})"
-    else
-        # Smart compact range
-        print_wrapped "16. Module to Auto-link YSF. (Choose from A to $LAST_LETTER)"
-    fi
-
-    print_gray "Suggested: $SUGGESTED $ACCEPT"
-    printf "> "
-    read -r MODAUTO
-
-    # Apply default if empty
-    MODAUTO=${MODAUTO:-$SUGGESTED}
-    MODAUTO=$(echo "$MODAUTO" | tr '[:lower:]' '[:upper:]')
-
-    # Validation: must be inside VALID_MODULES
-    if [[ ! " ${VALID_MODULES[@]} " =~ " $MODAUTO " ]]; then
-    # Smart display of available modules
-        if (( MODQTD <= 3 )); then
-        # Full listing, since it's short
-        print_wrapped "Invalid module! Valid modules are: ${VALID_MODULES[*]}"
+        # Determine smart suggestion
+        if (( MODQTD >= 3 )); then
+            SUGGESTED="C"
+        elif (( MODQTD == 2 )); then
+            SUGGESTED="B"
         else
-        # Smart compact range
-        print_wrapped "Invalid module! Valid modules from A to $LAST_LETTER"
+            SUGGESTED="A"
         fi
 
-        # Repeat until valid
+        # Smart display of available modules
+        if (( MODQTD <= 3 )); then
+            print_wrapped "16. Module to Auto-link YSF. (One of ${VALID_MODULES[*]})"
+        else
+            print_wrapped "16. Module to Auto-link YSF. (Choose from A to $LAST_LETTER)"
+        fi
+
+        print_gray "Suggested: $SUGGESTED $ACCEPT"
+
+        # Single loop handles first attempt and retries uniformly
         while true; do
             printf "> "
             read -r MODAUTO
             MODAUTO=${MODAUTO:-$SUGGESTED}
             MODAUTO=$(echo "$MODAUTO" | tr '[:lower:]' '[:upper:]')
 
-            if [[ " ${VALID_MODULES[@]} " =~ " $MODAUTO " ]]; then
+            if [[ " ${VALID_MODULES[*]} " =~ " $MODAUTO " ]]; then
                 break
             fi
 
-            print_orange "Invalid entry. Choose from: ${VALID_MODULES[*]}"
+            if (( MODQTD <= 3 )); then
+                print_orange "Invalid entry. Valid modules are: ${VALID_MODULES[*]}"
+            else
+                print_orange "Invalid entry. Choose from A to $LAST_LETTER."
+            fi
         done
-    fi
 
-    print_yellow "Using: $MODAUTO"
-fi
-echo ""
+        print_yellow "Using: $MODAUTO"
+    fi
+    echo ""
 }
 
 collect_all_questions() {
@@ -807,7 +798,7 @@ while true; do
 
     review_settings
 
-    print_yellow "Are these settings correct? (YES/NO)"
+    print_yellow "Are these settings correct? (YES/NO) $ACCEPT"
     printf "> "
     read -r CONFIRM
     CONFIRM=${CONFIRM:-YES}
@@ -842,7 +833,9 @@ while true; do
                     print_gray "Minimum modules changed. Please reconfigure question 12."
                     question_12
                 fi
-
+                if [[ "$OLD_ECHO" == "Y" && "$INSTALL_ECHO" == "N" ]]; then
+                    print_gray "Echo Test removed. Module minimum is now 1."
+                fi
                 # If Auto-link is enabled, validate module
                 if [[ "$AUTOLINK" -eq 1 && -n "$MODAUTO" ]]; then
                     if ! is_module_valid "$MODAUTO"; then
@@ -896,12 +889,8 @@ echo ""
 center_wrap_color $BLUE_BRIGHT "UPDATING OS..."
 center_wrap_color $BLUE "=============="
 echo ""
-apt update
-apt full-upgrade -y
-if [ $? -ne 0 ]; then
-    center_wrap_color $RED "Error: Failed to update package lists. Check your internet connection or package manager configuration."
-    exit 1
-fi
+apt update || error_exit "Failed to update package lists. Check your internet connection or package manager configuration."
+apt full-upgrade -y || error_exit "Failed to upgrade packages. Check your internet connection or package manager configuration."
 
 #  Apply timezone only if it's NOT the system timezone.
 echo ""
@@ -927,10 +916,7 @@ if [ "$AVAIL_SPACE" -lt 1048576 ]; then
     error_exit "Insufficient disk space. At least 1GB required in /usr/src"
 fi
 
-apt -y install $DEPAPP
-if [ $? -ne 0 ]; then
-    error_exit "Failed to install dependencies. Check package manager configuration."
-fi
+apt -y install $DEPAPP || error_exit "Failed to install dependencies. Check package manager configuration."
 
 PHPVER=$(php -v | head -n1 | awk '{print $2}' | cut -d. -f1,2)
 if [ -z "$PHPVER" ]; then
@@ -981,7 +967,7 @@ echo ""
 make || error_exit "Compilation failed. Check build dependencies and logs."
 make install || error_exit "Installation of compiled binaries failed"
 
-if [ -e "$USRSRC/xlxd/src/xlxd" ]; then
+if [ -e "$XLXDIR/xlxd" ]; then
     echo ""
     echo ""
     center_wrap_color $GREEN "==============================="
@@ -1007,22 +993,25 @@ mkdir -p "$XLXDIR" || error_exit "Failed to create $XLXDIR directory"
 mkdir -p "$WEBDIR" || error_exit "Failed to create $WEBDIR directory"
 touch /var/log/xlxd.xml
 echo "Downloading DMR ID file..."
-FILE_SIZE=$(wget --spider --server-response "$DMRURL" 2>&1 | grep -i Content-Length | awk '{print $2}')
+# || true prevents set -e if Content-Length header is absent in the response
+FILE_SIZE=$(wget --spider --server-response "$DMRURL" 2>&1 | grep -i Content-Length | awk '{print $2}' || true)
 if [ -z "$FILE_SIZE" ]; then
     echo "Downloading..."
-    wget -q -O - "$DMRURL" | pv --force -p -t -r -b > /xlxd/dmrid.dat
+    wget -q -O - "$DMRURL" | pv --force -p -t -r -b > /xlxd/dmrid.dat \
+        || error_exit "Failed to download DMR ID file"
 else
     echo "File size: $FILE_SIZE bytes"
-    wget -q -O - "$DMRURL" | pv --force -p -t -r -b -s "$FILE_SIZE" > /xlxd/dmrid.dat
+    wget -q -O - "$DMRURL" | pv --force -p -t -r -b -s "$FILE_SIZE" > /xlxd/dmrid.dat \
+        || error_exit "Failed to download DMR ID file"
 fi
-if [ $? -ne 0 ] || [ ! -s /xlxd/dmrid.dat ]; then
-    error_exit "Failed to download DMR ID file or file is empty"
+if [ ! -s /xlxd/dmrid.dat ]; then
+    error_exit "DMR ID file is empty"
 fi
 echo "Creating custom XLX log..."
 cp "$XLXINS/templates/xlx_log.service" /etc/systemd/system/ || error_exit "Failed to copy xlx_log.service"
 cp "$XLXINS/templates/xlx_log.sh" /usr/local/bin/ || error_exit "Failed to copy xlx_log.sh"
 cp "$XLXINS/templates/xlx_logrotate.conf" /etc/logrotate.d/ || error_exit "Failed to copy xlx_logrotate.conf"
-chmod 755 /etc/systemd/system/xlx_log.service
+chmod 644 /etc/systemd/system/xlx_log.service
 chmod 755 /usr/local/bin/xlx_log.sh
 chmod 644 /etc/logrotate.d/xlx_logrotate.conf
 echo "Seeding customizations..."
@@ -1043,7 +1032,7 @@ MODLIST_ESC=$(escape_sed "$MODLIST")
 sed -i "s|#address|address $PUBLIP_ESC|g" "$TERMXLX"
 sed -i "s|#modules|modules $MODLIST_ESC|g" "$TERMXLX"
 cp "$USRSRC/xlxd/scripts/xlxd.service" /etc/systemd/system/ || error_exit "Failed to copy xlxd.service"
-chmod 755 /etc/systemd/system/xlxd.service
+chmod 644 /etc/systemd/system/xlxd.service
 # Escape variables for sed and combine operations
 XRFNUM_ESC=$(escape_sed "$XRFNUM")
 HOMEIP_ESC=$(escape_sed "$HOMEIP")
@@ -1065,7 +1054,7 @@ else
     echo "crontab is not installed, using systemd..."
     cp "$XLXINS/templates/update_XLX_db.service" /etc/systemd/system/
     cp "$XLXINS/templates/update_XLX_db.timer" /etc/systemd/system/
-    chmod 755 /etc/systemd/system/update_XLX_db.*
+    chmod 644 /etc/systemd/system/update_XLX_db.*
     systemctl daemon-reload
     systemctl enable --now update_XLX_db.timer
 fi
@@ -1085,10 +1074,12 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
     echo "Cloning repository..."
     git clone --depth 1 "$XLXECO" || error_exit "Failed to clone Echo Test repository"
     cd XLXEcho/ || error_exit "Failed to change to XLXEcho directory"
+    echo "Compiling Echo Test..."
     gcc -o xlxecho xlxecho.c || error_exit "Failed to compile Echo Test"
+    echo "Copying files and adjusting properties..."
     cp xlxecho /xlxd/ || error_exit "Failed to copy Echo Test binary"
     cp "$USRSRC/xlxd/scripts/xlxecho.service" /etc/systemd/system/ || error_exit "Failed to copy xlxecho.service"
-    chmod 755 /etc/systemd/system/xlxecho.service
+    chmod 644 /etc/systemd/system/xlxecho.service
     echo ""
     success_msg "Echo Test server successfully installed!"
     echo ""
@@ -1145,13 +1136,14 @@ TIMEZONE_ESC=$(escape_sed "$TIMEZONE")
 sed -i "s|^;\\?date\\.timezone\\s*=.*|date.timezone = \"$TIMEZONE_ESC\"|" /etc/php/"$PHPVER"/apache2/php.ini
 
 # Detect Apache user
-APACHE_USER=$(ps aux | grep -E '[a]pache|[h]ttpd' | grep -v root | head -1 | awk '{print $1}')
+# || true prevents set -e if grep finds no apache/httpd process (falls back to www-data below)
+APACHE_USER=$(ps aux | grep -E '[a]pache|[h]ttpd' | grep -v root | head -1 | awk '{print $1}' || true)
 if [ -z "$APACHE_USER" ]; then
     APACHE_USER="www-data"
 fi
 mv "$WEBDIR/users_db/" /xlxd/ || error_exit "Failed to move users_db directory"
 echo "Updating permissions..."
-chown -R "$APACHE_USER:$APACHE_USER" /var/log/xlxd.xml
+chown "$APACHE_USER:$APACHE_USER" /var/log/xlxd.xml
 chown -R "$APACHE_USER:$APACHE_USER" "$WEBDIR/"
 chown -R "$APACHE_USER:$APACHE_USER" /xlxd/
 
@@ -1177,9 +1169,11 @@ if [ -d /xlxd/users_db ]; then
 fi
 
 /bin/bash /xlxd/users_db/update_db.sh || print_orange "Warning: Failed to update user database"
-/usr/sbin/a2ensite "$XLXDOMAIN".conf 2>/dev/null | head -n1
-/usr/sbin/a2dissite 000-default 2>/dev/null | head -n1
-systemctl stop apache2 >/dev/null 2>&1
+# a2ensite/a2dissite can return non-zero if already enabled/disabled — || true prevents set -e
+/usr/sbin/a2ensite "$XLXDOMAIN".conf 2>/dev/null | head -n1 || true
+/usr/sbin/a2dissite 000-default 2>/dev/null | head -n1 || true
+# stop may fail legitimately if apache2 is not yet running on a fresh install
+systemctl stop apache2 >/dev/null 2>&1 || true
 systemctl start apache2 >/dev/null 2>&1 || error_exit "Failed to start Apache"
 systemctl daemon-reload
 echo ""
@@ -1209,7 +1203,7 @@ center_wrap_color $BLUE_BRIGHT "STARTING $XRFNUM REFLECTOR..."
 center_wrap_color $BLUE "============================="
 echo ""
 echo ""
-systemctl enable --now xlxd.service >/dev/null 2>&1 &
+systemctl enable --now xlxd.service >> "$LOGFILE" 2>&1 &
 pid=$!
 for ((i=10; i>0; i--)); do
     printf "\r${YELLOW}Initializing $XRFNUM %2d seconds${NC}" "$i"
@@ -1223,7 +1217,7 @@ if ! systemctl is-active --quiet xlxd.service; then
 fi
 
 echo ""
-systemctl enable --now xlx_log.service >/dev/null 2>&1 &
+systemctl enable --now xlx_log.service >> "$LOGFILE" 2>&1 &
 pid=$!
 for ((i=5; i>0; i--)); do
     printf "\r${YELLOW}Initializing log %2d seconds${NC}" "$i"
@@ -1234,7 +1228,7 @@ wait $pid
 # Enable and start xlxecho.service only if Echo Test is installed
 echo ""
 if [ "$INSTALL_ECHO" == "Y" ]; then
-    systemctl enable --now xlxecho.service >/dev/null 2>&1 &
+    systemctl enable --now xlxecho.service >> "$LOGFILE" 2>&1 &
     pid=$!
     for ((i=5; i>0; i--)); do
         printf "\r${YELLOW}Initializing Echo Test %2d seconds${NC}" "$i"
@@ -1248,7 +1242,7 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
     fi
 fi
 echo ""
-echo -e "\n${GREEN}✔ Initialization completed!${NC}"
+success_msg "Initialization completed!"
 echo ""
 
 # Post-installation validation
@@ -1318,6 +1312,11 @@ echo ""
 center_wrap_color $GREEN "• If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour. If you don't want the reflector to be published just set callinghome to [false] in the main file in $XLXCONFIG."
 center_wrap_color $GREEN "• Many other settings can be changed in this file."
 center_wrap_color $GREEN "• More Information about XLX Reflectors check $INFREF"
-center_wrap_color $GREEN "• Your $XRFNUM dashboard should now be accessible at http://$XLXDOMAIN"
+if [ "$INSTALL_SSL" == "Y" ]; then
+    SSLTYPE="https"
+else
+    SSLTYPE="http"
+fi
+center_wrap_color $GREEN "• Your $XRFNUM dashboard should now be accessible at $SSLTYPE://$XLXDOMAIN"
 echo ""
 line_type2
