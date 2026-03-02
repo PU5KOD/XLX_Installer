@@ -16,18 +16,20 @@ Supporting D-Star • C4FM • DMR protocols
 
 ---
 
-## 📖 About
+## 📖 About the Project
 
-This project simplifies the installation of XLX reflectors with minimal user intervention. Developed by **Daniel K. ([PU5KOD](https://www.qrz.com/db/PU5KOD))**, this installer automates the setup of the XLX reflector created by [LX3JL](https://github.com/LX3JL/xlxd) and includes a customized dark theme dashboard.
+This project simplifies the installation of XLX reflectors with minimal user intervention. Developed by **Daniel K. ([PU5KOD](https://www.qrz.com/db/PU5KOD))**, this installer automates the setup of the XLX reflector created by [LX3JL](https://github.com/LX3JL/xlxd) and includes a customized dark theme dashboard. The goal is to make deploying an XLX reflector **easy, reliable, and maintainable**!
 
 **Upon completion, you'll have a fully functional public D-Star/YSF/DMR XLX reflector with monitoring dashboard!** 🎉
 
 ### 🎯 Key Highlights
 
 - ✅ **No AMBE hardware needed** for C4FM and DMR interoperability (since early 2020)
+- ✅ **Complete systemd service integration** replacing legacy init.d scripts
 - ✅ **Dark theme dashboard** with improvements and modern UI
 - ✅ **Lightweight** - it ever runs on Raspberry Pi Zero!
-- ✅ **Optional Echo Test** (Parrot) service on Module E
+- ✅ **Optional Echo Test** (Parrot) service to audio tests
+- ✅ **Full uninstall support**
 - ✅ **Compatible** with Debian 10+ (13 recommended), Ubuntu, RaspiOS, Armbian, etc...
 
 > **Note:** D-Star integration with other modes still requires AMBE chips. For D-Star-only or YSF/DMR reflectors, no additional hardware is needed.
