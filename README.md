@@ -1,4 +1,4 @@
-# 🌐 XLX Debian Installer
+# 🌐 XLX Debian Installer - Documentation
 
 <div align="center">
 
@@ -8,7 +8,6 @@
 ![Maintained](https://img.shields.io/badge/maintained-yes-brightgreen)
 
 **Automated installation script for XLX multi-mode reflectors**
-
 Supporting D-Star • C4FM • DMR protocols
 
 [Features](#-features) • [Quick Start](#-quick-start) • [Installation](#-installation) • [Configuration](#%EF%B8%8F-firewall-configuration)
