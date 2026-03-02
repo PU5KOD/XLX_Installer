@@ -491,7 +491,7 @@ question_08() {
     echo "$SEPQUE"
     echo ""
     HEADER_DEFAULT="$XRFNUM by $CALLSIGN"
-    print_wrapped "08. Custom text for the dashboard tab, preferably very short."
+    print_wrapped "08. Custom text for the dashboard tab. (max 25 characters)"
     print_gray "Suggested: \"$HEADER_DEFAULT\" $ACCEPT"
     while true; do
         printf "> "
@@ -617,7 +617,7 @@ question_13() {
                         break 2   # exit two loops
                         ;;
                     N)
-                        print_gray "Please enter a different port, or $ACCEPT"
+                        print_gray "Please enter a different port, or [ENTER] to accept suggested."
                         break     # only exit the internal loop
                         ;;
                     *)
