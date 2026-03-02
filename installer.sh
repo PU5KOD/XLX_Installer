@@ -695,7 +695,6 @@ question_16() {
         for ((i=0; i<MODQTD; i++)); do
             VALID_MODULES+=("$(printf "\\$(printf '%03o' $((65 + i)))")")
         done
-        LIST=$(echo {A..Z} | tr -d ' ' | head -c "$MODQTD")
 
         # Determine smart suggestion
         if (( MODQTD >= 3 )); then
@@ -1025,8 +1024,8 @@ PUBLIP_ESC=$(escape_sed "$PUBLIP")
 if [ "$MODQTD" -lt 1 ] || [ "$MODQTD" -gt 26 ]; then
     error_exit "MODQTD out of valid range (1-26): $MODQTD"
 fi
-# printf "%${MODQTD}s" creates MODQTD spaces, tr converts to newlines, awk generates A-Z letters
-MODLIST=$(printf "%${MODQTD}s" | tr ' ' '\n' | awk '{printf "%c", 65+NR-1}' | tr -d '\n')
+# Convert first caracters (ABCDE...)
+MODLIST=$(echo {A..Z} | tr -d ' ' | head -c "$MODQTD")
 MODLIST_ESC=$(escape_sed "$MODLIST")
 
 sed -i "s|#address|address $PUBLIP_ESC|g" "$TERMXLX"
