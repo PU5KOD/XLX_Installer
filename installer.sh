@@ -105,6 +105,7 @@ DMRURL="http://xlxapi.rlx.lu/api/exportdmr.php"
 WEBDIR="/var/www/html/xlxd"
 XLXDIR="/xlxd"
 ACCEPT="| [ENTER] to accept..."
+SSL_OK=0
 DEPAPP="git git-core make gcc g++ pv sqlite3 apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl php-sqlite3 build-essential vnstat certbot python3-certbot-apache"
 
 #  10. Color palette
@@ -121,15 +122,10 @@ GRAY='\033[38;5;250m'
 #  11. Unicode icons
 ICON_OK="✔"
 ICON_ERR="✖"
-ICON_WARN="⚠"
-ICON_INFO="ℹ"
-ICON_FATAL="‼"
+ICON_WARN="(⚠)"
+ICON_INFO="(ℹ)"
+ICON_FATAL="(‼)"
 ICON_NOTE="🛈"
-ICON_ROCKET="🚀"
-ICON_GEAR="⚙"
-ICON_DOWNLOAD="⬇"
-ICON_COMPILE="🔨"
-ICON_SSL="🔒"
 
 #  12. Functions to display text with adjusted line breaks and colors
 print_blue() { echo -e "${BLUE}$(echo "$1" | fold -s -w "$width")${NC}"; }
@@ -153,13 +149,37 @@ center_wrap_color() {
 }
 
 #  13. Helper functions for error handling and sed escaping
-error_exit() {
-    print_redd "ERROR: $1"
-    exit 1
+# Information
+msg_info() {
+    print_blue "$ICON_INFO $1"
 }
-
-success_msg() {
-    print_green "✔ $1"
+# Success
+msg_success() {
+    print_green "$ICON_OK $1"
+}
+# Warning
+msg_warn() {
+    print_yellow "$ICON_WARN $1"
+}
+# Caution
+msg_caution() {
+    print_orange "$ICON_INFO $1"
+}
+# Error
+msg_error() {
+    print_red "$ICON_ERR $1"
+}
+# Technical note
+msg_note() {
+    print_gray "$ICON_NOTE $1"
+}
+# Fatal message!!!
+msg_fatal() {
+    print_redd "$ICON_FATAL $1"
+}
+error_exit() {
+    print_redd "$ICON_FATAL ERROR: $1"
+    exit 1
 }
 
 #  14. Escape special characters for use in sed replacement strings
@@ -241,14 +261,14 @@ center_wrap_color $GREEN "Next, you will be asked some questions. Answer with th
 echo ""
 line_type3
 echo ""
-center_wrap_color $BLUE_BRIGHT "REFLECTOR DATA INPUT"
-center_wrap_color $BLUE "===================="
+center_wrap_color $BLUE_BRIGHT "$ICON_INFO REFLECTOR DATA INPUT"
+center_wrap_color $BLUE "========================"
 echo ""
 echo ""
 
-#  19. Questions functions...
+#  19. Questions begin...
 question_01() {
-    print_red "Mandatory"
+    print_red "$ICON_WARN Mandatory"
     print_wrapped "01. XLX Reflector ID, 3 alphanumeric characters. (e.g., 300, US1, BRA)"
     while true; do
         printf "> "
@@ -257,7 +277,7 @@ question_01() {
         if [[ "$XRFDIGIT" =~ ^[A-Z0-9]{3}$ ]]; then
             break
         fi
-        print_orange "Invalid ID. Must be exactly 3 characters (A-Z and/or 0-9). Try again!"
+        msg_caution "Invalid ID. Must be exactly 3 characters (A-Z and/or 0-9). Try again!"
     done
 
     XRFNUM="XLX$XRFDIGIT"
@@ -268,8 +288,8 @@ question_02() {
     echo ""
     echo "$SEPQUE"
     echo ""
-    print_red "Mandatory"
-    print_wrapped "02. Dashboard FQDN (fully qualified domain name), (e.g., xlxbra.net)"
+    print_red "$ICON_WARN Mandatory"
+    print_wrapped "02. Dashboard FQDN (fully qualified domain name). (e.g., xlxbra.net)"
     while true; do
         printf "> "
         read -r XLXDOMAIN
@@ -277,7 +297,7 @@ question_02() {
         if [[ "$XLXDOMAIN" =~ ^([a-z0-9-]+\.)+[a-z]{2,}$ ]]; then
             break
         fi
-        print_orange "Invalid domain. Must be a valid FQDN (e.g., xlx.example.com)."
+        msg_caution "Invalid domain. Must be a valid FQDN (e.g., xlx.example.com)."
     done
     print_yellow "Using: $XLXDOMAIN"
 }
@@ -286,7 +306,7 @@ question_03() {
     echo ""
     echo "$SEPQUE"
     echo ""
-    print_red "Mandatory"
+    print_red "$ICON_WARN Mandatory"
     print_wrapped "03. Sysop e-mail address"
     while true; do
         printf "> "
@@ -295,7 +315,7 @@ question_03() {
         if [[ "$EMAIL" =~ ^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$ ]]; then
             break
         fi
-        print_orange "Invalid email format. (e.g., user@domain.com)."
+        msg_caution "Invalid email format. (e.g., user@domain.com)."
     done
     print_yellow "Using: $EMAIL"
 }
@@ -304,7 +324,7 @@ question_04() {
     echo ""
     echo "$SEPQUE"
     echo ""
-    print_red "Mandatory"
+    print_red "$ICON_WARN Mandatory"
     print_wrapped "04. Sysop callsign. Only letters and numbers allowed, max 8 characters."
     while true; do
         printf "> "
@@ -313,7 +333,7 @@ question_04() {
         if [[ "$CALLSIGN" =~ ^[A-Z0-9]{3,8}$ ]]; then
             break
         fi
-        print_orange "Invalid callsign. Use only letters and numbers, 3 - 8 characters."
+        msg_caution "Invalid callsign. Use only letters and numbers, 3 - 8 characters."
     done
     print_yellow "Using: $CALLSIGN"
 }
@@ -322,13 +342,13 @@ question_05() {
     echo ""
     echo "$SEPQUE"
     echo ""
-    print_red "Mandatory"
+    print_red "$ICON_WARN Mandatory"
     print_wrapped "05. Reflector country name."
     while true; do
         printf "> "
         read -r COUNTRY
         if [ -z "$COUNTRY" ]; then
-            print_orange "Error: This field is mandatory and cannot be empty. Try again!"
+            msg_caution "Error: This field is mandatory and cannot be empty. Try again!"
         else
             break
         fi
@@ -348,7 +368,7 @@ question_06() {
     MM=${OFFSET:3:2}
     FRIENDLY_OFFSET="UTC${SIGN}${HH}:${MM}"
     echo ""
-    print_red "Mandatory"
+    print_red "$ICON_WARN Mandatory"
     if [[ -n "$AUTO_TZ" ]]; then
         print_wrapped "06. Local timezone. Detected: $AUTO_TZ ($FRIENDLY_OFFSET)"
         print_gray "Press ENTER to keep it or type another timezone."
@@ -387,10 +407,10 @@ question_06() {
         fi
 
         # CASE 2 — USER ENTERED A CUSTOM TIMEZONE
-        TZ_RESOLVED=$(resolve_timezone "$USER_TZ")
+        TZ_RESOLVED=$(resolve_timezone "$USER_TZ" || true)
 
         if [[ -z "$TZ_RESOLVED" ]]; then
-            print_orange "Invalid timezone. Please try again."
+            msg_caution "Invalid timezone. Please try again."
             continue
         fi
 
@@ -400,7 +420,7 @@ question_06() {
         # Resolve tzdata link
         ZONEFILE=$(readlink -f "/usr/share/zoneinfo/$TIMEZONE" 2>/dev/null || true)
         if [ -z "$ZONEFILE" ] || [ ! -f "$ZONEFILE" ]; then
-            print_orange "Warning: Timezone file not found. Using system default."
+            msg_caution "Warning: Timezone file not found. Using system default."
             TIMEZONE="$AUTO_TZ"
             ZONEFILE=$(readlink -f "/usr/share/zoneinfo/$TIMEZONE" || true)
         fi
@@ -425,7 +445,7 @@ question_06() {
 
         # Inverted GMT warning
         if [[ "$TIMEZONE" =~ ^Etc/GMT ]]; then
-            print_orange "IMPORTANT: Linux POSIX GMT zones use inverted sign notation."
+            print_orange "($ICON_NOTE ) IMPORTANT: Linux POSIX GMT zones use inverted sign notation."
             print_orange "In your case, $TIMEZONE (inverted) corresponds to $DISPLAY_OFFSET (real)."
         fi
 
@@ -460,7 +480,7 @@ question_07() {
         if [ ${#COMMENT} -le 100 ]; then
             break
         else
-            print_orange "Error: Comment must be max 100 characters. Please try again!"
+            msg_caution "Error: Comment must be max 100 characters. Please try again!"
         fi
     done
     print_yellow "Using: $COMMENT"
@@ -480,7 +500,7 @@ question_08() {
         if [ ${#HEADER} -le 50 ]; then
             break
         else
-            print_orange "Error: Tab page text must be max 50 characters. Please try again!"
+            msg_caution "Error: Tab page text must be max 50 characters. Please try again!"
         fi
     done
     print_yellow "Using: $HEADER"
@@ -500,7 +520,7 @@ question_09() {
         if [ ${#FOOTER} -le 100 ]; then
             break
         else
-            print_orange "Error: Footer must be max 100 characters. Please try again!"
+            msg_caution "Error: Footer must be max 100 characters. Please try again!"
         fi
     done
     print_yellow "Using: $FOOTER"
@@ -519,7 +539,7 @@ question_10() {
         if [[ "$INSTALL_SSL" == "Y" || "$INSTALL_SSL" == "N" ]]; then
             break
         else
-            print_orange "Please enter 'Y' or 'N'."
+            msg_caution "Please enter 'Y' or 'N'."
         fi
     done
     print_yellow "Using: $INSTALL_SSL"
@@ -538,7 +558,7 @@ question_11() {
         if [[ "$INSTALL_ECHO" == "Y" || "$INSTALL_ECHO" == "N" ]]; then
             break
         else
-            print_orange "Please enter 'Y' or 'N'."
+            msg_caution "Please enter 'Y' or 'N'."
         fi
     done
     print_yellow "Using: $INSTALL_ECHO"
@@ -561,7 +581,7 @@ question_12() {
         if [[ "$MODQTD" =~ ^[0-9]+$ && "$MODQTD" -ge "$MIN_MODULES" && "$MODQTD" -le 26 ]]; then
             break
         else
-            print_orange "Error: Must be a number between $MIN_MODULES and 26. Try again!"
+            msg_caution "Error: Must be a number between $MIN_MODULES and 26. Try again!"
         fi
     done
     print_yellow "Using: $MODQTD"
@@ -580,13 +600,13 @@ question_13() {
 
         # Numeric Validation
         if [[ ! "$YSFPORT" =~ ^[0-9]+$ || "$YSFPORT" -lt 1 || "$YSFPORT" -gt 65535 ]]; then
-            print_orange "Error: Must be a number between 1 and 65535. Try again!"
+            msg_caution "Error: Must be a number between 1 and 65535. Try again!"
             continue
         fi
 
         # Check if port is in use.
         if ss -H -tuln "sport = :$YSFPORT" 2>/dev/null | grep -q .; then
-            print_orange "Warning: Port $YSFPORT appears to be in use."
+            msg_caution "Warning: Port $YSFPORT appears to be in use."
 
             while true; do
                 read -r -p "Do you want to continue anyway? (Y/N) " PORT_ANSWER
@@ -597,11 +617,11 @@ question_13() {
                         break 2   # exit two loops
                         ;;
                     N)
-                        print_gray "Please enter a different port."
+                        print_gray "Please enter a different port, or $ACCEPT"
                         break     # only exit the internal loop
                         ;;
                     *)
-                        print_orange "Please answer Y or N."
+                        msg_caution "Please answer Y or N."
                         ;;
                 esac
             done
@@ -628,7 +648,7 @@ question_14() {
         if [[ "$YSFFREQ" =~ ^[0-9]{9}$ ]]; then
             break
         else
-            print_orange "Error: Must be exactly 9 numeric digits (e.g., 433125000). Try again!"
+            msg_caution "Error: Must be exactly 9 numeric digits (e.g., 433125000). Try again!"
         fi
     done
     print_yellow "Using: $YSFFREQ"
@@ -648,7 +668,7 @@ question_15() {
         if [[ "$AUTOLINK_USER" == "Y" || "$AUTOLINK_USER" == "N" ]]; then
             break
         else
-            print_orange "Please enter 'Y' or 'N'."
+            msg_caution "Please enter 'Y' or 'N'."
         fi
     done
 
@@ -708,9 +728,9 @@ question_16() {
             fi
 
             if (( MODQTD <= 3 )); then
-                print_orange "Invalid entry. Valid modules are: ${VALMOD[*]}"
+                msg_caution "Invalid entry. Valid modules are: ${VALMOD[*]}"
             else
-                print_orange "Invalid entry. Choose from A to $LAST_LETTER."
+                msg_caution "Invalid entry. Choose from A to $LAST_LETTER."
             fi
         done
 
@@ -746,8 +766,8 @@ collect_all_questions() {
 review_settings() {
     line_type1
     echo ""
-    center_wrap_color $ORANGE "PLEASE REVIEW YOUR SETTINGS:"
-    center_wrap_color $YELLOW "============================"
+    center_wrap_color $ORANGE "$ICON_INFO PLEASE REVIEW YOUR SETTINGS:"
+    center_wrap_color $YELLOW "================================"
     echo ""
 
     print_wrapped "01. Reflector ID:        $XRFNUM"
@@ -786,7 +806,7 @@ while true; do
     CONFIRM=$(echo "$CONFIRM" | tr '[:lower:]' '[:upper:]')
 
     if [[ "$CONFIRM" == "YES" ]]; then
-        print_green "✔ Information verified, installation starting!"
+        msg_success "Information verified, installation starting!"
         break
     fi
 
@@ -821,7 +841,7 @@ while true; do
                 if [[ "$AUTOLINK" -eq 1 && -n "$MODAUTO" ]]; then
                     if ! is_module_valid "$MODAUTO"; then
                         echo ""
-                        print_orange "Selected YSF Auto-link module is no longer valid, choose another."
+                        msg_caution "Selected YSF Auto-link module is no longer valid, choose another."
                         question_16
                     fi
                 fi
@@ -853,21 +873,22 @@ while true; do
                 if [[ "$AUTOLINK" -eq 1 ]]; then
                     question_16
                 else
-                    print_orange "Question 16 is not active."
+                    msg_caution "Question 16 is not active."
                 fi
                 ;;
             *)
-                print_orange "Invalid question number."
+                msg_caution "Invalid question number."
                 ;;
         esac
     fi
+
 done
 
 echo ""
 line_type1
 echo ""
-center_wrap_color $BLUE_BRIGHT "UPDATING OS..."
-center_wrap_color $BLUE "=============="
+center_wrap_color $BLUE_BRIGHT "$ICON_INFO UPDATING OS..."
+center_wrap_color $BLUE "=================="
 echo ""
 apt update || error_exit "Failed to update package lists. Check your internet connection or package manager configuration."
 apt full-upgrade -y || error_exit "Failed to upgrade packages. Check your internet connection or package manager configuration."
@@ -882,12 +903,12 @@ else
     print_gray "Detected system timezone preserved: $TIMEZONE"
 fi
 echo ""
-print_green "✔ System updated successfully!"
+msg_success "System updated successfully!"
 echo ""
 line_type1
 echo ""
-center_wrap_color $BLUE_BRIGHT "INSTALLING DEPENDENCIES..."
-center_wrap_color $BLUE "=========================="
+center_wrap_color $BLUE_BRIGHT "$ICON_INFO INSTALLING DEPENDENCIES..."
+center_wrap_color $BLUE "=============================="
 echo ""
 
 # Check available disk space (require at least 1GB)
@@ -902,14 +923,15 @@ PHPVER=$(php -v | head -n1 | awk '{print $2}' | cut -d. -f1,2)
 if [ -z "$PHPVER" ]; then
     error_exit "PHP installation failed or version could not be determined"
 fi
+echo ""
 print_gray "PHP version: $PHPVER"
 echo ""
-success_msg "Dependencies installed!"
+msg_success "Dependencies installed!"
 echo ""
 line_type1
 echo ""
-center_wrap_color $BLUE_BRIGHT "DOWNLOADING THE XLX APP..."
-center_wrap_color $BLUE "=========================="
+center_wrap_color $BLUE_BRIGHT "$ICON_INFO DOWNLOADING THE XLX APP..."
+center_wrap_color $BLUE "=============================="
 echo ""
 echo ""
 cd "$USRSRC" || error_exit "Failed to change to $USRSRC directory"
@@ -936,12 +958,17 @@ if [ "$AUTOLINK" -eq 1 ]; then
     sed -i "s|\(YSF_AUTOLINK_MODULE\s*\)'[A-Z]*'|\1'$MODAUTO'|g" "$MAINCONFIG"
 fi
 echo ""
-success_msg "Repository cloned and customizations applied!"
+echo "Reflector $XRFNUM"
+echo "Ethernet IP address: $HOMEIP"
+echo "Public IP address: $PUBLIP"
+echo "Network adapter name: $NETACT"
+echo ""
+msg_success "Repository cloned and customizations applied!"
 echo ""
 line_type1
 echo ""
-center_wrap_color $BLUE_BRIGHT "COMPILING..."
-center_wrap_color $BLUE "============"
+center_wrap_color $BLUE_BRIGHT "$ICON_INFO COMPILING..."
+center_wrap_color $BLUE "================"
 echo ""
 echo ""
 make || error_exit "Compilation failed. Check build dependencies and logs."
@@ -949,24 +976,18 @@ make install || error_exit "Installation of compiled binaries failed"
 
 if [ -e "$XLXDIR/xlxd" ]; then
     echo ""
-    echo ""
-    center_wrap_color $GREEN "==============================="
-    center_wrap_color $GREEN "|  COMPILATION SUCCESSFUL!!!  |"
-    center_wrap_color $GREEN "==============================="
+    msg_success "COMPILATION SUCCESSFUL!!!"
     echo ""
 else
     echo ""
-    echo ""
-    center_wrap_color $RED "======================================================"
-    center_wrap_color $RED "|  Compilation FAILED. Check the output for errors.  |"
-    center_wrap_color $RED "======================================================"
+    msg_error "Compilation FAILED. Check the output for errors."
     echo ""
     exit 1
 fi
 line_type1
 echo ""
-center_wrap_color $BLUE_BRIGHT "COPYING COMPONENTS..."
-center_wrap_color $BLUE "====================="
+center_wrap_color $BLUE_BRIGHT "$ICON_INFO COPYING COMPONENTS..."
+center_wrap_color $BLUE "========================="
 echo ""
 echo ""
 mkdir -p "$XLXDIR" || error_exit "Failed to create $XLXDIR directory"
@@ -1039,15 +1060,15 @@ else
     systemctl enable --now update_XLX_db.timer
 fi
 echo ""
-success_msg "Components copied and configured!"
+msg_success "Components copied and configured!"
 echo ""
 
 # Echo Test installation conditional (question 11 in user input sequence)
 if [ "$INSTALL_ECHO" == "Y" ]; then
     line_type1
     echo ""
-    center_wrap_color $BLUE_BRIGHT "INSTALLING ECHO TEST SERVER..."
-    center_wrap_color $BLUE "=============================="
+    center_wrap_color $BLUE_BRIGHT "$ICON_INFO INSTALLING ECHO TEST SERVER..."
+    center_wrap_color $BLUE "=================================="
     echo ""
     echo ""
     cd "$USRSRC" || error_exit "Failed to change to $USRSRC directory"
@@ -1061,13 +1082,13 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
     cp "$USRSRC/xlxd/scripts/xlxecho.service" /etc/systemd/system/ || error_exit "Failed to copy xlxecho.service"
     chmod 644 /etc/systemd/system/xlxecho.service
     echo ""
-    success_msg "Echo Test server successfully installed!"
+    msg_success "Echo Test server successfully installed!"
     echo ""
 fi
 line_type1
 echo ""
-center_wrap_color $BLUE_BRIGHT "INSTALLING DASHBOARD..."
-center_wrap_color $BLUE "======================="
+center_wrap_color $BLUE_BRIGHT "$ICON_INFO INSTALLING DASHBOARD..."
+center_wrap_color $BLUE "==========================="
 echo ""
 echo ""
 cd "$USRSRC" || error_exit "Failed to change to $USRSRC directory"
@@ -1148,7 +1169,7 @@ if [ -d /xlxd/users_db ]; then
     find /xlxd/users_db -type f -name '*.sh' -exec chmod 755 {} \;
 fi
 
-/bin/bash /xlxd/users_db/update_db.sh || print_orange "Warning: Failed to update user database"
+/bin/bash /xlxd/users_db/update_db.sh || msg_caution "Warning: Failed to update user database"
 # a2ensite/a2dissite can return non-zero if already enabled/disabled — || true prevents set -e
 /usr/sbin/a2ensite "$XLXDOMAIN".conf 2>/dev/null | head -n1 || true
 /usr/sbin/a2dissite 000-default 2>/dev/null | head -n1 || true
@@ -1157,30 +1178,33 @@ systemctl stop apache2 >/dev/null 2>&1 || true
 systemctl start apache2 >/dev/null 2>&1 || error_exit "Failed to start Apache"
 systemctl daemon-reload
 echo ""
-success_msg "Dashboard successfully installed!"
+msg_success "Dashboard successfully installed!"
 echo ""
 
 # SSL certification install
 if [ "$INSTALL_SSL" == "Y" ]; then
     line_type1
     echo ""
-    center_wrap_color $BLUE_BRIGHT "CONFIGURING SSL CERTIFICATE..."
-    center_wrap_color $BLUE "=============================="
+    center_wrap_color $BLUE_BRIGHT "$ICON_INFO CONFIGURING SSL CERTIFICATE..."
+    center_wrap_color $BLUE "=================================="
     echo ""
     echo ""
+    SSL_OK=0
     if certbot --apache -d "$XLXDOMAIN" -n --agree-tos -m "$EMAIL"; then
-        success_msg "SSL certificate installed successfully!"
+        SSL_OK=1
+        msg_success "SSL certificate installed successfully!"
     else
-        print_orange "Warning: SSL certificate installation failed. You can configure it manually later."
+        SSL_OK=0
+        msg_caution "Warning: SSL certificate installation failed. Dashboard will use HTTP."
     fi
 fi
 echo ""
-success_msg "Configuration completed!"
+msg_success "Configuration completed!"
 echo ""
 line_type1
 echo ""
-center_wrap_color $BLUE_BRIGHT "STARTING $XRFNUM REFLECTOR..."
-center_wrap_color $BLUE "============================="
+center_wrap_color $BLUE_BRIGHT "$ICON_INFO STARTING $XRFNUM REFLECTOR..."
+center_wrap_color $BLUE "================================"
 echo ""
 echo ""
 systemctl enable --now xlxd.service >> "$LOGFILE" 2>&1 &
@@ -1193,14 +1217,14 @@ wait $pid
 
 # Verify service started successfully
 if ! systemctl is-active --quiet xlxd.service; then
-    print_orange "Warning: xlxd service may not have started correctly. Check with: systemctl status xlxd"
+    msg_caution "Warning: xlxd service may not have started correctly. Check with: systemctl status xlxd"
 fi
 
 echo ""
 systemctl enable --now xlx_log.service >> "$LOGFILE" 2>&1 &
 pid=$!
 for ((i=5; i>0; i--)); do
-    printf "\r${YELLOW}Initializing log %2d seconds${NC}" "$i"
+    printf "\r${YELLOW}Initializing XLX log %2d seconds${NC}" "$i"
     sleep 1
 done
 wait $pid
@@ -1218,69 +1242,77 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
 
     # Verify echo service started
     if ! systemctl is-active --quiet xlxecho.service; then
-        print_orange "Warning: xlxecho service may not have started correctly"
+        msg_caution "Warning: xlxecho service may not have started correctly"
     fi
 fi
 echo ""
-success_msg "Initialization completed!"
+echo ""
+msg_success "Initialization completed!"
 echo ""
 
 # Post-installation validation
-echo "Running post-installation validation..."
+msg_note "Running post-installation validation..."
+echo ""
 VALIDATION_FAILED=0
 
 # Check if xlxd binary exists
 if [ ! -f "/xlxd/xlxd" ]; then
-    print_redd "✖ XLXD binary not found at /xlxd/xlxd"
+    msg_error "XLXD binary not found at /xlxd/xlxd"
     VALIDATION_FAILED=1
 else
-    print_green "✔ XLXD binary found"
+    msg_success "XLXD binary found"
 fi
 
 # Check if xlxd service is running
 if systemctl is-active --quiet xlxd.service; then
-    print_green "✔ XLXD service is running"
+    msg_success "XLXD service is running"
 else
-    print_redd "✖ XLXD service is not running"
+    msg_error "XLXD service is not running"
+    VALIDATION_FAILED=1
+fi
+
+# Check if xlx_log service is running
+if systemctl is-active --quiet xlx_log.service; then
+    msg_success "xlx_log service is running"
+else
+    msg_error "xlx_log service is not running"
     VALIDATION_FAILED=1
 fi
 
 # Check if Apache is running
 if systemctl is-active --quiet apache2; then
-    print_green "✔ Apache service is running"
+    msg_success "Apache service is running"
 else
-    print_orange "⚠ Apache service is not running"
+    msg_caution "Apache service is not running"
 fi
 
 # Check if dashboard files exist
 if [ -f "$WEBDIR/index.php" ]; then
-    print_green "✔ Dashboard files found"
+    msg_success "Dashboard files found"
 else
-    print_orange "⚠ Dashboard files not found at expected location"
+    msg_caution "Dashboard files not found at expected location"
 fi
 
 # Check if echo service is running (if installed)
 if [ "$INSTALL_ECHO" == "Y" ]; then
     if systemctl is-active --quiet xlxecho.service; then
-        print_green "✔ Echo Test service is running"
+        msg_success "Echo Test service is running"
     else
-        print_orange "⚠ Echo Test service is not running"
+        msg_caution "Echo Test service is not running"
     fi
 fi
 
 if [ "$VALIDATION_FAILED" -eq 1 ]; then
     echo ""
-    print_orange "⚠ Some validation checks failed. Please review the installation logs."
-    print_orange "You can check service status with: systemctl status xlxd.service"
+    msg_caution "Some validation checks failed. Please review the installation logs."
+    msg_note "You can check service status with: systemctl status xlxd.service"
 fi
 
 echo ""
 line_type2
 echo ""
 echo ""
-center_wrap_color $GREEN "========================================="
-center_wrap_color $GREEN "|  REFLECTOR INSTALLED SUCCESSFULLY!!!  |"
-center_wrap_color $GREEN "========================================="
+center_wrap_color $BLUE_BRIGHT "$ICON_OK REFLECTOR INSTALLED SUCCESSFULLY!!!"
 echo ""
 echo ""
 line_type2
@@ -1291,8 +1323,8 @@ center_wrap_color $GREEN "For Public Reflectors:"
 echo ""
 center_wrap_color $GREEN "• If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour. If you don't want the reflector to be published just set callinghome to [false] in the main file in $XLXCONFIG."
 center_wrap_color $GREEN "• Many other settings can be changed in this file."
-center_wrap_color $GREEN "• More Information about XLX Reflectors check $INFREF"
-if [ "$INSTALL_SSL" == "Y" ]; then
+center_wrap_color $GREEN "• More Information about XLX Reflectors: $INFREF"
+if [[ "$SSL_OK" -eq 1 ]]; then
     SSLTYPE="https"
 else
     SSLTYPE="http"
