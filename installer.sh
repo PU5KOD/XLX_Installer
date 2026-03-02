@@ -1318,7 +1318,7 @@ center_wrap_color $GREEN "Your Reflector $XRFNUM is now installed and running!"
 echo ""
 center_wrap_color $GREEN "For Public Reflectors:"
 echo ""
-center_wrap_color $GREEN "• If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour. If you don't want the reflector to be published just set callinghome to [false] in the main file in $XLXCONFIG."
+center_wrap_color $GREEN "• If your XLX number is available it's expected to be listed on the public list shortly, typically within an hour. If you don't want the reflector to be published just set callinghome to [false] in the main configuration file: $XLXCONFIG."
 center_wrap_color $GREEN "• Many other settings can be changed in this file."
 center_wrap_color $GREEN "• More Information about XLX Reflectors: $INFREF"
 if [[ "$SSL_OK" -eq 1 ]]; then
