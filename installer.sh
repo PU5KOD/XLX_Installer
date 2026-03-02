@@ -348,7 +348,7 @@ question_05() {
         printf "> "
         read -r COUNTRY
         if [ -z "$COUNTRY" ]; then
-            msg_caution "Error: This field is mandatory and cannot be empty. Try again!"
+            msg_caution "This field is mandatory and cannot be empty. Try again!"
         else
             break
         fi
@@ -420,7 +420,7 @@ question_06() {
         # Resolve tzdata link
         ZONEFILE=$(readlink -f "/usr/share/zoneinfo/$TIMEZONE" 2>/dev/null || true)
         if [ -z "$ZONEFILE" ] || [ ! -f "$ZONEFILE" ]; then
-            msg_caution "Warning: Timezone file not found. Using system default."
+            msg_warn "Warning: Timezone file not found. Using system default."
             TIMEZONE="$AUTO_TZ"
             ZONEFILE=$(readlink -f "/usr/share/zoneinfo/$TIMEZONE" || true)
         fi
@@ -480,7 +480,7 @@ question_07() {
         if [ ${#COMMENT} -le 100 ]; then
             break
         else
-            msg_caution "Error: Comment must be max 100 characters. Please try again!"
+            msg_caution "Comment must be max 100 characters. Please try again!"
         fi
     done
     print_yellow "Using: $COMMENT"
@@ -497,10 +497,10 @@ question_08() {
         printf "> "
         read -r HEADER
         HEADER=${HEADER:-"$HEADER_DEFAULT"}
-        if [ ${#HEADER} -le 50 ]; then
+        if [ ${#HEADER} -le 25 ]; then
             break
         else
-            msg_caution "Error: Tab page text must be max 50 characters. Please try again!"
+            msg_caution "Tab page text must be max 25 characters. Please try again!"
         fi
     done
     print_yellow "Using: $HEADER"
@@ -520,7 +520,7 @@ question_09() {
         if [ ${#FOOTER} -le 100 ]; then
             break
         else
-            msg_caution "Error: Footer must be max 100 characters. Please try again!"
+            msg_caution "Footer must be max 100 characters. Please try again!"
         fi
     done
     print_yellow "Using: $FOOTER"
@@ -581,7 +581,7 @@ question_12() {
         if [[ "$MODQTD" =~ ^[0-9]+$ && "$MODQTD" -ge "$MIN_MODULES" && "$MODQTD" -le 26 ]]; then
             break
         else
-            msg_caution "Error: Must be a number between $MIN_MODULES and 26. Try again!"
+            msg_caution "Must be a number between $MIN_MODULES and 26. Try again!"
         fi
     done
     print_yellow "Using: $MODQTD"
@@ -600,13 +600,13 @@ question_13() {
 
         # Numeric Validation
         if [[ ! "$YSFPORT" =~ ^[0-9]+$ || "$YSFPORT" -lt 1 || "$YSFPORT" -gt 65535 ]]; then
-            msg_caution "Error: Must be a number between 1 and 65535. Try again!"
+            msg_caution "Must be a number between 1 and 65535. Try again!"
             continue
         fi
 
         # Check if port is in use.
         if ss -H -tuln "sport = :$YSFPORT" 2>/dev/null | grep -q .; then
-            msg_caution "Warning: Port $YSFPORT appears to be in use."
+            msg_warn "Warning: Port $YSFPORT appears to be in use."
 
             while true; do
                 read -r -p "Do you want to continue anyway? (Y/N) " PORT_ANSWER
@@ -648,7 +648,7 @@ question_14() {
         if [[ "$YSFFREQ" =~ ^[0-9]{9}$ ]]; then
             break
         else
-            msg_caution "Error: Must be exactly 9 numeric digits (e.g., 433125000). Try again!"
+            msg_caution "Must be exactly 9 numeric digits (e.g., 433125000). Try again!"
         fi
     done
     print_yellow "Using: $YSFFREQ"
@@ -945,7 +945,6 @@ if [ ! -f "$MAINCONFIG" ]; then
     error_exit "Configuration file $MAINCONFIG not found"
 fi
 
-# Use safer sed with proper escaping and combined operations
 sed -i \
     -e "s|\(NB_OF_MODULES\s*\)[0-9]*|\1$MODQTD|g" \
     -e "s|\(YSF_PORT\s*\)[0-9]*|\1$YSFPORT|g" \
@@ -1026,7 +1025,7 @@ PUBLIP_ESC=$(escape_sed "$PUBLIP")
 if [ "$MODQTD" -lt 1 ] || [ "$MODQTD" -gt 26 ]; then
     error_exit "MODQTD out of valid range (1-26): $MODQTD"
 fi
-# Convert first caracters (ABCDE...)
+# Convert first characters (ABCDE...)
 MODLIST=$(echo {A..Z} | tr -d ' ' | head -c "$MODQTD")
 MODLIST_ESC=$(escape_sed "$MODLIST")
 
@@ -1034,7 +1033,7 @@ sed -i "s|#address|address $PUBLIP_ESC|g" "$TERMXLX"
 sed -i "s|#modules|modules $MODLIST_ESC|g" "$TERMXLX"
 cp "$USRSRC/xlxd/scripts/xlxd.service" /etc/systemd/system/ || error_exit "Failed to copy xlxd.service"
 chmod 644 /etc/systemd/system/xlxd.service
-# Escape variables for sed and combine operations
+
 XRFNUM_ESC=$(escape_sed "$XRFNUM")
 HOMEIP_ESC=$(escape_sed "$HOMEIP")
 sed -i \
@@ -1063,7 +1062,7 @@ echo ""
 msg_success "Components copied and configured!"
 echo ""
 
-# Echo Test installation conditional (question 11 in user input sequence)
+# Echo Test installation conditional
 if [ "$INSTALL_ECHO" == "Y" ]; then
     line_type1
     echo ""
@@ -1169,7 +1168,7 @@ if [ -d /xlxd/users_db ]; then
     find /xlxd/users_db -type f -name '*.sh' -exec chmod 755 {} \;
 fi
 
-/bin/bash /xlxd/users_db/update_db.sh || msg_caution "Warning: Failed to update user database"
+/bin/bash /xlxd/users_db/update_db.sh || msg_warn "Warning: Failed to update user database"
 # a2ensite/a2dissite can return non-zero if already enabled/disabled — || true prevents set -e
 /usr/sbin/a2ensite "$XLXDOMAIN".conf 2>/dev/null | head -n1 || true
 /usr/sbin/a2dissite 000-default 2>/dev/null | head -n1 || true
@@ -1181,7 +1180,7 @@ echo ""
 msg_success "Dashboard successfully installed!"
 echo ""
 
-# SSL certification install
+# SSL install
 if [ "$INSTALL_SSL" == "Y" ]; then
     line_type1
     echo ""
@@ -1193,7 +1192,7 @@ if [ "$INSTALL_SSL" == "Y" ]; then
         SSL_OK=1
         msg_success "SSL certificate installed successfully!"
     else
-        msg_caution "Warning: SSL certificate installation failed. Dashboard will use HTTP."
+        msg_warn "Warning: SSL certificate installation failed. Dashboard will use HTTP."
     fi
 fi
 echo ""
@@ -1215,7 +1214,7 @@ wait $pid
 
 # Verify service started successfully
 if ! systemctl is-active --quiet xlxd.service; then
-    msg_caution "Warning: xlxd service may not have started correctly. Check with: systemctl status xlxd"
+    msg_warn "Warning: xlxd service may not have started correctly. Check with: systemctl status xlxd"
 fi
 
 echo ""
@@ -1227,7 +1226,7 @@ for ((i=5; i>0; i--)); do
 done
 wait $pid
 
-# Enable and start xlxecho.service only if Echo Test is installed
+# Enable and start xlxecho.service (if Echo Test is installed)
 echo ""
 if [ "$INSTALL_ECHO" == "Y" ]; then
     systemctl enable --now xlxecho.service >> "$LOGFILE" 2>&1 &
@@ -1240,7 +1239,7 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
 
     # Verify echo service started
     if ! systemctl is-active --quiet xlxecho.service; then
-        msg_caution "Warning: xlxecho service may not have started correctly"
+        msg_warn "Warning: xlxecho service may not have started correctly"
     fi
 fi
 echo ""
@@ -1281,14 +1280,14 @@ fi
 if systemctl is-active --quiet apache2; then
     msg_success "Apache service is running"
 else
-    msg_caution "Apache service is not running"
+    msg_error "Apache service is not running"
 fi
 
 # Check if dashboard files exist
 if [ -f "$WEBDIR/index.php" ]; then
     msg_success "Dashboard files found"
 else
-    msg_caution "Dashboard files not found at expected location"
+    msg_error "Dashboard files not found at expected location"
 fi
 
 # Check if echo service is running (if installed)
@@ -1296,7 +1295,7 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
     if systemctl is-active --quiet xlxecho.service; then
         msg_success "Echo Test service is running"
     else
-        msg_caution "Echo Test service is not running"
+        msg_error "Echo Test service is not running"
     fi
 fi
 
