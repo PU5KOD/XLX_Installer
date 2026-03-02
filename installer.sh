@@ -108,14 +108,6 @@ ACCEPT="| [ENTER] to accept..."
 DEPAPP="git git-core make gcc g++ pv sqlite3 apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl php-sqlite3 build-essential vnstat certbot python3-certbot-apache"
 
 #  10. Color palette
-# msg_info - BLUE 38;5;39 - Information
-# msg_success - GREEN 38;5;46 - Success
-# msg_warn - YELLOW 38;5;226 - Warning
-# msg_caution - ORANGE 38;5;208 - Caution
-# msg_error - RED_BRIGHT 38;5;196 - Error
-# msg_note - GRAY_250 38;5;250 - Technical note
-# msg_fatal - RED_DARK 38;5;124 - Fatal message!!!
-
 NC='\033[0m'
 BLUE='\033[38;5;39m'
 BLUE_BRIGHT='\033[1;34m'
@@ -252,19 +244,9 @@ echo ""
 center_wrap_color $BLUE_BRIGHT "REFLECTOR DATA INPUT"
 center_wrap_color $BLUE "===================="
 echo ""
-
-# Test the color printing, uncomment and run to verify
-#print_blue "Azul ==============="
-#print_blueb "Azul Brilhante ===="
-#print_green "Verde ============="
-#print_yellow "Amarelo =========="
-#print_orange "Laranja =========="
-#print_red "Vermelho ============"
-#print_redd "Vermelho Dask ======"
-#print_gray "Cinza =============="
 echo ""
 
-#  19. Questions begin...
+#  19. Questions functions...
 question_01() {
     print_red "Mandatory"
     print_wrapped "01. XLX Reflector ID, 3 alphanumeric characters. (e.g., 300, US1, BRA)"
@@ -691,9 +673,9 @@ question_16() {
         LAST_LETTER=$(printf "\\$(printf '%03o' $((65 + LAST_INDEX)))")
 
         # Build array of valid modules
-        VALID_MODULES=()
+        VALMOD=()
         for ((i=0; i<MODQTD; i++)); do
-            VALID_MODULES+=("$(printf "\\$(printf '%03o' $((65 + i)))")")
+            VALMOD+=("$(printf "\\$(printf '%03o' $((65 + i)))")")
         done
 
         # Determine smart suggestion
@@ -707,7 +689,7 @@ question_16() {
 
         # Smart display of available modules
         if (( MODQTD <= 3 )); then
-            print_wrapped "16. Module to Auto-link YSF. (One of ${VALID_MODULES[*]})"
+            print_wrapped "16. Module to Auto-link YSF. (One of ${VALMOD[*]})"
         else
             print_wrapped "16. Module to Auto-link YSF. (Choose from A to $LAST_LETTER)"
         fi
@@ -721,12 +703,12 @@ question_16() {
             MODAUTO=${MODAUTO:-$SUGGESTED}
             MODAUTO=$(echo "$MODAUTO" | tr '[:lower:]' '[:upper:]')
 
-            if [[ " ${VALID_MODULES[*]} " =~ " $MODAUTO " ]]; then
+            if [[ " ${VALMOD[*]} " =~ " $MODAUTO " ]]; then
                 break
             fi
 
             if (( MODQTD <= 3 )); then
-                print_orange "Invalid entry. Valid modules are: ${VALID_MODULES[*]}"
+                print_orange "Invalid entry. Valid modules are: ${VALMOD[*]}"
             else
                 print_orange "Invalid entry. Choose from A to $LAST_LETTER."
             fi
@@ -879,7 +861,6 @@ while true; do
                 ;;
         esac
     fi
-
 done
 
 echo ""
