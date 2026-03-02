@@ -445,7 +445,7 @@ question_06() {
 
         # Inverted GMT warning
         if [[ "$TIMEZONE" =~ ^Etc/GMT ]]; then
-            print_orange "($ICON_NOTE ) IMPORTANT: Linux POSIX GMT zones use inverted sign notation."
+            print_orange "$ICON_NOTE IMPORTANT: Linux POSIX GMT zones use inverted sign notation."
             print_orange "In your case, $TIMEZONE (inverted) corresponds to $DISPLAY_OFFSET (real)."
         fi
 
@@ -1189,12 +1189,10 @@ if [ "$INSTALL_SSL" == "Y" ]; then
     center_wrap_color $BLUE "=================================="
     echo ""
     echo ""
-    SSL_OK=0
     if certbot --apache -d "$XLXDOMAIN" -n --agree-tos -m "$EMAIL"; then
         SSL_OK=1
         msg_success "SSL certificate installed successfully!"
     else
-        SSL_OK=0
         msg_caution "Warning: SSL certificate installation failed. Dashboard will use HTTP."
     fi
 fi
@@ -1273,9 +1271,9 @@ fi
 
 # Check if xlx_log service is running
 if systemctl is-active --quiet xlx_log.service; then
-    msg_success "xlx_log service is running"
+    msg_success "XLX log service is running"
 else
-    msg_error "xlx_log service is not running"
+    msg_error "XLX log service is not running"
     VALIDATION_FAILED=1
 fi
 
