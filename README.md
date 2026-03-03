@@ -124,9 +124,10 @@ The installer will request the following information:
 ### Step 4: Completion ✅
 
 The installation proceeds automatically. Once complete, your reflector will be operational and ready to accept connections!
-## 🚀 Quick Start
 
 ---
+
+## 🚀 Quick Start
 
 ```bash
 # Update system
