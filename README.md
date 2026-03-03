@@ -46,6 +46,29 @@ This project simplifies the installation of XLX reflectors with minimal user int
 | 🔒 **SSL Ready** | Automated SSL certificate setup with Certbot |
 | 📊 **Real-time Monitoring** | Live connection tracking and statistics |
 | 🌍 **YSF Auto-link** | Configurable automatic linking for YSF |
+| 🎯 **Auto-update** | Automatic real-time users database setup |
+
+### ✔ Dashboard Features
+The included dashboard is a dark-theme fork with major improvements:
+
+- Real-time multi-TX module detection
+- Live TX timers and pulsing highlight animation
+- Responsive layout for desktop and mobile
+- Live duration counter for connected stations
+- 30‑day activity history
+- Module activity chart (via Chart.js)
+- SQLite operator database (call, name, city)
+- Hidden tabs support and others via `config.inc.php`
+
+### ✔ Systemd Integration
+The installer provides native **systemd services**, replacing original XLXD `init.d` behavior:
+
+- `xlxd.service`
+- `xlx_log.service`
+- `xlxecho.service` (if Echo Test is enabled)
+- Optional update timers
+
+This brings better reliability, logging, restart behavior, and dependency control.
 
 ---
 
@@ -57,7 +80,7 @@ Before installation, ensure you have:
 - [x] Stable internet connection with **fixed public IP**
 - [x] Firewall management capabilities
 - [x] **FQDN** for dashboard (e.g., `xlxbra.net`)
-- [x] Unique **3-digit XLX suffix** (check availability [here](https://xlxbra.net/index.php?show=reflectors))
+- [x] Unique **3-digit XLX ID** (check availability [here](https://xlxbra.net/index.php?show=reflectors))
 
 ### 🔍 Finding Available Reflector Suffixes
 
@@ -65,27 +88,7 @@ Visit any active reflector dashboard to see which XLX suffixes are in use. Any u
 
 ---
 
-## 🚀 Quick Start
-
-```bash
-# Update system
-sudo apt update && sudo apt full-upgrade -y
-
-# Install prerequisites
-sudo apt install git -y
-
-# Clone repository
-cd /usr/src/
-sudo git clone https://github.com/PU5KOD/XLX_Installer.git
-
-# Run installer
-cd XLX_Installer/ && sudo chmod +x *.sh
-sudo ./installer.sh
-```
-
----
-
-## 📦 Installation
+## 📦 Installation process
 
 ### Step 1: Configure Firewall Ports
 
@@ -121,6 +124,25 @@ The installer will request the following information:
 ### Step 4: Completion ✅
 
 The installation proceeds automatically. Once complete, your reflector will be operational and ready to accept connections!
+## 🚀 Quick Start
+
+---
+
+```bash
+# Update system
+sudo apt update && sudo apt full-upgrade -y
+
+# Install prerequisites
+sudo apt install git -y
+
+# Clone repository
+cd /usr/src/
+sudo git clone https://github.com/PU5KOD/XLX_Installer.git
+
+# Run installer
+cd XLX_Installer/ && sudo chmod +x *.sh
+sudo ./installer.sh
+```
 
 ---
 
