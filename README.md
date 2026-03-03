@@ -29,8 +29,8 @@ This project simplifies the installation of XLX reflectors with minimal user int
 - ✅ **Dark theme dashboard** with improvements and modern UI
 - ✅ **Lightweight** - it ever runs on Raspberry Pi Zero!
 - ✅ **Optional Echo Test** (Parrot) service to audio tests
-- ✅ **Full uninstall support**
 - ✅ **Compatible** with Debian 10+ (13 recommended), Ubuntu, RaspiOS, Armbian, etc...
+- ✅ **Full uninstall support**
 
 > **Note:** D-Star integration with other modes still requires AMBE chips. For D-Star-only or YSF/DMR reflectors, no additional hardware is needed.
 
