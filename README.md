@@ -231,6 +231,30 @@ If you skipped automatic SSL during installation:
 
 ---
 
+## 🧹 Uninstall (Full Removal)
+
+To remove *all traces* of the installation:
+
+```bash
+cd /usr/src/xlx_installer
+sudo ./uninstaller.sh
+```
+
+This removes:
+
+- systemd services  
+- dashboard  
+- reflector core  
+- config files  
+- Apache integration  
+- cron/timers  
+- logs  
+- directories  
+
+No leftovers.
+
+---
+
 ## 🤝 Credits & Related Projects
 
 | Project | Author | Description |
@@ -257,13 +281,17 @@ If you encounter issues or have questions:
 ## 📄 License
 
 This project is open source and available for use by the amateur radio community.
+MIT License – free to use and modify.
 
 ---
+
+## ⭐ Community Support
 
 <div align="center">
 
 **Made with ❤️ by the Amateur Radio Community**
 
 ⭐ If you find this project useful, please consider starring it on GitHub!
+Contributions and pull requests are welcome.
 
 </div>
