@@ -261,7 +261,7 @@ No leftovers.
 | Project | Author | Description |
 |---------|--------|-------------|
 | **XLX Reflector** | [LX3JL](https://github.com/LX3JL/xlxd) | Original XLX reflector software |
-| **XLX Forum Home** | [Home](https://xlxbbs.epf.lu) | Official XLX Forum / Support |
+| **XLX Forum Home** | [LX1IQ](https://xlxbbs.epf.lu) | Official XLX Forum / Support |
 | **XLX Dark Dashboard** | [PU5KOD](https://github.com/PU5KOD/XLX_Dark_Dashboard) | Dark themed XLX dashboard |
 | **Original Installer Idea** | [N5AMD](https://github.com/n5amd/xlxd-debian-installer) | Initial Debian installer concept |
 | **YSF Registration** | [KC1AWV](https://dvref.com) | YSF Reflector registration service |
