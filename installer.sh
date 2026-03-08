@@ -898,7 +898,7 @@ echo ""
 print_wrapped "Timezone adjustment:"
 if [[ "$TIMEZONE_USE_SYSTEM" -eq 0 ]]; then
     print_yellow "Applying new timezone: $TIMEZONE"
-    timedatectl set-timezone "$TIMEZONE"
+    timedatectl set-timezone "$TIMEZONE" || error_exit "Failed to apply timezone: $TIMEZONE"
 else
     print_gray "Detected system timezone preserved: $TIMEZONE"
 fi
@@ -938,7 +938,7 @@ cd "$USRSRC" || error_exit "Failed to change to $USRSRC directory"
 echo "Cloning repository..."
 git clone --depth 1 "$XLXREP" || error_exit "Failed to clone XLX repository"
 cd "$USRSRC/xlxd/src" || error_exit "Failed to change to xlxd/src directory"
-make clean
+make clean || error_exit "Failed to run 'make clean'. Check the Makefile and build environment."
 echo "Seeding customizations..."
 MAINCONFIG="$USRSRC/xlxd/src/main.h"
 if [ ! -f "$MAINCONFIG" ]; then
@@ -951,10 +951,11 @@ sed -i \
     -e "s|\(YSF_DEFAULT_NODE_TX_FREQ\s*\)[0-9]*|\1$YSFFREQ|g" \
     -e "s|\(YSF_DEFAULT_NODE_RX_FREQ\s*\)[0-9]*|\1$YSFFREQ|g" \
     -e "s|\(YSF_AUTOLINK_ENABLE\s*\)[0-9]*|\1$AUTOLINK|g" \
-    "$MAINCONFIG"
+    "$MAINCONFIG" || error_exit "Failed to apply customizations to $MAINCONFIG"
 
 if [ "$AUTOLINK" -eq 1 ]; then
-    sed -i "s|\(YSF_AUTOLINK_MODULE\s*\)'[A-Z]*'|\1'$MODAUTO'|g" "$MAINCONFIG"
+    sed -i "s|\(YSF_AUTOLINK_MODULE\s*\)'[A-Z]*'|\1'$MODAUTO'|g" "$MAINCONFIG" \
+        || error_exit "Failed to apply YSF_AUTOLINK_MODULE to $MAINCONFIG"
 fi
 echo ""
 echo "Reflector $XRFNUM"
@@ -991,7 +992,7 @@ echo ""
 echo ""
 mkdir -p "$XLXDIR" || error_exit "Failed to create $XLXDIR directory"
 mkdir -p "$WEBDIR" || error_exit "Failed to create $WEBDIR directory"
-touch /var/log/xlxd.xml
+touch /var/log/xlxd.xml || error_exit "Failed to create /var/log/xlxd.xml"
 echo "Downloading DMR ID file..."
 # || true prevents set -e if Content-Length header is absent in the response
 FILE_SIZE=$(wget --spider --server-response "$DMRURL" 2>&1 | grep -i Content-Length | awk '{print $2}' || true)
@@ -1029,8 +1030,10 @@ fi
 MODLIST=$(echo {A..Z} | tr -d ' ' | head -c "$MODQTD")
 MODLIST_ESC=$(escape_sed "$MODLIST")
 
-sed -i "s|#address|address $PUBLIP_ESC|g" "$TERMXLX"
-sed -i "s|#modules|modules $MODLIST_ESC|g" "$TERMXLX"
+sed -i "s|#address|address $PUBLIP_ESC|g" "$TERMXLX" \
+    || error_exit "Failed to apply address to $TERMXLX"
+sed -i "s|#modules|modules $MODLIST_ESC|g" "$TERMXLX" \
+    || error_exit "Failed to apply modules to $TERMXLX"
 cp "$USRSRC/xlxd/scripts/xlxd.service" /etc/systemd/system/ || error_exit "Failed to copy xlxd.service"
 chmod 644 /etc/systemd/system/xlxd.service
 
@@ -1038,25 +1041,31 @@ XRFNUM_ESC=$(escape_sed "$XRFNUM")
 HOMEIP_ESC=$(escape_sed "$HOMEIP")
 sed -i \
     -e "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM_ESC $HOMEIP_ESC 127.0.0.1|g" \
-    /etc/systemd/system/xlxd.service
+    /etc/systemd/system/xlxd.service \
+    || error_exit "Failed to apply reflector identity to xlxd.service"
 
 # Comment out the line "ECHO 127.0.0.1 E" in /xlxd/xlxd.interlink if Echo Test is not installed
 if [ "$INSTALL_ECHO" == "N" ]; then
-    sed -i 's|^ECHO 127.0.0.1 E|#ECHO 127.0.0.1 E|' /xlxd/xlxd.interlink
+    sed -i 's|^ECHO 127.0.0.1 E|#ECHO 127.0.0.1 E|' /xlxd/xlxd.interlink \
+        || error_exit "Failed to comment out ECHO line in /xlxd/xlxd.interlink"
 fi
 
 # Creates daily update of users.db, checks if crontab is installed otherwise use systemd
 if command -v crontab &>/dev/null; then
     echo "crontab found, adding entry..."
-    (crontab -l 2>/dev/null; echo "0 3 * * * wget -O /xlxd/users_db/user.csv https://radioid.net/static/user.csv && php /xlxd/users_db/create_user_db.php") | crontab -
+    (crontab -l 2>/dev/null; echo "0 3 * * * wget -O /xlxd/users_db/user.csv https://radioid.net/static/user.csv && php /xlxd/users_db/create_user_db.php") | crontab - \
+        || error_exit "Failed to install crontab entry"
     echo "Entry added successfully!"
 else
     echo "crontab is not installed, using systemd..."
-    cp "$XLXINS/templates/update_XLX_db.service" /etc/systemd/system/
-    cp "$XLXINS/templates/update_XLX_db.timer" /etc/systemd/system/
+    cp "$XLXINS/templates/update_XLX_db.service" /etc/systemd/system/ \
+        || error_exit "Failed to copy update_XLX_db.service"
+    cp "$XLXINS/templates/update_XLX_db.timer" /etc/systemd/system/ \
+        || error_exit "Failed to copy update_XLX_db.timer"
     chmod 644 /etc/systemd/system/update_XLX_db.*
     systemctl daemon-reload
-    systemctl enable --now update_XLX_db.timer
+    systemctl enable --now update_XLX_db.timer \
+        || error_exit "Failed to enable update_XLX_db.timer"
 fi
 echo ""
 msg_success "Components copied and configured!"
@@ -1120,20 +1129,23 @@ sed -i \
     -e "s|your_country|$COUNTRY_ESC|g" \
     -e "s|your_comment|$COMMENT_ESC|g" \
     -e "s|netact|$NETACT_ESC|g" \
-    "$XLXCONFIG"
+    "$XLXCONFIG" || error_exit "Failed to apply customizations to $XLXCONFIG"
 
 # Handle URL separately due to # character
-sed -i "s#http://your_dashboard#http://$XLXDOMAIN_ESC#g" "$XLXCONFIG"
+sed -i "s#http://your_dashboard#http://$XLXDOMAIN_ESC#g" "$XLXCONFIG" \
+    || error_exit "Failed to apply dashboard URL to $XLXCONFIG"
 
 cp "$XLXINS/templates/apache.tbd.conf" /etc/apache2/sites-available/"$XLXDOMAIN".conf || error_exit "Failed to copy Apache config"
 sed -i \
     -e "s|apache.tbd|$XLXDOMAIN_ESC|g" \
     -e "s#ysf-xlxd#html/xlxd#g" \
-    /etc/apache2/sites-available/"$XLXDOMAIN".conf
+    /etc/apache2/sites-available/"$XLXDOMAIN".conf \
+    || error_exit "Failed to apply customizations to Apache config for $XLXDOMAIN"
 
 # Set PHP timezone - escape timezone value
 TIMEZONE_ESC=$(escape_sed "$TIMEZONE")
-sed -i "s|^;\\?date\\.timezone\\s*=.*|date.timezone = \"$TIMEZONE_ESC\"|" /etc/php/"$PHPVER"/apache2/php.ini
+sed -i "s|^;\\?date\\.timezone\\s*=.*|date.timezone = \"$TIMEZONE_ESC\"|" /etc/php/"$PHPVER"/apache2/php.ini \
+    || error_exit "Failed to set timezone in /etc/php/$PHPVER/apache2/php.ini"
 
 # Detect Apache user
 # || true prevents set -e if grep finds no apache/httpd process (falls back to www-data below)
@@ -1143,9 +1155,12 @@ if [ -z "$APACHE_USER" ]; then
 fi
 mv "$WEBDIR/users_db/" /xlxd/ || error_exit "Failed to move users_db directory"
 echo "Updating permissions..."
-chown "$APACHE_USER:$APACHE_USER" /var/log/xlxd.xml
-chown -R "$APACHE_USER:$APACHE_USER" "$WEBDIR/"
-chown -R "$APACHE_USER:$APACHE_USER" /xlxd/
+chown "$APACHE_USER:$APACHE_USER" /var/log/xlxd.xml \
+    || error_exit "Failed to set ownership on /var/log/xlxd.xml (user: $APACHE_USER)"
+chown -R "$APACHE_USER:$APACHE_USER" "$WEBDIR/" \
+    || error_exit "Failed to set ownership on $WEBDIR (user: $APACHE_USER)"
+chown -R "$APACHE_USER:$APACHE_USER" /xlxd/ \
+    || error_exit "Failed to set ownership on /xlxd (user: $APACHE_USER)"
 
 # Set proper permissions: 755 for directories, 644 for regular files, 755 for executables
 find /xlxd -type d -exec chmod 755 {} \;
@@ -1172,10 +1187,11 @@ fi
 # a2ensite/a2dissite can return non-zero if already enabled/disabled — || true prevents set -e
 /usr/sbin/a2ensite "$XLXDOMAIN".conf 2>/dev/null | head -n1 || true
 /usr/sbin/a2dissite 000-default 2>/dev/null | head -n1 || true
+# daemon-reload must run before starting Apache so new unit files are recognised
+systemctl daemon-reload || error_exit "Failed to reload systemd daemon"
 # stop may fail legitimately if apache2 is not yet running on a fresh install
 systemctl stop apache2 >/dev/null 2>&1 || true
 systemctl start apache2 >/dev/null 2>&1 || error_exit "Failed to start Apache"
-systemctl daemon-reload
 echo ""
 msg_success "Dashboard successfully installed!"
 echo ""
@@ -1210,7 +1226,7 @@ for ((i=10; i>0; i--)); do
     printf "\r${YELLOW}Initializing $XRFNUM %2d seconds${NC}" "$i"
     sleep 1
 done
-wait $pid
+wait $pid || error_exit "Failed to enable/start xlxd.service. Check with: systemctl status xlxd.service"
 
 # Verify service started successfully
 if ! systemctl is-active --quiet xlxd.service; then
@@ -1224,7 +1240,7 @@ for ((i=5; i>0; i--)); do
     printf "\r${YELLOW}Initializing XLX log %2d seconds${NC}" "$i"
     sleep 1
 done
-wait $pid
+wait $pid || error_exit "Failed to enable/start xlx_log.service. Check with: systemctl status xlx_log.service"
 
 # Enable and start xlxecho.service (if Echo Test is installed)
 echo ""
@@ -1235,7 +1251,7 @@ if [ "$INSTALL_ECHO" == "Y" ]; then
         printf "\r${YELLOW}Initializing Echo Test %2d seconds${NC}" "$i"
         sleep 1
     done
-    wait $pid
+    wait $pid || error_exit "Failed to enable/start xlxecho.service. Check with: systemctl status xlxecho.service"
 
     # Verify echo service started
     if ! systemctl is-active --quiet xlxecho.service; then
