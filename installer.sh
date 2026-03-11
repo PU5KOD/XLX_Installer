@@ -7,7 +7,8 @@
 # Enable strict error handling
 # -e  : exit immediately on any command returning non-zero
 # -o pipefail : pipeline exit code reflects the first failed command
-set -eo pipefail
+set -euo pipefail
+IFS=$'\n\t'
 
 #  INITIAL CHECKS
 #  1. Check if running as root, with automatic relaunch
@@ -71,13 +72,13 @@ width=$(( cols < MAX_WIDTH ? cols : MAX_WIDTH ))
 
 #  7. Function to create different types of lines adjusted to length
 line_type1() {
-    printf "%${width}s\n" | tr ' ' '_'
+    printf '%*s\n' "$width" '' | tr ' ' '_'
 }
 line_type2() {
-    printf "%${width}s\n" | tr ' ' '='
+    printf '%*s\n' "$width" '' | tr ' ' '='
 }
 line_type3() {
-    printf "%${width}s\n" | tr ' ' ':'
+    printf '%*s\n' "$width" '' | tr ' ' ':'
 }
 
 #  8. Function to display text with adjusted line breaks
@@ -90,7 +91,8 @@ SEPQUE="_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_"
 #  9. Parameter definition
 XLXINS=$(pwd)
 USRSRC="/usr/src"
-HOMEIP=$(hostname -I | awk '{print $1}')
+HOMEIP=$(hostname -I 2>/dev/null | awk '{print $1}')
+HOMEIP=${HOMEIP:-127.0.0.1}
 PUBLIP=$(curl -m 5 -s -f https://v4.ident.me || curl -m 5 -s -f https://api4.ipify.org || true)
 if [ -z "$PUBLIP" ]; then
     echo "Warning: Could not determine public IP address"
@@ -106,7 +108,27 @@ WEBDIR="/var/www/html/xlxd"
 XLXDIR="/xlxd"
 ACCEPT="| [ENTER] to accept..."
 SSL_OK=0
-DEPAPP="git git-core make gcc g++ pv sqlite3 apache2 php libapache2-mod-php php-cli php-xml php-mbstring php-curl php-sqlite3 build-essential vnstat certbot python3-certbot-apache"
+DEPAPP=(
+git
+git-core
+make
+gcc
+g++
+pv
+sqlite3
+apache2
+php
+libapache2-mod-php
+php-cli
+php-xml
+php-mbstring
+php-curl
+php-sqlite3
+build-essential
+vnstat
+certbot
+python3-certbot-apache
+)
 
 #  10. Color palette
 NC='\033[0m'
@@ -184,7 +206,7 @@ error_exit() {
 
 #  14. Escape special characters for use in sed replacement strings
 escape_sed() {
-    printf '%s\n' "$1" | sed 's/[&|/\]/\\&/g'
+    printf '%s\n' "$1" | sed 's/[\/&|\\]/\\&/g'
 }
 
 #  15. Utility: validate module against MODQTD
@@ -477,6 +499,7 @@ question_07() {
         printf "> "
         read -r COMMENT
         COMMENT=${COMMENT:-"$COMMENT_DEFAULT"}
+
         if [ ${#COMMENT} -le 100 ]; then
             break
         else
@@ -497,6 +520,7 @@ question_08() {
         printf "> "
         read -r HEADER
         HEADER=${HEADER:-"$HEADER_DEFAULT"}
+
         if [ ${#HEADER} -le 25 ]; then
             break
         else
@@ -517,10 +541,11 @@ question_09() {
         printf "> "
         read -r FOOTER
         FOOTER=${FOOTER:-"$FOOTER_DEFAULT"}
-        if [ ${#FOOTER} -le 100 ]; then
+
+        if [ ${#FOOTER} -le 50 ]; then
             break
         else
-            msg_caution "Footer must be max 100 characters. Please try again!"
+            msg_caution "Footer must be max 50 characters. Please try again!"
         fi
     done
     print_yellow "Using: $FOOTER"
@@ -686,17 +711,12 @@ question_16() {
     echo ""
     echo "$SEPQUE"
     echo ""
+
     if [[ "$AUTOLINK" -eq 1 ]]; then
 
-        # Determine available modules based on MODQTD
+        # Determine last valid module letter
         LAST_INDEX=$((MODQTD - 1))
         LAST_LETTER=$(printf "\\$(printf '%03o' $((65 + LAST_INDEX)))")
-
-        # Build array of valid modules
-        VALMOD=()
-        for ((i=0; i<MODQTD; i++)); do
-            VALMOD+=("$(printf "\\$(printf '%03o' $((65 + i)))")")
-        done
 
         # Determine smart suggestion
         if (( MODQTD >= 3 )); then
@@ -707,35 +727,42 @@ question_16() {
             SUGGESTED="A"
         fi
 
-        # Smart display of available modules
+        # Display choices
         if (( MODQTD <= 3 )); then
-            print_wrapped "16. Module to Auto-link YSF. (One of ${VALMOD[*]})"
+            printf -v LIST "%s " {A..Z}
+            LIST=${LIST:0:$((MODQTD*2))}
+            print_wrapped "16. Module to Auto-link YSF. (One of ${LIST% })"
         else
             print_wrapped "16. Module to Auto-link YSF. (Choose from A to $LAST_LETTER)"
         fi
 
         print_gray "Suggested: $SUGGESTED $ACCEPT"
 
-        # Single loop handles first attempt and retries uniformly
+        LAST_ASCII=$((65 + LAST_INDEX))
+
         while true; do
             printf "> "
             read -r MODAUTO
             MODAUTO=${MODAUTO:-$SUGGESTED}
-            MODAUTO=$(echo "$MODAUTO" | tr '[:lower:]' '[:upper:]')
+            MODAUTO=${MODAUTO^^}
 
-            if [[ " ${VALMOD[*]} " =~ " $MODAUTO " ]]; then
+            # Convert input to ASCII
+            ASCII=$(printf "%d" "'$MODAUTO")
+
+            if (( ASCII >= 65 && ASCII <= LAST_ASCII )); then
                 break
             fi
 
             if (( MODQTD <= 3 )); then
-                msg_caution "Invalid entry. Valid modules are: ${VALMOD[*]}"
+                msg_caution "Invalid entry. Valid modules are: ${LIST% }"
             else
-                msg_caution "Invalid entry. Choose from A to $LAST_LETTER."
+                msg_caution "Invalid entry. Choose from A to $LAST_LETTER"
             fi
         done
 
         print_yellow "Using: $MODAUTO"
     fi
+
     echo ""
 }
 
@@ -799,7 +826,7 @@ while true; do
 
     review_settings
 
-    print_yellow "Are these settings correct? (YES/NO) $ACCEPT"
+    print_yellow "Settings correct? Press [ENTER] to confirm, or type a question number to edit it:"
     printf "> "
     read -r CONFIRM
     CONFIRM=${CONFIRM:-YES}
@@ -810,12 +837,7 @@ while true; do
         break
     fi
 
-    if [[ "$CONFIRM" == "NO" ]]; then
-        print_yellow "Enter the question number you want to edit:"
-        printf "> "
-        read -r EDIT_NUMBER
-
-        case "$EDIT_NUMBER" in
+    case "$CONFIRM" in
             1) question_01 ;;
             2) question_02 ;;
             3) question_03 ;;
@@ -838,7 +860,7 @@ while true; do
                     print_gray "Echo Test removed. Module minimum is now 1."
                 fi
                 # If Auto-link is enabled, validate module
-                if [[ "$AUTOLINK" -eq 1 && -n "$MODAUTO" ]]; then
+                if [[ "$AUTOLINK" -eq 1 && -n "${MODAUTO:-}" ]]; then
                     if ! is_module_valid "$MODAUTO"; then
                         echo ""
                         msg_caution "Selected YSF Auto-link module is no longer valid, choose another."
@@ -848,7 +870,7 @@ while true; do
                 ;;
             12)
                 question_12
-                if [[ "$AUTOLINK" -eq 1 && -n "$MODAUTO" ]]; then
+                if [[ "$AUTOLINK" -eq 1 && -n "${MODAUTO:-}" ]]; then
                     if ! is_module_valid "$MODAUTO"; then
                         print_gray "Module range changed. Please reconfigure question 16."
                         question_16
@@ -877,10 +899,9 @@ while true; do
                 fi
                 ;;
             *)
-                msg_caution "Invalid question number."
+                msg_caution "Invalid input. Press [ENTER] to confirm or enter a question number (1-16)."
                 ;;
         esac
-    fi
 
 done
 
@@ -890,8 +911,9 @@ echo ""
 center_wrap_color $BLUE_BRIGHT "$ICON_INFO UPDATING OS..."
 center_wrap_color $BLUE "=================="
 echo ""
-apt update || error_exit "Failed to update package lists. Check your internet connection or package manager configuration."
-apt full-upgrade -y || error_exit "Failed to upgrade packages. Check your internet connection or package manager configuration."
+
+apt-get update || error_exit "Failed to update package lists. Check your internet connection or package manager configuration."
+apt-get full-upgrade -y || error_exit "Failed to upgrade packages. Check your internet connection or package manager configuration."
 
 #  Apply timezone only if it's NOT the system timezone.
 echo ""
@@ -917,7 +939,7 @@ if [ "$AVAIL_SPACE" -lt 1048576 ]; then
     error_exit "Insufficient disk space. At least 1GB required in /usr/src"
 fi
 
-apt -y install $DEPAPP || error_exit "Failed to install dependencies. Check package manager configuration."
+apt-get install -y "${DEPAPP[@]}" || error_exit "Failed to install dependencies. Check package manager configuration."
 
 PHPVER=$(php -v | head -n1 | awk '{print $2}' | cut -d. -f1,2)
 if [ -z "$PHPVER" ]; then
@@ -998,12 +1020,10 @@ echo "Downloading DMR ID file..."
 FILE_SIZE=$(wget --spider --server-response "$DMRURL" 2>&1 | grep -i Content-Length | awk '{print $2}' || true)
 if [ -z "$FILE_SIZE" ]; then
     echo "Downloading..."
-    wget -q -O - "$DMRURL" | pv --force -p -t -r -b > /xlxd/dmrid.dat \
-        || error_exit "Failed to download DMR ID file"
+    wget -q -O - "$DMRURL" | pv --force -p -t -r -b > /xlxd/dmrid.dat || error_exit "Failed to download DMR ID file"
 else
     echo "File size: $FILE_SIZE bytes"
-    wget -q -O - "$DMRURL" | pv --force -p -t -r -b -s "$FILE_SIZE" > /xlxd/dmrid.dat \
-        || error_exit "Failed to download DMR ID file"
+    wget -q -O - "$DMRURL" | pv --force -p -t -r -b -s "$FILE_SIZE" > /xlxd/dmrid.dat || error_exit "Failed to download DMR ID file"
 fi
 if [ ! -s /xlxd/dmrid.dat ]; then
     error_exit "DMR ID file is empty"
@@ -1021,8 +1041,7 @@ TERMXLX="/xlxd/xlxd.terminal"
 # Safely escape variables for sed
 PUBLIP_ESC=$(escape_sed "$PUBLIP")
 
-# Create module list - MODQTD already validated during user input (question_12 function: 1-26 range)
-# Defensive assertion in case validation is bypassed
+# Create module list
 if [ "$MODQTD" -lt 1 ] || [ "$MODQTD" -gt 26 ]; then
     error_exit "MODQTD out of valid range (1-26): $MODQTD"
 fi
@@ -1030,19 +1049,15 @@ fi
 MODLIST=$(echo {A..Z} | tr -d ' ' | head -c "$MODQTD")
 MODLIST_ESC=$(escape_sed "$MODLIST")
 
-sed -i "s|#address|address $PUBLIP_ESC|g" "$TERMXLX" \
-    || error_exit "Failed to apply address to $TERMXLX"
-sed -i "s|#modules|modules $MODLIST_ESC|g" "$TERMXLX" \
-    || error_exit "Failed to apply modules to $TERMXLX"
+sed -i "s|#address|address $PUBLIP_ESC|g" "$TERMXLX" || error_exit "Failed to apply address to $TERMXLX"
+sed -i "s|#modules|modules $MODLIST_ESC|g" "$TERMXLX" || error_exit "Failed to apply modules to $TERMXLX"
 cp "$USRSRC/xlxd/scripts/xlxd.service" /etc/systemd/system/ || error_exit "Failed to copy xlxd.service"
 chmod 644 /etc/systemd/system/xlxd.service
 
 XRFNUM_ESC=$(escape_sed "$XRFNUM")
 HOMEIP_ESC=$(escape_sed "$HOMEIP")
-sed -i \
-    -e "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM_ESC $HOMEIP_ESC 127.0.0.1|g" \
-    /etc/systemd/system/xlxd.service \
-    || error_exit "Failed to apply reflector identity to xlxd.service"
+sed -i -e "s|XLXXXX 172.23.127.100 127.0.0.1|$XRFNUM_ESC $HOMEIP_ESC 127.0.0.1|g" \
+    /etc/systemd/system/xlxd.service || error_exit "Failed to apply reflector identity to xlxd.service"
 
 # Comment out the line "ECHO 127.0.0.1 E" in /xlxd/xlxd.interlink if Echo Test is not installed
 if [ "$INSTALL_ECHO" == "N" ]; then
@@ -1050,23 +1065,12 @@ if [ "$INSTALL_ECHO" == "N" ]; then
         || error_exit "Failed to comment out ECHO line in /xlxd/xlxd.interlink"
 fi
 
-# Creates daily update of users.db, checks if crontab is installed otherwise use systemd
-if command -v crontab &>/dev/null; then
-    echo "crontab found, adding entry..."
-    (crontab -l 2>/dev/null; echo "0 3 * * * wget -O /xlxd/users_db/user.csv https://radioid.net/static/user.csv && php /xlxd/users_db/create_user_db.php") | crontab - \
-        || error_exit "Failed to install crontab entry"
-    echo "Entry added successfully!"
-else
-    echo "crontab is not installed, using systemd..."
-    cp "$XLXINS/templates/update_XLX_db.service" /etc/systemd/system/ \
-        || error_exit "Failed to copy update_XLX_db.service"
-    cp "$XLXINS/templates/update_XLX_db.timer" /etc/systemd/system/ \
-        || error_exit "Failed to copy update_XLX_db.timer"
-    chmod 644 /etc/systemd/system/update_XLX_db.*
-    systemctl daemon-reload
-    systemctl enable --now update_XLX_db.timer \
-        || error_exit "Failed to enable update_XLX_db.timer"
-fi
+# Creates daily update of users.db using systemd timer
+echo "Creating user_db update service..."
+cp "$XLXINS/templates/update_XLX_db.service" /etc/systemd/system/ || error_exit "Failed to copy update_XLX_db.service"
+cp "$XLXINS/templates/update_XLX_db.timer" /etc/systemd/system/ || error_exit "Failed to copy update_XLX_db.timer"
+chmod 644 /etc/systemd/system/update_XLX_db.*
+# daemon-reload and timer activation run later, after all unit files are in place (see systemctl daemon-reload below)
 echo ""
 msg_success "Components copied and configured!"
 echo ""
@@ -1147,20 +1151,16 @@ TIMEZONE_ESC=$(escape_sed "$TIMEZONE")
 sed -i "s|^;\\?date\\.timezone\\s*=.*|date.timezone = \"$TIMEZONE_ESC\"|" /etc/php/"$PHPVER"/apache2/php.ini \
     || error_exit "Failed to set timezone in /etc/php/$PHPVER/apache2/php.ini"
 
-# Detect Apache user
-# || true prevents set -e if grep finds no apache/httpd process (falls back to www-data below)
+# Detect Apache user or use www-data
 APACHE_USER=$(ps aux | grep -E '[a]pache|[h]ttpd' | grep -v root | head -1 | awk '{print $1}' || true)
 if [ -z "$APACHE_USER" ]; then
     APACHE_USER="www-data"
 fi
 mv "$WEBDIR/users_db/" /xlxd/ || error_exit "Failed to move users_db directory"
 echo "Updating permissions..."
-chown "$APACHE_USER:$APACHE_USER" /var/log/xlxd.xml \
-    || error_exit "Failed to set ownership on /var/log/xlxd.xml (user: $APACHE_USER)"
-chown -R "$APACHE_USER:$APACHE_USER" "$WEBDIR/" \
-    || error_exit "Failed to set ownership on $WEBDIR (user: $APACHE_USER)"
-chown -R "$APACHE_USER:$APACHE_USER" /xlxd/ \
-    || error_exit "Failed to set ownership on /xlxd (user: $APACHE_USER)"
+chown "$APACHE_USER:$APACHE_USER" /var/log/xlxd.xml || error_exit "Failed to set ownership on /var/log/xlxd.xml (user: $APACHE_USER)"
+chown -R "$APACHE_USER:$APACHE_USER" "$WEBDIR/" || error_exit "Failed to set ownership on $WEBDIR (user: $APACHE_USER)"
+chown -R "$APACHE_USER:$APACHE_USER" /xlxd/ || error_exit "Failed to set ownership on /xlxd (user: $APACHE_USER)"
 
 # Set proper permissions: 755 for directories, 644 for regular files, 755 for executables
 find /xlxd -type d -exec chmod 755 {} \;
@@ -1184,12 +1184,13 @@ if [ -d /xlxd/users_db ]; then
 fi
 
 /bin/bash /xlxd/users_db/update_db.sh || msg_warn "Warning: Failed to update user database"
-# a2ensite/a2dissite can return non-zero if already enabled/disabled — || true prevents set -e
 /usr/sbin/a2ensite "$XLXDOMAIN".conf 2>/dev/null | head -n1 || true
 /usr/sbin/a2dissite 000-default 2>/dev/null | head -n1 || true
-# daemon-reload must run before starting Apache so new unit files are recognised
+
+# daemon-reload must run before starting all services
 systemctl daemon-reload || error_exit "Failed to reload systemd daemon"
-# stop may fail legitimately if apache2 is not yet running on a fresh install
+
+#  Start apache service
 systemctl stop apache2 >/dev/null 2>&1 || true
 systemctl start apache2 >/dev/null 2>&1 || error_exit "Failed to start Apache"
 echo ""
@@ -1220,6 +1221,8 @@ center_wrap_color $BLUE_BRIGHT "$ICON_INFO STARTING $XRFNUM REFLECTOR..."
 center_wrap_color $BLUE "================================"
 echo ""
 echo ""
+
+#  Starting xlxd.service
 systemctl enable --now xlxd.service >> "$LOGFILE" 2>&1 &
 pid=$!
 for ((i=10; i>0; i--)); do
@@ -1233,6 +1236,17 @@ if ! systemctl is-active --quiet xlxd.service; then
     msg_warn "Warning: xlxd service may not have started correctly. Check with: systemctl status xlxd"
 fi
 
+#  Starting users_db timer
+echo ""
+systemctl enable --now update_XLX_db.timer >> "$LOGFILE" 2>&1 &
+pid=$!
+for ((i=5; i>0; i--)); do
+    printf "\r${YELLOW}Initializing users_db %2d seconds${NC}" "$i"
+    sleep 1
+done
+wait $pid || error_exit "Failed to enable/start update_XLX_db.timer. Check with: systemctl status update_XLX_db.timer"
+
+#  Starting xlx_log service
 echo ""
 systemctl enable --now xlx_log.service >> "$LOGFILE" 2>&1 &
 pid=$!
@@ -1289,6 +1303,21 @@ if systemctl is-active --quiet xlx_log.service; then
     msg_success "XLX log service is running"
 else
     msg_error "XLX log service is not running"
+    VALIDATION_FAILED=1
+fi
+
+# Check if update_XLX_db.service file exist
+if [ -f "/etc/systemd/system/update_XLX_db.service" ]; then
+    msg_success "update_XLX_db.service file found"
+else
+    msg_error "update_XLX_db.service files not found at expected location"
+fi
+
+# Check if update_XLX_db.timer is running
+if systemctl is-active --quiet update_XLX_db.timer; then
+    msg_success "Update users_db timer is running"
+else
+    msg_error "Update users_db timer is not running"
     VALIDATION_FAILED=1
 fi
 
