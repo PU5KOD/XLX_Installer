@@ -66,8 +66,8 @@ The installer provides native **systemd services**, replacing original XLXD `ini
 
 - `xlxd.service`
 - `xlx_log.service`
+- `update_XLX_db.service` (update timers)
 - `xlxecho.service` (if Echo Test is enabled)
-- Optional update timers
 
 This brings better reliability, logging, restart behavior, and dependency control.
 
