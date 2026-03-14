@@ -183,7 +183,7 @@ sudo ./installer.sh
 | **Installation** | `/xlxd/` |
 | **Source Folders** | `/usr/src/xlxd/`<br>`/usr/src/XLXEcho/`<br>`/usr/src/XLX_Dark_Dashboard/`<br>`/usr/src/XLX_Installer/` |
 | **Log Files** | `/var/log/xlxd*`<br>`/var/log/xlx.log`<br>`/var/log/xlxecho.log` |
-| **Services** | `/etc/systemd/system/xlxd.service`<br>`/etc/systemd/system/xlxecho.service`<br>`/etc/systemd/system/xlx_log.service` |
+| **Services** | `/etc/systemd/system/xlxd.service`<br>`/etc/systemd/system/xlxecho.service`<br>`/etc/systemd/system/xlx_log.service`<br>`update_XLX_db.service`<br>`update_XLX_db.timer` |
 | **Dashboard** | `/var/www/html/xlxd/` |
 | **Configuration** | `/var/www/html/xlxd/pgs/config.inc.php` |
 
