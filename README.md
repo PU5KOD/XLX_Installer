@@ -11,7 +11,7 @@
 **Automated installation script for XLX multi-mode reflectors**  
 Supporting D-Star • C4FM • DMR protocols
 
-[Features](#-features) • [Quick Start](#-quick-start) • [Installation](#-installation-process) • [Configuration](#%EF%B8%8F-firewall-configuration)
+[Features](#-features) • [Quick Start](#-quick-start) • [Installation](#-installation-process) • [Configuration](#%EF%B8%8F-firewall-configuration) • [User Manager](#-user-manager)
 
 </div>
 
@@ -32,6 +32,7 @@ This project simplifies the installation of XLX reflectors with minimal user int
 - ✅ **Optional Echo Test** (Parrot) service to audio tests
 - ✅ **Compatible** with Debian 10+ (13 recommended), Ubuntu, RaspiOS, Armbian, etc...
 - ✅ **Full uninstall support**
+- ✅ **Built-in User Manager** for whitelist, dashboard access and RadioID database
 
 > **Note:** D-Star integration with other modes still requires AMBE chips. For D-Star-only or YSF/DMR reflectors, no additional hardware is needed.
 
@@ -48,17 +49,18 @@ This project simplifies the installation of XLX reflectors with minimal user int
 | 📊 **Real-time Monitoring** | Live connection tracking and statistics |
 | 🌍 **YSF Auto-link** | Configurable automatic linking for YSF |
 | 🎯 **Auto-update** | Automatic real-time users database setup |
+| 👥 **User Manager** | Terminal tool to manage users, whitelist and passwords |
 
 ### ✔ Dashboard Features
 The included dashboard is a dark-theme fork with major improvements:
 
-- Real-time multi-TX module detection
-- Live TX timers and pulsing highlight animation
+- Real-time multi-TX module detection with pulsing highlight animation and live TX timers
+- Live duration counter for connected stations, updating every second without page reload
 - Responsive layout for desktop and mobile
-- Live duration counter for connected stations
-- 30‑day activity history
-- Module activity chart (via Chart.js)
-- SQLite operator database (call, name, city)
+- 30‑day activity history and module activity chart (via Chart.js, independent 60-second refresh)
+- SQLite operator database (call, name, city) displayed in Recent Activity and Connected Stations tabs
+- Filter-aware auto-refresh — pauses when a callsign or module filter is active
+- Browser tab badge showing connected station count and active TX callsign
 - Hidden tabs support and others via `config.inc.php`
 
 ### ✔ Systemd Integration
@@ -186,6 +188,10 @@ sudo ./installer.sh
 | **Services** | `/etc/systemd/system/xlxd.service`<br>`/etc/systemd/system/xlxecho.service`<br>`/etc/systemd/system/xlx_log.service`<br>`update_XLX_db.service`<br>`update_XLX_db.timer` |
 | **Dashboard** | `/var/www/html/xlxd/` |
 | **Configuration** | `/var/www/html/xlxd/pgs/config.inc.php` |
+| **User Manager** | `/xlxd/users_db/reflector_user_manager.sh` |
+| **RadioID Database** | `/xlxd/users_db/users_base.csv` |
+| **Whitelist** | `/xlxd/xlxd.whitelist` |
+| **Dashboard Access** | `/var/www/restricted/.htpasswd` |
 
 ---
 
@@ -213,6 +219,51 @@ sudo systemctl status xlxd.service
 # Watch live logs
 sudo tail -f /var/log/xlx.log
 ```
+
+---
+
+## 👥 User Manager
+
+The installer includes `reflector_user_manager.sh`, a unified terminal tool for all user administration tasks. Instead of running separate scripts, everything is available from a single two-level interactive menu.
+
+```bash
+sudo /xlxd/users_db/reflector_user_manager.sh
+```
+
+### Menu Structure
+
+```
+Main menu
+├── 1) Database (RadioID)
+│   ├── 1) Add / Edit record
+│   ├── 2) Delete record
+│   ├── 3) List records by Callsign
+│   ├── 4) Search records (filter)
+│   ├── 5) Create / Update SQL database
+│   └── X) Back
+└── 2) Access Control
+    ├── 1) Add user       (whitelist + dashboard)
+    ├── 2) Reset password (dashboard)
+    ├── 3) Remove user    (whitelist + dashboard)
+    ├── 4) Look up user   (whitelist + dashboard)
+    ├── 5) List pending   (password not yet changed)
+    ├── 6) List whitelist (all callsigns)
+    └── X) Back
+```
+
+### Key Capabilities
+
+| Feature | Description |
+|---------|-------------|
+| 📋 **RadioID Database** | Add, edit, delete and search records in `users_base.csv` |
+| 🔍 **Filtered Search** | Case-insensitive partial search by callsign, DMRID, name, city or country — with pagination (25 records/page) |
+| 🔑 **Password Management** | Generate and reset secure 12-character dashboard passwords |
+| 📡 **Whitelist Control** | Add and remove callsigns from `xlxd.whitelist` with confirmation |
+| 🗂️ **Whitelist Listing** | Display all active whitelist entries in auto-sized columns |
+| ⏳ **Pending List** | Track users who have not yet changed their initial password |
+| 🔄 **SQL Sync** | Trigger `create_user_db.php` to rebuild the SQLite database from the CSV |
+
+> For full documentation see [REFLECTOR_USER_MANAGER.md](REFLECTOR_USER_MANAGER.md).
 
 ---
 
