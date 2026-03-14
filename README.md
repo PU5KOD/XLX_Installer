@@ -3,7 +3,7 @@
 <div align="center">
 
 ![XLX Version](https://img.shields.io/badge/XLX-v2.5.3-blue)
-![Dashboard Version](https://img.shields.io/badge/dash-3.2.1-blue)
+![Dashboard Version](https://img.shields.io/badge/Dashboard-3.2.1-blue)
 ![Debian](https://img.shields.io/badge/Debian-10%2B-red)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Maintained](https://img.shields.io/badge/maintained-yes-brightgreen)
