@@ -51,12 +51,12 @@ center_wrap_color() {
 
 # Start of uninstallation process
 clear
-line_type1
+line_type2
 echo ""
 center_wrap_color "\033[1;34m" "XLX Reflector Uninstaller"
 center_wrap_color "\033[1;34m" "This script will remove the XLX Reflector, its dashboard, and related configurations."
 echo ""
-line_type1
+line_type2
 
 # List available Apache sites and ask user to pick the reflector domain
 while true; do
