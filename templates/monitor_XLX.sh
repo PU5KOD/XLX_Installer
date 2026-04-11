@@ -9,8 +9,8 @@ if ! command -v curl >/dev/null 2>&1; then
 fi
 
 # Configurações do Telegram
-TELEGRAM_API="8543190228:AAGCQ3W26_hOPIyiCyQIOE858B3nPg9vpjo"
-CHAT_ID="1074921232"
+TELEGRAM_API="1234567890:1A2B3C4D5_1a2b3c4d5e6f7g8h9i0j1k2l3"
+CHAT_ID="1234567890"
 
 # Parâmetro para ativar/desativar o card (preview do link): 1 = ativado, 0 = desativado
 ENABLE_PREVIEW=0
