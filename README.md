@@ -19,7 +19,7 @@ Supporting D-Star • C4FM • DMR protocols
 
 ## 📖 About the Project
 
-This project simplifies the installation of XLX reflectors with minimal user intervention. Developed by **Daniel K. ([PU5KOD](https://www.qrz.com/db/PU5KOD))**, this installer automates the setup of the XLX reflector created by [LX3JL](https://github.com/LX3JL/xlxd) and includes a customized dark theme dashboard. The goal is to make deploying an XLX reflector **easy, reliable, and maintainable**!
+This project simplifies the installation of XLX reflectors with minimal user intervention. Developed by **Daniel K. ([PP5PK](https://www.qrz.com/db/PP5PK))**, this installer automates the setup of the XLX reflector created by [LX3JL](https://github.com/LX3JL/xlxd) and includes a customized dark theme dashboard. The goal is to make deploying an XLX reflector **easy, reliable, and maintainable**!
 
 **Upon completion, you'll have a fully functional public D-Star/YSF/DMR XLX reflector with monitoring dashboard!** 🎉
 
@@ -110,7 +110,7 @@ The installer will request the following information:
 | 01 | 3-digit XLX reflector | `300`, `US1`, `BRA` | - |
 | 02 | Dashboard FQDN | `xlxbra.net` | - |
 | 03 | Sysop email address | `xlxref@gmail.com` | - |
-| 04 | Sysop callsign | `PU5KOD` | - |
+| 04 | Sysop callsign | `PP5PK` | - |
 | 05 | Reflector country | `Germany` | - |
 | 06 | Time Zone | `Europe/Berlin` | Detected |
 | 07 | Comment for XLX list | `XLX300 Reflector...` | - |
@@ -141,7 +141,7 @@ sudo apt install git -y
 
 # Clone repository
 cd /usr/src/
-sudo git clone https://github.com/PU5KOD/XLX_Installer.git
+sudo git clone https://github.com/PP5PK/XLX_Installer.git
 
 # Run installer
 cd XLX_Installer/ && sudo chmod +x *.sh
@@ -314,12 +314,12 @@ No leftovers.
 |---------|--------|-------------|
 | **XLX Reflector** | [LX3JL](https://github.com/LX3JL/xlxd) | Original XLX reflector software |
 | **XLX Forum Home** | [LX1IQ](https://xlxbbs.epf.lu) | Official XLX Forum / Support |
-| **XLX Dark Dashboard** | [PU5KOD](https://github.com/PU5KOD/XLX_Dark_Dashboard) | Dark themed XLX dashboard |
+| **XLX Dark Dashboard** | [PP5PK](https://github.com/PP5PK/XLX_Dark_Dashboard) | Dark themed XLX dashboard |
 | **Original Installer Idea** | [N5AMD](https://github.com/n5amd/xlxd-debian-installer) | Initial Debian installer concept |
 | **YSF Registration** | [KC1AWV](https://dvref.com) | YSF Reflector registration service |
 | **Echo Test Service** | [Narspt](https://github.com/narspt/XLXEcho) | XLX Echo Test implementation |
 | **SSL Certification** | [Certbot](https://certbot.eff.org/) | Free SSL/TLS certificates |
-| **This Installer** | [PU5KOD](https://www.qrz.com/db/PU5KOD) | Automated installation script |
+| **This Installer** | [PP5PK](https://www.qrz.com/db/PP5PK) | Automated installation script |
 
 ---
 
@@ -327,7 +327,7 @@ No leftovers.
 
 If you encounter issues or have questions:
 
-- 📧 Contact the maintainer: [PU5KOD](https://www.qrz.com/db/PU5KOD)
+- 📧 Contact the maintainer: [PP5PK](https://www.qrz.com/db/PP5PK)
 - 🐛 Open an issue on GitHub
 - 💬 Join the amateur radio community discussions
 
