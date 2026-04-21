@@ -95,7 +95,7 @@ Visit any active reflector dashboard to see which XLX suffixes are in use. Any u
 
 ### Step 1: Configure Firewall Ports
 
-**Before running the installer**, ensure all required ports are open and forwarded (see [Firewall Configuration](#-firewall-configuration)).
+**Before running the installer**, ensure all required ports are open and forwarded (see [Firewall Configuration](#%EF%B8%8F-firewall-configuration)).
 
 ### Step 2: Run Installation
 
