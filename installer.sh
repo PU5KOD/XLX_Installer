@@ -100,9 +100,9 @@ if [ -z "$PUBLIP" ]; then
 fi
 NETACT=$(ip -o addr show up | awk '{print $2}' | grep -v lo | head -n1 || true)
 INFREF="https://xlxbbs.epf.lu/"
-XLXREP="https://github.com/PU5KOD/xlxd.git"
-XLXECO="https://github.com/PU5KOD/XLXEcho.git"
-XLXDSH="https://github.com/PU5KOD/XLX_Dark_Dashboard.git"
+XLXREP="https://github.com/PP5PK/xlxd.git"
+XLXECO="https://github.com/PP5PK/XLXEcho.git"
+XLXDSH="https://github.com/PP5PK/XLX_Dark_Dashboard.git"
 DMRURL="http://xlxapi.rlx.lu/api/exportdmr.php"
 WEBDIR="/var/www/html/xlxd"
 XLXDIR="/xlxd"
