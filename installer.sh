@@ -1064,12 +1064,6 @@ if [ "$INSTALL_ECHO" == "N" ]; then
         || error_exit "Failed to comment out ECHO line in /xlxd/xlxd.interlink"
 fi
 
-# Creates daily update of users.db using systemd timer
-echo "Creating user_db update service..."
-cp "$XLXINS/templates/update_XLX_db.service" /etc/systemd/system/ || error_exit "Failed to copy update_XLX_db.service"
-cp "$XLXINS/templates/update_XLX_db.timer" /etc/systemd/system/ || error_exit "Failed to copy update_XLX_db.timer"
-chmod 644 /etc/systemd/system/update_XLX_db.*
-# daemon-reload and timer activation run later, after all unit files are in place (see systemctl daemon-reload below)
 echo ""
 msg_success "Components copied and configured!"
 echo ""
@@ -1182,7 +1176,18 @@ if [ -d /xlxd/users_db ]; then
     find /xlxd/users_db -type f -name '*.sh' -exec chmod 755 {} \;
 fi
 
-/bin/bash /xlxd/users_db/update_db.sh || msg_warn "Warning: Failed to update user database"
+# Creates daily update of users.db using systemd timer
+echo "Creating user_db update service..."
+mv /xlxd/users_db/update_XLX_db.service /etc/systemd/system/ || error_exit "Failed to move update_XLX_db.service"
+mv /xlxd/users_db/update_XLX_db.timer /etc/systemd/system/ || error_exit "Failed to move update_XLX_db.timer"
+chmod 644 /etc/systemd/system/update_XLX_db.*
+mv /xlxd/users_db/update_db.sh /usr/local/bin/ || error_exit "Failed to move update_db.sh"
+# daemon-reload and timer activation run later, after all unit files are in place (see systemctl daemon-reload below)
+
+# Creating user database
+/bin/bash /usr/local/bin/update_db.sh || msg_warn "Warning: Failed to update user database"
+
+# Disable the default website and add Reflector's website
 /usr/sbin/a2ensite "$XLXDOMAIN".conf 2>/dev/null | head -n1 || true
 /usr/sbin/a2dissite 000-default 2>/dev/null | head -n1 || true
 
@@ -1303,6 +1308,13 @@ if systemctl is-active --quiet xlx_log.service; then
 else
     msg_error "XLX log service is not running"
     VALIDATION_FAILED=1
+fi
+
+# Check if update_db.sh file exist
+if [ -f "/usr/local/bin/update_db.sh" ]; then
+    msg_success "update_db.sh file found"
+else
+    msg_error "update_db.sh files not found at expected location"
 fi
 
 # Check if update_XLX_db.service file exist
