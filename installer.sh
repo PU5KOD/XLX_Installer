@@ -1,8 +1,7 @@
 #!/bin/bash
-# A tool to install XLXD, your own D-Star Reflector.
+# A tool to install XLX, your own D-Star Reflector.
 # For more information, please visit https://xlxbbs.epf.lu/
-# Customized by Daniel K., PU5KOD
-# Lets begin!!!
+# Created by Daniel K., PP5PK.
 
 # Enable strict error handling
 # -e  : exit immediately on any command returning non-zero
@@ -347,15 +346,15 @@ question_04() {
     echo "$SEPQUE"
     echo ""
     print_red "$ICON_WARN Mandatory"
-    print_wrapped "04. Sysop callsign. Only letters and numbers allowed, max 8 characters."
+    print_wrapped "04. Sysop callsign. Only letters and numbers allowed, max 6 characters."
     while true; do
         printf "> "
         read -r CALLSIGN
         CALLSIGN=$(echo "$CALLSIGN" | tr '[:lower:]' '[:upper:]')
-        if [[ "$CALLSIGN" =~ ^[A-Z0-9]{3,8}$ ]]; then
+        if [[ "$CALLSIGN" =~ ^[A-Z0-9]{3,6}$ ]]; then
             break
         fi
-        msg_caution "Invalid callsign. Use only letters and numbers, 3 - 8 characters."
+        msg_caution "Invalid callsign. Use only letters and numbers, 3 - 6 characters."
     done
     print_yellow "Using: $CALLSIGN"
 }
