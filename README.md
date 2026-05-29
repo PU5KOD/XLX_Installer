@@ -189,11 +189,10 @@ sudo ./installer.sh
 | **Log Files** | `/var/log/xlxd*`<br>`/var/log/xlx.log`<br>`/var/log/xlxecho.log`<br>`/var/log/update_XLX_db.log` |
 | **Services** | `/etc/systemd/system/xlxd.service`<br>`/etc/systemd/system/xlxecho.service`<br>`/etc/systemd/system/xlx_log.service`<br>`update_XLX_db.service`<br>`update_XLX_db.timer` |
 | **Dashboard** | `/var/www/html/xlxd/` |
-| **Configuration** | `/var/www/html/xlxd/pgs/config.inc.php`<br>`/etc/logrotate.d/xlx_logrotate.conf` |
+| **Configuration** | `/var/www/html/xlxd/pgs/config.inc.php`<br>`/etc/logrotate.d/xlx_logrotate.conf`<br>`/xlxd/callinghome.php`<br>`/xlxd/xlxd.blacklist`<br>`/xlxd/xlxd.whitelist`<br>`/xlxd/xlxd.interlink`<br>`/xlxd/xlxd.terminal` |
 | **User Manager** | `/xlxd/users_db/reflector_user_manager.sh` |
-| **RadioID Database** | `/xlxd/users_db/users_base.csv` |
-| **Whitelist** | `/xlxd/xlxd.whitelist` |
-| **Dashboard Access** | `/var/www/restricted/.htpasswd` |
+| **RadioID Database** | `/xlxd/users_db/users_base.csv`<br>`/xlxd/users_db/user.csv` |
+| **Dashboard Authentication** | `/var/www/restricted/.htpasswd` |
 
 ---
 
